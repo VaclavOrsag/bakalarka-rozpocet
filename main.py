@@ -1,18 +1,9 @@
-# Importujeme knihovnu Tkinter, která nám umožní vytvářet grafické uživatelské rozhraní (okna, tlačítka atd.).
-# Zkracujeme její název na 'tk' pro pohodlnější psaní.
 import tkinter as tk
+# Z našeho souboru app.py importujeme třídu App.
+from app import App
 
-# Vytvoříme hlavní okno naší aplikace.
-# Proměnná 'root' je běžně používaný název pro toto hlavní okno.
-root = tk.Tk()
-
-# Nastavíme titulek okna, který se zobrazí v jeho horní liště.
-root.title("Nástroj pro tvorbu rozpočtu")
-
-# Nastavíme počáteční rozměry okna v pixelech (šířka x výška).
-root.geometry("800x600")
-
-# Toto je klíčový příkaz, který aplikaci "spustí".
-# Udržuje okno otevřené, čeká na akce od uživatele (kliknutí, psaní) a stará se o překreslování.
-# Bez tohoto řádku by program jen problikl a hned se ukončil.
-root.mainloop()
+# Tento blok zajistí, že se kód spustí jen tehdy, když spouštíme tento soubor přímo.
+if __name__ == "__main__":
+    root = tk.Tk()  # Vytvoříme základní okno
+    app = App(root) # Vytvoříme naši aplikaci a předáme jí okno
+    root.mainloop() # Spustíme ji
