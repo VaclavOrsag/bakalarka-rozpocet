@@ -39,6 +39,18 @@ def delete_item(item_id):
     conn.commit()
     conn.close()
 
+def update_item(item_id, new_description, new_amount):
+    """Aktualizuje položku v databázi podle jejího ID."""
+    conn = sqlite3.connect('budget.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE items 
+        SET description = ?, amount = ? 
+        WHERE id = ?
+    ''', (new_description, new_amount, item_id))
+    conn.commit()
+    conn.close()
+    
 def get_total_amount():
     """Vrátí součet všech částek."""
     conn = sqlite3.connect('budget.db')
