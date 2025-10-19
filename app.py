@@ -7,6 +7,8 @@ import file_exporter
 import file_importer
 import os
 
+from tabs.sources_tab import SourcesTab
+
 class App:
     def __init__(self, root, profile_path):
         self.root = root
@@ -37,62 +39,14 @@ class App:
         notebook.add(self.tab_sources, text='Zdroje')
         notebook.add(self.tab_budget, text='Rozpočet')
         notebook.add(self.tab_analysis, text='Analýza')
-        
+
         # --- KROK 3: Naplnění záložek obsahem ---
-        self.create_sources_tab() # Vytvoříme obsah pro záložku "Zdroje"
+        self.sources_ui = SourcesTab(self.tab_sources, self)
         
         # Ostatní záložky zatím necháme prázdné s uvítacím textem
         ttk.Label(self.tab_home, text="Vítejte! Zde bude váš hlavní přehled.", font=("Arial", 16)).pack(pady=50)
         ttk.Label(self.tab_budget, text="Tato sekce je ve vývoji.\nZde budete vytvářet a spravovat rozpočty.", justify=tk.CENTER).pack(pady=50)
         ttk.Label(self.tab_analysis, text="Tato sekce je ve vývoji.\nZde budou grafy a analýzy plnění rozpočtu.", justify=tk.CENTER).pack(pady=50)
-        
-    def create_sources_tab(self):
-        """Vytvoří veškerý obsah pro záložku 'Zdroje'."""
-        
-        # Definujeme sloupce podle databáze
-        self.columns = ('id', 'datum', 'doklad', 'zdroj', 'firma', 'text', 'madati', 'dal', 'castka', 'cin', 'cislo', 'co', 'kdo', 'stredisko')
-        
-        tree_frame = ttk.Frame(self.tab_sources)
-        tree_frame.pack(fill='both', expand=True, padx=5, pady=5)
-        
-        # Nastavení Treeview
-        display_cols = [col for col in self.columns if col != 'id']
-        self.tree = ttk.Treeview(tree_frame, columns=self.columns, displaycolumns=display_cols, show='headings')
-        
-        # Nastavení hlaviček a šířky sloupců...
-        column_widths = {'id': 40, 'datum': 90, 'doklad': 80, 'zdroj': 80, 'firma': 150, 'text': 300, 'madati': 80, 'dal': 80, 'castka': 100, 'cin': 80, 'cislo': 80, 'co': 100, 'kdo': 120, 'stredisko': 120}
-        right_aligned_cols = ['madati', 'dal', 'castka']
-        for col in self.columns:
-            self.tree.heading(col, text=col.capitalize())
-            width = column_widths.get(col, 100)
-            anchor = 'e' if col in right_aligned_cols else 'w'
-            stretch = tk.NO if col == 'id' else tk.YES
-            self.tree.column(col, width=width, anchor=anchor, stretch=stretch)
-
-        self.tree.bind("<Double-1>", self.open_edit_window)
-
-        # Scrollbary
-        vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.tree.xview)
-        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-
-        vsb.pack(side='right', fill='y')
-        hsb.pack(side='bottom', fill='x')
-        self.tree.pack(side='left', fill='both', expand=True)
-        
-        # Ovládací prvky pod tabulkou
-        bottom_controls = ttk.Frame(self.tab_sources)
-        bottom_controls.pack(fill='x', pady=5)
-
-        self.delete_button = ttk.Button(bottom_controls, text="Smazat vybranou položku", command=self.delete_item)
-        self.delete_button.pack(side='left')
-        
-        self.total_label = ttk.Label(bottom_controls, text="Celkem: 0.00 Kč", font=("Arial", 14, "bold"))
-        self.total_label.pack(side='right')
-
-        # Načtení dat po vytvoření widgetů
-        self.load_items()
-        self.update_total()
 
     def _center_window(self, win):
         # ... (metoda zůstává stejná)
@@ -102,75 +56,6 @@ class App:
         x = root_x + (root_w - win_w) // 2
         y = root_y + (root_h - win_h) // 2
         win.geometry(f"+{x}+{y}")
-
-    def load_items(self):
-        # Vyčistíme stará data v Treeview
-        for i in self.tree.get_children():
-            self.tree.delete(i)
-            
-        self.all_items = db.get_all_items(self.profile_path)
-        for item in self.all_items:
-            # Převedeme všechny None hodnoty na prázdný řetězec pro zobrazení
-            display_values = ["" if v is None else v for v in item]
-            self.tree.insert('', tk.END, values=display_values)
-
-    def delete_item(self):
-        selected_item_id = self.tree.focus() # Získá ID vybraného řádku
-        if not selected_item_id:
-            return
-            
-        if not messagebox.askyesno("Potvrdit smazání", "Opravdu chcete smazat vybranou položku?"):
-            return
-        
-        # Z ID řádku získáme databázové ID (je to první hodnota)
-        item_values = self.tree.item(selected_item_id, 'values')
-        db_id = item_values[0]
-        
-        db.delete_item(self.profile_path, db_id)
-        self.load_items()
-        self.update_total()
-
-    def open_edit_window(self, event):
-        selected_item_id = self.tree.focus()
-        if not selected_item_id:
-            return
-
-        item_values = self.tree.item(selected_item_id, 'values')
-        
-        edit_win = tk.Toplevel(self.root)
-        edit_win.title("Upravit položku")
-
-        entries = {}
-        # Vytvoříme formulář pro VŠECHNY sloupce (kromě ID)
-        for i, col_name in enumerate(self.columns[1:], 1): # Začínáme od 1, abychom přeskočili ID
-            tk.Label(edit_win, text=f"{col_name.capitalize()}:").grid(row=i-1, column=0, padx=10, pady=5, sticky="w")
-            entry = tk.Entry(edit_win, width=50)
-            entry.grid(row=i-1, column=1, padx=10, pady=5, sticky="ew")
-            entry.insert(0, item_values[i])
-            entries[col_name] = entry
-        
-        def save_changes():
-            try:
-                # Shromáždíme nové hodnoty ze všech polí
-                new_values = [entries[col].get() for col in self.columns[1:]]
-                db_id = item_values[0]
-
-                db.update_item(self.profile_path, db_id, *new_values)
-                
-                self.load_items()
-                self.update_total()
-                edit_win.destroy()
-            except Exception as e:
-                messagebox.showerror("Chyba", f"Při ukládání nastala chyba: {e}")
-
-        save_button = tk.Button(edit_win, text="Uložit změny", command=save_changes)
-        save_button.grid(row=len(self.columns), column=0, columnspan=2, pady=10)
-        
-        self._center_window(edit_win)
-
-    def update_total(self):
-        total = db.get_total_amount(self.profile_path)
-        self.total_label.config(text=f"Celkem: {total:.2f} Kč")
 
     def export_csv(self):
         # ... (metoda zůstává stejná)
