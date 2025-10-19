@@ -5,11 +5,13 @@ from tkinter import filedialog
 import database as db
 import file_exporter
 import file_importer
+import os
 
 class App:
-    def __init__(self, root):
+    def __init__(self, root, profile_path):
         self.root = root
-        self.root.title("Nástroj pro tvorbu rozpočtu")
+        self.profile_path = profile_path
+        self.root.title(f"Nástroj pro tvorbu rozpočtu - {os.path.basename(profile_path)}")
         self.root.geometry("1280x800")  # Zvětšíme okno pro více sloupců
 
         # --- Menu (zůstává stejné) ---
@@ -95,7 +97,7 @@ class App:
         self.total_label.pack(side='right', padx=5, pady=10)
 
         # --- Načtení dat ---
-        db.init_db()
+        db.init_db(self.profile_path)
         self.load_items()
         self.update_total()
 
@@ -113,7 +115,7 @@ class App:
         for i in self.tree.get_children():
             self.tree.delete(i)
             
-        self.all_items = db.get_all_items()
+        self.all_items = db.get_all_items(self.profile_path)
         for item in self.all_items:
             # Převedeme všechny None hodnoty na prázdný řetězec pro zobrazení
             display_values = ["" if v is None else v for v in item]
@@ -131,7 +133,7 @@ class App:
         item_values = self.tree.item(selected_item_id, 'values')
         db_id = item_values[0]
         
-        db.delete_item(db_id)
+        db.delete_item(self.profile_path, db_id)
         self.load_items()
         self.update_total()
 
@@ -160,7 +162,7 @@ class App:
                 new_values = [entries[col].get() for col in self.columns[1:]]
                 db_id = item_values[0]
 
-                db.update_item(db_id, *new_values)
+                db.update_item(self.profile_path, db_id, *new_values)
                 
                 self.load_items()
                 self.update_total()
@@ -174,7 +176,7 @@ class App:
         self._center_window(edit_win)
 
     def update_total(self):
-        total = db.get_total_amount()
+        total = db.get_total_amount(self.profile_path)
         self.total_label.config(text=f"Celkem: {total:.2f} Kč")
 
     def export_csv(self):
@@ -192,8 +194,8 @@ class App:
         if filepath:
             choice = messagebox.askyesnocancel("Možnosti importu", "Přidat data k existujícím (Ano),\nnebo přepsat všechna data (Ne)?")
             if choice is None: return
-            if choice is False: db.delete_all_items()
-            if file_importer.import_from_excel(filepath):
+            if choice is False: db.delete_all_items(self.profile_path)
+            if file_importer.import_from_excel(filepath, self.profile_path):
                 self.load_items()
                 self.update_total()
                 messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována.")

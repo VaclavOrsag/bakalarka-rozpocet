@@ -1,9 +1,29 @@
 import tkinter as tk
-# Z našeho souboru app.py importujeme třídu App.
 from app import App
+from welcome_window import WelcomeWindow
+import database as db
 
-# Tento blok zajistí, že se kód spustí jen tehdy, když spouštíme tento soubor přímo.
 if __name__ == "__main__":
-    root = tk.Tk()  # Vytvoříme základní okno
-    app = App(root) # Vytvoříme naši aplikaci a předáme jí okno
-    root.mainloop() # Spustíme ji
+    # Vytvoříme hlavní, ale zatím skryté okno
+    root = tk.Tk()
+    root.withdraw() # Skryjeme hlavní okno
+
+    # Zobrazíme uvítací okno a počkáme, až ho uživatel zavře
+    welcome = WelcomeWindow(root)
+    root.wait_window(welcome.top) # Tento příkaz pozastaví kód, dokud se okno 'welcome.top' nezavře
+
+    # Získáme cestu k profilu, kterou si uživatel vybral
+    profile_path = welcome.selected_profile
+
+    # Pokud si uživatel vybral profil, spustíme hlavní aplikaci
+    if profile_path:
+        # Inicializujeme databázi pro nově vytvořený profil
+        db.init_db(profile_path)
+        
+        # Zobrazíme hlavní okno aplikace
+        root.deiconify() 
+        app = App(root, profile_path) # Předáme cestu k profilu hlavní aplikaci
+        root.mainloop()
+    else:
+        # Pokud si uživatel nevybral žádný profil (zavřel okno), ukončíme aplikaci
+        root.destroy()

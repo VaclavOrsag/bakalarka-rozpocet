@@ -1,7 +1,7 @@
 import pandas as pd
 import database as db
 
-def import_from_excel(filepath):
+def import_from_excel(filepath, db_path):
     """
     Načte data, nahradí prázdné hodnoty a bezpečně je převede na správné
     datové typy před vložením do databáze.
@@ -45,6 +45,7 @@ def import_from_excel(filepath):
             # Přidáme položku, jen pokud má vyplněný text
             if str(text).strip():
                 db.add_item(
+                    db_path,
                     str(datum), str(doklad), str(zdroj), str(firma), str(text),
                     madati, dal, castka, # Už posíláme bezpečně převedené floaty
                     cin, cislo,

@@ -1,8 +1,8 @@
 import sqlite3
 
-def init_db():
+def init_db(db_path):
     """Vytvoří databázový soubor a tabulku s rozšířenou strukturou."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS items (
@@ -25,9 +25,9 @@ def init_db():
     conn.commit()
     conn.close()
 
-def add_item(datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko):
+def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko):
     """Přidá novou položku se všemi sloupci do databáze."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO items (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko) 
@@ -36,34 +36,34 @@ def add_item(datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo,
     conn.commit()
     conn.close()
 
-def get_all_items():
+def get_all_items(db_path):
     """Získá všechny položky z databáze."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM items ORDER BY datum DESC") # Seřadíme od nejnovějšího
     items = cursor.fetchall()
     conn.close()
     return items
 
-def delete_item(item_id):
+def delete_item(db_path, item_id):
     """Smaže položku z databáze podle jejího ID."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
     conn.commit()
     conn.close()
 
-def delete_all_items():
+def delete_all_items(db_path):
     """Smaže VŠECHNY položky z tabulky items."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM items")
     conn.commit()
     conn.close()
     
-def update_item(item_id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko):
+def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko):
     """Aktualizuje položku v databázi podle jejího ID."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE items 
@@ -73,9 +73,9 @@ def update_item(item_id, datum, doklad, zdroj, firma, text, madati, dal, castka,
     conn.commit()
     conn.close()
 
-def get_total_amount():
+def get_total_amount(db_path):
     """Vrátí součet všech částek."""
-    conn = sqlite3.connect('budget.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT SUM(castka) FROM items")
     total = cursor.fetchone()[0]
