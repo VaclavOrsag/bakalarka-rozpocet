@@ -39,7 +39,7 @@ class App:
 
         # Zobrazíme všechny sloupce kromě 'id'
         display_cols = [col for col in self.columns if col != 'id']
-        self.tree = ttk.Treeview(tree_frame, columns=self.columns, displaycolumns=display_cols)
+        self.tree = ttk.Treeview(tree_frame, columns=self.columns, displaycolumns=display_cols, show="headings")
 
         column_widths = {
             'id': 40,
