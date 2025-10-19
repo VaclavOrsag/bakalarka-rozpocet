@@ -24,60 +24,54 @@ class App:
         file_menu.add_separator()
         file_menu.add_command(label="Konec", command=self.root.quit)
 
-        # --- Hlavní rám ---
-        main_frame = tk.Frame(self.root, padx=10, pady=10)
-        main_frame.grid(row=0, column=0, sticky='nsew')
-        self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_rowconfigure(0, weight=1)
+        # --- KROK 1: Vytvoření Notebooku (záložek) ---
+        notebook = ttk.Notebook(self.root)
+        notebook.pack(expand=True, fill='both', padx=10, pady=10)
 
-        # --- Nahrazení Listboxu za Treeview ---
+        # --- KROK 2: Vytvoření rámů pro jednotlivé záložky ---
+        self.tab_home = ttk.Frame(notebook)
+        self.tab_sources = ttk.Frame(notebook)
+        self.tab_budget = ttk.Frame(notebook)
+        self.tab_analysis = ttk.Frame(notebook)
+        notebook.add(self.tab_home, text='Home')
+        notebook.add(self.tab_sources, text='Zdroje')
+        notebook.add(self.tab_budget, text='Rozpočet')
+        notebook.add(self.tab_analysis, text='Analýza')
+        
+        # --- KROK 3: Naplnění záložek obsahem ---
+        self.create_sources_tab() # Vytvoříme obsah pro záložku "Zdroje"
+        
+        # Ostatní záložky zatím necháme prázdné s uvítacím textem
+        ttk.Label(self.tab_home, text="Vítejte! Zde bude váš hlavní přehled.", font=("Arial", 16)).pack(pady=50)
+        ttk.Label(self.tab_budget, text="Tato sekce je ve vývoji.\nZde budete vytvářet a spravovat rozpočty.", justify=tk.CENTER).pack(pady=50)
+        ttk.Label(self.tab_analysis, text="Tato sekce je ve vývoji.\nZde budou grafy a analýzy plnění rozpočtu.", justify=tk.CENTER).pack(pady=50)
+        
+    def create_sources_tab(self):
+        """Vytvoří veškerý obsah pro záložku 'Zdroje'."""
+        
         # Definujeme sloupce podle databáze
         self.columns = ('id', 'datum', 'doklad', 'zdroj', 'firma', 'text', 'madati', 'dal', 'castka', 'cin', 'cislo', 'co', 'kdo', 'stredisko')
         
-        tree_frame = tk.Frame(main_frame)
-        tree_frame.grid(row=0, column=0, sticky='nsew')
-        main_frame.grid_columnconfigure(0, weight=1)
-        main_frame.grid_rowconfigure(0, weight=1)
-
-        # Zobrazíme všechny sloupce kromě 'id'
-        display_cols = [col for col in self.columns if col != 'id']
-        self.tree = ttk.Treeview(tree_frame, columns=self.columns, displaycolumns=display_cols, show="headings")
-
-        column_widths = {
-            'id': 40,
-            'datum': 90,
-            'doklad': 80,
-            'zdroj': 80,
-            'firma': 150,
-            'text': 300,
-            'madati': 80,
-            'dal': 80,
-            'castka': 100,
-            'cin': 80,
-            'cislo': 80,
-            'co': 100,
-            'kdo': 120,
-            'stredisko': 120
-        }
+        tree_frame = ttk.Frame(self.tab_sources)
+        tree_frame.pack(fill='both', expand=True, padx=5, pady=5)
         
-        # Seznam sloupců, které chceme zarovnat doprava
-        right_aligned_cols = ['madati', 'dal', 'castka', 'cin', 'cislo']
-
-        # Projdeme v cyklu všechny sloupce a nastavíme jim hlavičku a vlastnosti
+        # Nastavení Treeview
+        display_cols = [col for col in self.columns if col != 'id']
+        self.tree = ttk.Treeview(tree_frame, columns=self.columns, displaycolumns=display_cols, show='headings')
+        
+        # Nastavení hlaviček a šířky sloupců...
+        column_widths = {'id': 40, 'datum': 90, 'doklad': 80, 'zdroj': 80, 'firma': 150, 'text': 300, 'madati': 80, 'dal': 80, 'castka': 100, 'cin': 80, 'cislo': 80, 'co': 100, 'kdo': 120, 'stredisko': 120}
+        right_aligned_cols = ['madati', 'dal', 'castka']
         for col in self.columns:
-            # Nastavíme text hlavičky (s velkým prvním písmenem)
             self.tree.heading(col, text=col.capitalize())
-            
-            # Nastavíme vlastnosti sloupce
-            width = column_widths.get(col, 100) # Výchozí šířka 100, pokud není specifikována
-            anchor = 'e' if col in right_aligned_cols else 'w' # Zarovnání doprava (east) nebo doleva (west)
-            stretch = tk.NO if col == 'id' else tk.YES # Zabráníme roztažení sloupce ID
-
+            width = column_widths.get(col, 100)
+            anchor = 'e' if col in right_aligned_cols else 'w'
+            stretch = tk.NO if col == 'id' else tk.YES
             self.tree.column(col, width=width, anchor=anchor, stretch=stretch)
 
         self.tree.bind("<Double-1>", self.open_edit_window)
 
-        # Přidání vertikálního a horizontálního scrollbaru
+        # Scrollbary
         vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.tree.xview)
         self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
@@ -86,18 +80,17 @@ class App:
         hsb.pack(side='bottom', fill='x')
         self.tree.pack(side='left', fill='both', expand=True)
         
-        # --- Tlačítka a součet pod tabulkou ---
-        bottom_controls = tk.Frame(main_frame)
-        bottom_controls.grid(row=1, column=0, sticky='ew')
+        # Ovládací prvky pod tabulkou
+        bottom_controls = ttk.Frame(self.tab_sources)
+        bottom_controls.pack(fill='x', pady=5)
 
-        self.delete_button = tk.Button(bottom_controls, text="Smazat vybranou položku", command=self.delete_item)
-        self.delete_button.pack(side='left', padx=5, pady=10)
+        self.delete_button = ttk.Button(bottom_controls, text="Smazat vybranou položku", command=self.delete_item)
+        self.delete_button.pack(side='left')
         
-        self.total_label = tk.Label(bottom_controls, text="Celkem: 0.00 Kč", font=("Arial", 14, "bold"))
-        self.total_label.pack(side='right', padx=5, pady=10)
+        self.total_label = ttk.Label(bottom_controls, text="Celkem: 0.00 Kč", font=("Arial", 14, "bold"))
+        self.total_label.pack(side='right')
 
-        # --- Načtení dat ---
-        db.init_db(self.profile_path)
+        # Načtení dat po vytvoření widgetů
         self.load_items()
         self.update_total()
 
