@@ -15,7 +15,10 @@ def export_to_csv(filepath):
             writer = csv.writer(file)
 
             # Zapíšeme hlavičku souboru (názvy sloupců)
-            writer.writerow(['ID', 'Popis', 'Částka'])
+            writer.writerow([
+                'ID', 'Datum', 'Doklad', 'Zdroj', 'Firma', 'Text', 'MD', 'D', 
+                'Částka', 'Cin', 'Číslo', 'Co', 'Kdo', 'Středisko'
+            ])
 
             # Zapíšeme všechny datové řádky
             writer.writerows(all_items)

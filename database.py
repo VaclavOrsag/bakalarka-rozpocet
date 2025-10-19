@@ -15,8 +15,8 @@ def init_db():
             madati REAL,
             dal REAL,
             castka REAL,
-            cin TEXT,
-            cislo TEXT,
+            cin INTEGER,
+            cislo INTEGER,
             co TEXT,
             kdo TEXT,
             stredisko TEXT
