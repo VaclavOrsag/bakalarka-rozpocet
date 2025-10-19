@@ -8,6 +8,9 @@ import file_importer
 import os
 
 from tabs.sources_tab import SourcesTab
+from tabs.budget_tab import BudgetTab
+from tabs.analysis_tab import AnalysisTab
+from tabs.home_tab import HomeTab
 
 class App:
     def __init__(self, root, profile_path):
@@ -41,12 +44,10 @@ class App:
         notebook.add(self.tab_analysis, text='Analýza')
 
         # --- KROK 3: Naplnění záložek obsahem ---
+        self.home_ui = HomeTab(self.tab_home, self)
         self.sources_ui = SourcesTab(self.tab_sources, self)
-        
-        # Ostatní záložky zatím necháme prázdné s uvítacím textem
-        ttk.Label(self.tab_home, text="Vítejte! Zde bude váš hlavní přehled.", font=("Arial", 16)).pack(pady=50)
-        ttk.Label(self.tab_budget, text="Tato sekce je ve vývoji.\nZde budete vytvářet a spravovat rozpočty.", justify=tk.CENTER).pack(pady=50)
-        ttk.Label(self.tab_analysis, text="Tato sekce je ve vývoji.\nZde budou grafy a analýzy plnění rozpočtu.", justify=tk.CENTER).pack(pady=50)
+        self.budget_ui = BudgetTab(self.tab_budget, self)
+        self.analysis_ui = AnalysisTab(self.tab_analysis, self)
 
     def _center_window(self, win):
         # ... (metoda zůstává stejná)
