@@ -62,7 +62,7 @@ class App:
         # ... (metoda zůstává stejná)
         filepath = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV soubory", "*.csv")])
         if filepath:
-            if file_exporter.export_to_csv(filepath):
+            if file_exporter.export_to_csv(filepath, self.profile_path):
                 messagebox.showinfo("Export úspěšný", f"Data byla úspěšně exportována.")
             else:
                 messagebox.showerror("Chyba exportu", "Při exportu dat nastala chyba.")
@@ -75,8 +75,8 @@ class App:
             if choice is None: return
             if choice is False: db.delete_all_items(self.profile_path)
             if file_importer.import_from_excel(filepath, self.profile_path):
-                self.load_items()
-                self.update_total()
+                self.sources_ui.load_items()
+                self.sources_ui.update_total()
                 messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována.")
             else:
                 messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")

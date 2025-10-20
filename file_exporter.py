@@ -1,13 +1,13 @@
 import csv
 import database as db
 
-def export_to_csv(filepath):
+def export_to_csv(filepath, db_path):
     """
     Získá všechna data z databáze a zapíše je do zadaného CSV souboru.
     """
     try:
         # Získáme všechna data z databáze
-        all_items = db.get_all_items()
+        all_items = db.get_all_items(db_path)
 
         # Otevřeme soubor pro zápis
         # newline='' zabraňuje vkládání prázdných řádků mezi záznamy
