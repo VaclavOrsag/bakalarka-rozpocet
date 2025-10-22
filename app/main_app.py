@@ -1,16 +1,17 @@
-import tkinter as tk
-from tkinter import ttk  # Nový import pro Treeview
-import tkinter.messagebox as messagebox
-from tkinter import filedialog
-import database as db
-import file_exporter
-import file_importer
 import os
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
+import tkinter.messagebox as messagebox
 
-from tabs.sources_tab import SourcesTab
-from tabs.budget_tab import BudgetTab
-from tabs.analysis_tab import AnalysisTab
-from tabs.home_tab import HomeTab
+from . import database as db
+from . import file_exporter
+from . import file_importer
+
+from ui.tabs.home_tab import HomeTab
+from ui.tabs.sources_tab import SourcesTab
+from ui.tabs.budget_tab import BudgetTab
+from ui.tabs.analysis_tab import AnalysisTab
 
 class App:
     def __init__(self, root, profile_path):

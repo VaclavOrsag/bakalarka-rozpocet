@@ -1,5 +1,5 @@
 import pandas as pd
-import database as db
+from . import database as db
 
 def import_from_excel(filepath, db_path):
     """

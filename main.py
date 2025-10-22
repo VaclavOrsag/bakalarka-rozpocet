@@ -1,7 +1,7 @@
 import tkinter as tk
-from app import App
-from welcome_window import WelcomeWindow
-import database as db
+from app.main_app import App
+from ui.welcome_window import WelcomeWindow
+import app.database as db
 
 if __name__ == "__main__":
     # Vytvoříme hlavní, ale zatím skryté okno
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     root.wait_window(welcome.top) # Tento příkaz pozastaví kód, dokud se okno 'welcome.top' nezavře
 
     # Získáme cestu k profilu, kterou si uživatel vybral
-    profile_path = welcome.selected_profile
+    profile_path = welcome.selected_profile_path
 
     # Pokud si uživatel vybral profil, spustíme hlavní aplikaci
     if profile_path:

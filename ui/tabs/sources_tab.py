@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
-import database as db
+from app import database as db
 
 class SourcesTab:
     def __init__(self, tab_frame, app_controller):

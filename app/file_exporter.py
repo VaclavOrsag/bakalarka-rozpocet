@@ -1,5 +1,5 @@
 import csv
-import database as db
+from . import database as db
 
 def export_to_csv(filepath, db_path):
     """
