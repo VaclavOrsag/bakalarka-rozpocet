@@ -41,7 +41,7 @@ class App:
         tab_budget = ttk.Frame(notebook)
         tab_analysis = ttk.Frame(notebook)
         tab_accounting = ttk.Frame(notebook)
-        
+
         notebook.add(tab_home, text='Home')
         notebook.add(tab_sources, text='Zdroje')
         notebook.add(tab_budget, text='Rozpočet')
@@ -83,6 +83,7 @@ class App:
             if file_importer.import_from_excel(filepath, self.profile_path):
                 self.sources_ui.load_items()
                 self.sources_ui.update_total()
+                self.accounting_ui.refresh_data()
                 messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována.")
             else:
                 messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
