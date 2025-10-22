@@ -19,7 +19,19 @@ def init_db(db_path):
             cislo INTEGER,
             co TEXT,
             kdo TEXT,
-            stredisko TEXT
+            stredisko TEXT,
+            kategorie_id INTEGER,
+            FOREIGN KEY (kategorie_id) REFERENCES kategorie (id)         
+        )
+    ''')
+    # NOVÁ TABULKA pro účetní osnovu
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS kategorie (
+            id INTEGER PRIMARY KEY,
+            nazev TEXT NOT NULL,
+            typ TEXT NOT NULL, -- Bude 'příjem' nebo 'výdej'
+            parent_id INTEGER, -- Odkaz na ID nadřazené kategorie
+            FOREIGN KEY (parent_id) REFERENCES kategorie (id)
         )
     ''')
     conn.commit()
@@ -81,3 +93,36 @@ def get_total_amount(db_path):
     total = cursor.fetchone()[0]
     conn.close()
     return total if total is not None else 0
+
+def get_all_categories(db_path):
+    """Získá všechny kategorie z databáze."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nazev, typ, parent_id FROM kategorie ORDER BY nazev")
+    categories = cursor.fetchall()
+    conn.close()
+    return categories
+
+def add_category(db_path, nazev, typ, parent_id):
+    """Přidá novou kategorii do databáze."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO kategorie (nazev, typ, parent_id) VALUES (?, ?, ?)", (nazev, typ, parent_id))
+    conn.commit()
+    conn.close()
+
+def update_category(db_path, category_id, new_name):
+    """Aktualizuje název existující kategorie."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE kategorie SET nazev = ? WHERE id = ?", (new_name, category_id))
+    conn.commit()
+    conn.close()
+
+def delete_category(db_path, category_id):
+    """Smaže kategorii z databáze."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM kategorie WHERE id = ?", (category_id,))
+    conn.commit()
+    conn.close()

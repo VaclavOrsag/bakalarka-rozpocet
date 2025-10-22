@@ -12,6 +12,7 @@ from ui.tabs.home_tab import HomeTab
 from ui.tabs.sources_tab import SourcesTab
 from ui.tabs.budget_tab import BudgetTab
 from ui.tabs.analysis_tab import AnalysisTab
+from ui.tabs.accounting_structure_tab import AccountingStructureTab
 
 class App:
     def __init__(self, root, profile_path):
@@ -35,20 +36,24 @@ class App:
         notebook.pack(expand=True, fill='both', padx=10, pady=10)
 
         # --- KROK 2: Vytvoření rámů pro jednotlivé záložky ---
-        self.tab_home = ttk.Frame(notebook)
-        self.tab_sources = ttk.Frame(notebook)
-        self.tab_budget = ttk.Frame(notebook)
-        self.tab_analysis = ttk.Frame(notebook)
-        notebook.add(self.tab_home, text='Home')
-        notebook.add(self.tab_sources, text='Zdroje')
-        notebook.add(self.tab_budget, text='Rozpočet')
-        notebook.add(self.tab_analysis, text='Analýza')
+        tab_home = ttk.Frame(notebook)
+        tab_sources = ttk.Frame(notebook)
+        tab_budget = ttk.Frame(notebook)
+        tab_analysis = ttk.Frame(notebook)
+        tab_accounting = ttk.Frame(notebook)
+        
+        notebook.add(tab_home, text='Home')
+        notebook.add(tab_sources, text='Zdroje')
+        notebook.add(tab_budget, text='Rozpočet')
+        notebook.add(tab_analysis, text='Analýza')
+        notebook.add(tab_accounting, text='Učetní osnova')
 
         # --- KROK 3: Naplnění záložek obsahem ---
-        self.home_ui = HomeTab(self.tab_home, self)
-        self.sources_ui = SourcesTab(self.tab_sources, self)
-        self.budget_ui = BudgetTab(self.tab_budget, self)
-        self.analysis_ui = AnalysisTab(self.tab_analysis, self)
+        self.home_ui = HomeTab(tab_home, self)
+        self.sources_ui = SourcesTab(tab_sources, self)
+        self.budget_ui = BudgetTab(tab_budget, self)
+        self.analysis_ui = AnalysisTab(tab_analysis, self)
+        self.accounting_ui = AccountingStructureTab(tab_accounting, self)
 
     def _center_window(self, win):
         # ... (metoda zůstává stejná)
