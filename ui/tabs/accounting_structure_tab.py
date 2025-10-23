@@ -78,8 +78,7 @@ class AccountingStructureTab:
 
     # --- POMOCNÉ METODY PRO UI ---
     
-    def create_treeview(self, parent_frame):
-        # ... (tato metoda zůstává beze změny) ...
+    def create_treeview(self, parent_frame):   
         tree = ttk.Treeview(parent_frame, columns=('id',), displaycolumns=(), show='tree headings')
         tree.heading('#0', text='Název kategorie')
         tree.bind("<FocusIn>", self._on_tree_focus)
@@ -87,7 +86,6 @@ class AccountingStructureTab:
         return tree
         
     def _create_scrolled_listbox(self, parent_frame, height=None):
-        # ... (tato metoda zůstává beze změny) ...
         list_frame = ttk.Frame(parent_frame)
         list_frame.pack(fill='both', expand=True, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(list_frame, orient="vertical")
@@ -103,23 +101,19 @@ class AccountingStructureTab:
     # --- METODY PRO UDÁLOSTI A NAČÍTÁNÍ DAT ---
 
     def _on_tree_focus(self, event):
-        # ... (tato metoda zůstává beze změny) ...
         self.active_tree = event.widget
 
     def _clear_other_tree_selection(self, event):
-        # ... (tato metoda zůstává beze změny) ...
         active_widget = event.widget
         other_tree = self.tree_vydaje if active_widget == self.tree_prijmy else self.tree_prijmy
         for item in other_tree.selection():
             other_tree.selection_remove(item)
 
-    def refresh_data(self):
-        # ... (tato metoda zůstává beze změny) ...
+    def refresh_data(self): 
         self.load_unassigned_list()
         self.load_categories_tree()
 
-    def load_unassigned_list(self):
-        # ... (tato metoda zůstává beze změny) ...
+    def load_unassigned_list(self):   
         for lst in [self.list_prijmy, self.list_vydaje, self.list_neurceno]:
             lst.delete(0, tk.END)
         sorted_items = db.get_unassigned_categories_by_type(self.app.profile_path)
@@ -127,8 +121,7 @@ class AccountingStructureTab:
         for item in sorted_items['výdej']: self.list_vydaje.insert(tk.END, item)
         for item in sorted_items['neurčeno']: self.list_neurceno.insert(tk.END, item)
 
-    def load_categories_tree(self):
-        # ... (tato metoda zůstává beze změny) ...
+    def load_categories_tree(self):    
         for tree in [self.tree_prijmy, self.tree_vydaje]:
             for i in tree.get_children(): tree.delete(i)
         all_categories = db.get_all_categories(self.app.profile_path)
@@ -150,8 +143,7 @@ class AccountingStructureTab:
 
     # --- METODY PRO AKCE (BUSINESS LOGIKA) ---
 
-    def get_selected_unassigned_with_type(self):
-        # ... (tato metoda zůstává beze změny) ...
+    def get_selected_unassigned_with_type(self):        
         listbox_map = {'příjem': self.list_prijmy, 'výdej': self.list_vydaje, 'neurčeno': self.list_neurceno}
         for typ, listbox in listbox_map.items():
             selected_indices = listbox.curselection()
@@ -160,8 +152,7 @@ class AccountingStructureTab:
                 return name, typ
         return None, None
     
-    def add_as_main_category(self):
-        # ... (tato metoda zůstává beze změny) ...
+    def add_as_main_category(self):        
         name, typ = self.get_selected_unassigned_with_type()
         if not name:
             messagebox.showwarning("Chyba", "Nejprve vyberte položku v jednom z levých seznamů.")
@@ -174,7 +165,6 @@ class AccountingStructureTab:
         self.refresh_data()
 
     def add_as_subcategory(self):
-        # ... (tato metoda zůstává beze změny) ...
         name, actual_type = self.get_selected_unassigned_with_type()
         if not name:
             messagebox.showwarning("Chyba", "Nejprve vyberte položku v jednom z levých seznamů.")
@@ -195,8 +185,7 @@ class AccountingStructureTab:
         db.assign_category_to_items(self.app.profile_path, name, new_category_id)
         self.refresh_data()
 
-    def delete_category(self):
-        # ... (tato metoda zůstává beze změny) ...
+    def delete_category(self):       
         if not self.active_tree:
             messagebox.showwarning("Chyba", "Nejprve vyberte kategorii ke smazání.")
             return
