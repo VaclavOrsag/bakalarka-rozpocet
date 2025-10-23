@@ -121,25 +121,48 @@ class AccountingStructureTab:
         for item in sorted_items['výdej']: self.list_vydaje.insert(tk.END, item)
         for item in sorted_items['neurčeno']: self.list_neurceno.insert(tk.END, item)
 
-    def load_categories_tree(self):    
+    def load_categories_tree(self):
+        """
+        Načte existující účetní osnovu a spolehlivě z ní sestaví
+        hierarchické stromy, bez ohledu na pořadí dat.
+        """
+        # Smažeme obsah obou stromů
         for tree in [self.tree_prijmy, self.tree_vydaje]:
-            for i in tree.get_children(): tree.delete(i)
+            for i in tree.get_children():
+                tree.delete(i)
+        
         all_categories = db.get_all_categories(self.app.profile_path)
-        category_map = {cat[0]: cat for cat in all_categories}
-        tree_items = {}
-        for cat_id, cat_data in category_map.items():
-            parent_id = cat_data[3]
-            if parent_id is None:
-                tree = self.tree_prijmy if cat_data[2] == 'příjem' else self.tree_vydaje
-                iid = tree.insert('', 'end', text=cat_data[1], values=(cat_id,), open=True)
-                tree_items[cat_id] = iid
-        for cat_id, cat_data in category_map.items():
-            parent_id = cat_data[3]
-            if parent_id in tree_items:
-                tree = self.tree_prijmy if cat_data[2] == 'příjem' else self.tree_vydaje
-                parent_iid = tree_items[parent_id]
-                iid = tree.insert(parent_iid, 'end', text=cat_data[1], values=(cat_id,), open=True)
-                tree_items[cat_id] = iid
+        
+        # Připravíme si data
+        # 'to_process' je seznam kategorií, které ještě nemáme ve stromu
+        to_process = {cat[0]: cat for cat in all_categories} 
+        tree_items = {} # Slovník pro uložení iid (ID v Treeview)
+
+        # Budeme opakovat cyklus tak dlouho, dokud se nám daří přidávat nové položky
+        items_added_in_pass = -1
+        while items_added_in_pass != 0:
+            items_added_in_pass = 0
+            
+            # Projdeme všechny zbývající kategorie
+            for cat_id, cat_data in list(to_process.items()):
+                nazev, typ, parent_id = cat_data[1], cat_data[2], cat_data[3]
+                
+                # Případ 1: Je to hlavní kategorie (nemá rodiče)
+                if parent_id is None:
+                    tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
+                    iid = tree.insert('', 'end', text=nazev, values=(cat_id,), open=True)
+                    tree_items[cat_id] = iid
+                    del to_process[cat_id] # Odstraníme ze seznamu "ke zpracování"
+                    items_added_in_pass += 1
+                
+                # Případ 2: Je to podkategorie A JEJÍ RODIČ UŽ EXISTUJE VE STROMU
+                elif parent_id in tree_items:
+                    tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
+                    parent_iid = tree_items[parent_id]
+                    iid = tree.insert(parent_iid, 'end', text=nazev, values=(cat_id,), open=True)
+                    tree_items[cat_id] = iid
+                    del to_process[cat_id] # Odstraníme ze seznamu "ke zpracování"
+                    items_added_in_pass += 1
 
     # --- METODY PRO AKCE (BUSINESS LOGIKA) ---
 
