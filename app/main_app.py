@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 import tkinter.messagebox as messagebox
 
-from . import database as db
+from app import database as db
 from . import file_exporter
 from . import file_importer
 
