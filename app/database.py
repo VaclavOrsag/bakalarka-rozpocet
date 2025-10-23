@@ -113,13 +113,15 @@ def add_category(db_path, nazev, typ, parent_id):
     conn.close()
     return new_id # Vrátíme ID pro další použití
 
+""""
+prozatím nevyužito
 def update_category(db_path, category_id, new_name):
-    """Aktualizuje název existující kategorie."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("UPDATE kategorie SET nazev = ? WHERE id = ?", (new_name, category_id))
     conn.commit()
     conn.close()
+"""
 
 def delete_category(db_path, category_id):
     """Smaže kategorii z databáze."""
@@ -171,5 +173,16 @@ def assign_category_to_items(db_path, co_name, category_id):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("UPDATE items SET kategorie_id = ? WHERE co = ?", (category_id, co_name))
+    conn.commit()
+    conn.close()
+
+def unassign_items_from_category(db_path, category_id):
+    """
+    Najde všechny transakce přiřazené ke smazané kategorii a nastaví
+    jejich 'kategorie_id' zpět na NULL.
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE items SET kategorie_id = NULL WHERE kategorie_id = ?", (category_id,))
     conn.commit()
     conn.close()

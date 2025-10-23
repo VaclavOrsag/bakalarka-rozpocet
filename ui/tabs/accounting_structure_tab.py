@@ -31,7 +31,7 @@ class AccountingStructureTab:
         ttk.Button(controls_frame, text="Přidat jako hlavní >>", command=self.add_as_main_category).pack(pady=15, padx=5)
         ttk.Button(controls_frame, text="Přidat jako podkategorii >>", command=self.add_as_subcategory).pack(pady=5, padx=5)
         ttk.Separator(controls_frame, orient='horizontal').pack(fill='x', pady=10)
-        ttk.Button(controls_frame, text="Přejmenovat", command=self.rename_category).pack(pady=5, padx=5)
+        #ttk.Button(controls_frame, text="Přejmenovat", command=self.rename_category).pack(pady=5, padx=5)
         ttk.Button(controls_frame, text="Smazat", command=self.delete_category).pack(pady=5, padx=5)
 
         # 3. PRAVÝ PANEL: Moje účetní osnova
@@ -121,14 +121,60 @@ class AccountingStructureTab:
         self.refresh_data()
 
     def add_as_subcategory(self):
-        print("Logika pro přidání podkategorie bude zde.")
-        # 1. Zjistit, co je vybráno vlevo (název).
-        # 2. Zjistit, co je vybráno vpravo (rodič).
-        # 3. Vložit do DB s parent_id rodiče.
-        # 4. Obnovit oba panely.
+        """
+        Vezme vybranou položku z levého seznamu a přidá ji jako 
+        podkategorii k vybrané položce v pravém stromu.
+        """
+        # 1. Zjistíme, co je vybráno vlevo (název nové podkategorie)
+        selected_indices_left = self.unassigned_list.curselection()
+        if not selected_indices_left:
+            messagebox.showwarning("Chyba", "Nejprve vyberte položku v levém seznamu.")
+            return
+        
+        # 2. Zjistíme, co je vybráno vpravo (rodičovská kategorie)
+        selected_iid_right = self.tree.focus()
+        if not selected_iid_right:
+            messagebox.showwarning("Chyba", "Nejprve v pravém stromu vyberte nadřazenou kategorii.")
+            return
 
-    def rename_category(self):
-        print("Logika pro přejmenování bude zde (v pravém panelu).")
+        # 3. Získáme potřebné údaje
+        name = self.unassigned_list.get(selected_indices_left[0])
+        parent_id = self.tree.item(selected_iid_right)['values'][0]
+        parent_type = self.tree.item(selected_iid_right)['values'][1]
+
+        # 4. Vložíme kategorii a získáme její nové ID
+        new_category_id = db.add_category(self.app.profile_path, name, parent_type, parent_id)
+        
+        # 5. Hromadně aktualizujeme všechny související transakce
+        db.assign_category_to_items(self.app.profile_path, name, new_category_id)
+        
+        # 6. Obnovíme zobrazení
+        self.refresh_data()
 
     def delete_category(self):
-        print("Logika pro smazání bude zde (v pravém panelu).")
+        """
+        Smaže kategorii vybranou v pravém stromu a všechny související
+        transakce vrátí mezi nezařazené.
+        """
+        selected_iid = self.tree.focus()
+        if not selected_iid:
+            messagebox.showwarning("Chyba", "Nejprve v pravém stromu vyberte kategorii ke smazání.")
+            return
+            
+        if self.tree.get_children(selected_iid):
+            messagebox.showerror("Chyba", "Nelze smazat kategorii, která obsahuje podkategorie.")
+            return
+
+        category_id = self.tree.item(selected_iid)['values'][0]
+        category_name = self.tree.item(selected_iid)['text']
+
+        if messagebox.askyesno("Potvrdit smazání", f"Opravdu chcete smazat kategorii '{category_name}'?\n\nVšechny přiřazené transakce se vrátí mezi nezařazené."):
+            
+            # Krok 1: "Vysypeme" všechny transakce z této kategorie
+            db.unassign_items_from_category(self.app.profile_path, category_id)
+            
+            # Krok 2: Teprve teď smažeme samotnou kategorii
+            db.delete_category(self.app.profile_path, category_id)
+            
+            # Krok 3: Obnovíme zobrazení
+            self.refresh_data()
