@@ -74,16 +74,40 @@ class App:
                 messagebox.showerror("Chyba exportu", "Při exportu dat nastala chyba.")
 
     def import_excel(self):
-        # ... (metoda zůstává stejná)
-        filepath = filedialog.askopenfilename(filetypes=[("Excel soubory", "*.xlsx *.xlsm")])
-        if filepath:
-            choice = messagebox.askyesnocancel("Možnosti importu", "Přidat data k existujícím (Ano),\nnebo přepsat všechna data (Ne)?")
-            if choice is None: return
-            if choice is False: db.delete_all_items(self.profile_path)
-            if file_importer.import_from_excel(filepath, self.profile_path):
-                self.sources_ui.load_items()
-                self.sources_ui.update_total()
+        """Zpracovává import transakcí z Excelu do aktuálního profilu."""
+        filepath = filedialog.askopenfilename(
+            filetypes=[("Excel soubory", "*.xlsx *.xlsm")]
+        )
+        if not filepath:
+            return
+
+        choice = messagebox.askyesnocancel(
+            "Možnosti importu", 
+            "Přidat data k existujícím (Ano),\nnebo přepsat všechna data (Ne)?"
+        )
+
+        if choice is None: # Uživatel klikl na Storno
+            return
+        
+        if choice is False: # Uživatel zvolil "Ne" - přepsat
+            # ✅ KROK 1: Přidáme potvrzovací dialog pro bezpečnost
+            if not messagebox.askyesno("Potvrdit přepsání", "Opravdu chcete smazat VŠECHNY existující transakce?\n\nVaše vytvořená účetní osnova zůstane zachována."):
+                return # Pokud uživatel klikne na Ne, operaci zrušíme
+            db.delete_all_items(self.profile_path)
+        
+        # Samotný import
+        if file_importer.import_from_excel(filepath, self.profile_path):
+            # ✅ KROK 2: Po importu se pokusíme automaticky zařadit nová data
+            db.reapply_all_categories(self.profile_path)
+            
+            # Obnovíme všechny relevantní záložky
+            self.sources_ui.load_items()
+            self.sources_ui.update_total()
+            # hasattr() je bezpečnostní kontrola pro případ, že by UI ještě neexistovalo
+            if hasattr(self, 'accounting_ui'):
                 self.accounting_ui.refresh_data()
-                messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována.")
-            else:
-                messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
+
+            # ✅ KROK 3: Vylepšená zpráva pro uživatele
+            messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována a automaticky zařazena podle vaší osnovy.")
+        else:
+            messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
