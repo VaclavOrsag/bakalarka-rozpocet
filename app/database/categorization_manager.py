@@ -1,18 +1,40 @@
 import sqlite3
 
-def get_unassigned_categories(db_path):
+def get_unassigned_categories_by_type(db_path):
     """
-    Najde všechny unikátní hodnoty ze sloupce 'co', které ještě nemají
-    přiřazenou kategorii v tabulce 'items'.
+    Najde všechny nezařazené položky 'co' a roztřídí je na příjmy, výdaje a neurčené.
+    Vrací slovník se třemi seznamy.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    # DISTINCT zajistí, že se každá hodnota vrátí jen jednou
-    # IS NULL hledá řádky, které ještě nemají kategorii
+    
+    # Nejdříve získáme všechny unikátní nezařazené položky
     cursor.execute("SELECT DISTINCT co FROM items WHERE kategorie_id IS NULL AND co IS NOT NULL AND co != ''")
-    unassigned = [item[0] for item in cursor.fetchall()]
+    unassigned_items = [item[0] for item in cursor.fetchall()]
+
+    # Připravíme si slovník pro výsledky
+    result = {'příjem': [], 'výdej': [], 'neurčeno': []}
+
+    for item_name in unassigned_items:
+        # Pro každou položku zjistíme její typ
+        cursor.execute("SELECT castka FROM items WHERE co = ? AND castka != 0 LIMIT 1", (item_name,))
+        row = cursor.fetchone()
+        
+        if not row:
+            result['neurčeno'].append(item_name)
+        else:
+            amount = row[0]
+            if amount > 0:
+                result['příjem'].append(item_name)
+            else:
+                result['výdej'].append(item_name)
+    
     conn.close()
-    return sorted(unassigned)
+    # Seřadíme seznamy pro přehlednost
+    for key in result:
+        result[key].sort()
+        
+    return result
 
 def determine_category_type(db_path, co_name):
     """

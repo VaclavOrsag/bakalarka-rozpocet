@@ -16,7 +16,7 @@ def get_all_categories(db_path):
     """Získá všechny kategorie z databáze."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("SELECT id, nazev, typ, parent_id FROM kategorie ORDER BY nazev")
+    cursor.execute("SELECT id, nazev, typ, parent_id FROM kategorie ORDER BY typ, nazev")
     categories = cursor.fetchall()
     conn.close()
     return categories
