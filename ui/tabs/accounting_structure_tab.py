@@ -54,10 +54,17 @@ class AccountingStructureTab:
 
     def _setup_controls_panel(self):
         """Vytvoří obsah středního panelu (tlačítka)."""
-        ttk.Button(self.controls_frame, text="Přidat jako hlavní >>", command=self.add_as_main_category).pack(pady=15, padx=5)
-        ttk.Button(self.controls_frame, text="Přidat jako podkategorii >>", command=self.add_as_subcategory).pack(pady=5, padx=5)
-        ttk.Separator(self.controls_frame, orient='horizontal').pack(fill='x', pady=10)
-        ttk.Button(self.controls_frame, text="Smazat", command=self.delete_category).pack(pady=5, padx=5)
+        # --- Tlačítka pro přesun z levého panelu ---
+        ttk.Label(self.controls_frame, text="Zařadit položku:").pack(pady=(10, 2))
+        ttk.Button(self.controls_frame, text="Přidat jako hlavní >>", command=self.add_as_main_category).pack(pady=5, padx=5, fill='x')
+        ttk.Button(self.controls_frame, text="Přidat jako podkategorii >>", command=self.add_as_subcategory).pack(pady=5, padx=5, fill='x')
+        
+        ttk.Separator(self.controls_frame, orient='horizontal').pack(fill='x', pady=20)
+
+        # --- Tlačítka pro správu osnovy v pravém panelu ---
+        ttk.Label(self.controls_frame, text="Spravovat osnovu:").pack(pady=(10, 2))
+        ttk.Button(self.controls_frame, text="Přidat novou kategorii...", command=self.add_custom_category).pack(pady=5, padx=5, fill='x')
+        ttk.Button(self.controls_frame, text="Smazat vybranou", command=self.delete_category).pack(pady=5, padx=5, fill='x')
 
     def _setup_right_panel(self):
         """Vytvoří obsah pravého panelu (2 stromy)."""
@@ -225,3 +232,37 @@ class AccountingStructureTab:
             db.unassign_items_from_category(self.app.profile_path, category_id)
             db.delete_category(self.app.profile_path, category_id)
             self.refresh_data()
+
+    def add_custom_category(self):
+        """
+        Umožní uživateli vytvořit úplně novou kategorii, která nepochází
+        z nalezených položek.
+        """
+        parent_id = None
+        parent_type = None
+        
+        # Zjistíme, jestli je něco vybráno (chceme tvořit podkategorii)
+        if self.active_tree and self.active_tree.focus():
+            selected_iid = self.active_tree.focus()
+            parent_id = self.active_tree.item(selected_iid)['values'][0]
+            parent_type = 'příjem' if self.active_tree == self.tree_prijmy else 'výdej'
+
+        # Zeptáme se na název
+        name = simpledialog.askstring("Nová kategorie", "Zadejte název nové kategorie:")
+        if not name or not name.strip():
+            return # Uživatel nic nezadal nebo zrušil
+
+        # Pokud jsme nezjistili typ od rodiče, musíme se zeptat
+        if parent_type is None:
+            typ = simpledialog.askstring("Typ kategorie", f"Zadejte typ pro '{name}' ('příjem' nebo 'výdej'):", parent=self.app.root)
+            if typ not in ['příjem', 'výdej']:
+                messagebox.showerror("Chyba", "Neplatný typ. Zadejte 'příjem' nebo 'výdej'.")
+                return
+        else:
+            typ = parent_type
+
+        # Vložíme do databáze
+        db.add_category(self.app.profile_path, name, typ, parent_id)
+        
+        # Obnovíme zobrazení
+        self.refresh_data()
