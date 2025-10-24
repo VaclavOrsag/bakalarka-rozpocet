@@ -77,11 +77,11 @@ class WelcomeWindow:
         ttk.Button(self.main_frame, text="Vytvořit profil z Excel souboru", command=self.confirm_create_from_excel).pack(fill="x", pady=5)
         ttk.Button(self.main_frame, text="Zpět", command=self.show_initial_choice).pack(pady=10)
 
-    # --- Následující metody zatím jen "předstírají" funkčnost ---
     
     def confirm_open_profile(self):
         selection = self.profile_listbox.curselection()
         if not selection:
+            messagebox.showinfo("Upozornění", "Vyberte platný profil.")
             return
         filename = self.profile_listbox.get(selection[0])
         self.selected_profile_path = os.path.join(self.profiles_dir, filename)
@@ -99,41 +99,3 @@ class WelcomeWindow:
             self.action = "create_empty"
             self.top.destroy()
             
-    def confirm_create_from_excel(self):
-        """
-        Spustí proces vytvoření nového profilu z existujícího Excel souboru.
-        """
-        # Krok 1: Uživatel vybere zdrojový Excel soubor
-        excel_path = filedialog.askopenfilename(
-            title="Vyberte Excel soubor s historickými daty",
-            filetypes=[("Excel soubory", "*.xlsx *.xlsm")]
-        )
-        if not excel_path: # Pokud uživatel nic nevybere
-            return
-
-        # Krok 2: Uživatel si zvolí, kam uložit nový databázový profil
-        db_path = filedialog.asksaveasfilename(
-            initialdir=self.profiles_dir,
-            title="Uložit nový profil jako...",
-            defaultextension=".db",
-            filetypes=[("Databázové soubory", "*.db")]
-        )
-        if not db_path: # Pokud uživatel nic nevybere
-            return
-
-        try:
-            # Krok 3: Vytvoříme prázdnou databázi se správnou strukturou
-            db.init_db(db_path)
-
-            # Krok 4: Spustíme náš existující importér
-            success = file_importer.import_from_excel(excel_path, db_path)
-
-            if success:
-                messagebox.showinfo("Úspěch", f"Nový profil '{os.path.basename(db_path)}' byl úspěšně vytvořen z Excel souboru.")
-                self.selected_profile_path = db_path
-                self.action = "open" # Chceme tento nově vytvořený profil rovnou otevřít
-                self.top.destroy()
-            else:
-                messagebox.showerror("Chyba", "Při importu dat z Excelu nastala chyba. Zkontrolujte konzoli pro více detailů.")
-        except Exception as e:
-            messagebox.showerror("Kritická chyba", f"Nepodařilo se vytvořit profil: {e}")

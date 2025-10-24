@@ -32,28 +32,28 @@ class App:
         file_menu.add_command(label="Konec", command=self.root.quit)
 
         # --- KROK 1: Vytvoření Notebooku (záložek) ---
-        notebook = ttk.Notebook(self.root)
-        notebook.pack(expand=True, fill='both', padx=10, pady=10)
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(expand=True, fill='both', padx=10, pady=10)
 
         # --- KROK 2: Vytvoření rámů pro jednotlivé záložky ---
-        tab_home = ttk.Frame(notebook)
-        tab_sources = ttk.Frame(notebook)
-        tab_budget = ttk.Frame(notebook)
-        tab_analysis = ttk.Frame(notebook)
-        tab_accounting = ttk.Frame(notebook)
+        self.tab_home = ttk.Frame(self.notebook)
+        self.tab_sources = ttk.Frame(self.notebook)
+        self.tab_budget = ttk.Frame(self.notebook)
+        self.tab_analysis = ttk.Frame(self.notebook)
+        self.tab_accounting = ttk.Frame(self.notebook)
 
-        notebook.add(tab_home, text='Home')
-        notebook.add(tab_sources, text='Zdroje')
-        notebook.add(tab_budget, text='Rozpočet')
-        notebook.add(tab_analysis, text='Analýza')
-        notebook.add(tab_accounting, text='Učetní osnova')
+        self.notebook.add(self.tab_home, text='Home')   
 
-        # --- KROK 3: Naplnění záložek obsahem ---
-        self.home_ui = HomeTab(tab_home, self)
-        self.sources_ui = SourcesTab(tab_sources, self)
-        self.budget_ui = BudgetTab(tab_budget, self)
-        self.analysis_ui = AnalysisTab(tab_analysis, self)
-        self.accounting_ui = AccountingStructureTab(tab_accounting, self)
+        # --- Naplnění záložek obsahem ---
+        # Vytvoříme instance VŠECH manažerů hned na začátku
+        self.home_ui = HomeTab(self.tab_home, self)
+        self.sources_ui = SourcesTab(self.tab_sources, self)
+        self.budget_ui = BudgetTab(self.tab_budget, self)
+        self.analysis_ui = AnalysisTab(self.tab_analysis, self)
+        self.accounting_ui = AccountingStructureTab(self.tab_accounting, self)
+
+        # Po spuštění zkontrolujeme stav a zobrazíme správné záložky
+        self.root.after(100, self.update_tabs_visibility)
 
     def _center_window(self, win):
         # ... (metoda zůstává stejná)
@@ -63,6 +63,15 @@ class App:
         x = root_x + (root_w - win_w) // 2
         y = root_y + (root_h - win_h) // 2
         win.geometry(f"+{x}+{y}")
+    
+    def switch_to_tab(self, tab_name: str):
+        """Programově přepne na záložku se zadaným názvem."""
+        # 'tabs()' vrátí seznam ID všech záložek.
+        # 'tab(id, "text")' vrátí název záložky pro dané ID.
+        for i, _ in enumerate(self.notebook.tabs()):
+            if self.notebook.tab(i, "text") == tab_name:
+                self.notebook.select(i) # 'select(i)' přepne na záložku s daným indexem
+                break
 
     def export_csv(self):
         # ... (metoda zůstává stejná)
@@ -111,3 +120,28 @@ class App:
             messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována a automaticky zařazena podle vaší osnovy.")
         else:
             messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
+
+
+    def update_tabs_visibility(self):
+        """
+        Zkontroluje stav profilu a dynamicky zobrazí nebo skryje záložky.
+        """
+        # Skryjeme všechny záložky kromě 'Home'
+        for tab in [self.tab_sources, self.tab_budget, self.tab_analysis, self.tab_accounting]:
+            try:
+                self.notebook.hide(tab)
+            except tk.TclError:
+                pass # Ignorujeme chybu, pokud záložka ještě není přidána
+
+        # Podmíněně "odemkneme" další záložky
+        if db.has_transactions(self.profile_path):
+            self.notebook.add(self.tab_sources, text='Zdroje')
+            self.notebook.add(self.tab_accounting, text='Účetní osnova')
+
+        if db.has_categories(self.profile_path):
+            self.notebook.add(self.tab_budget, text='Rozpočet')
+
+        # a tak dále... (tuto logiku budeme postupně doplňovat)
+
+        # Na konci vždy obnovíme stav v 'Home'
+        self.home_ui.check_profile_state()

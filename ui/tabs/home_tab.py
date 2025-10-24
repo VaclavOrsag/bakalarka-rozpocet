@@ -54,7 +54,7 @@ class HomeTab:
         # Použijeme existující importní funkci z hlavní aplikace
         ttk.Button(self.tab_frame, 
                    text="Importovat transakce z Excelu...",
-                   command=self.imp
+                   command=self.import_historical
         ).pack(pady=20)
 
     def _show_step_create_structure(self):
@@ -64,17 +64,33 @@ class HomeTab:
                   text="Data jsou naimportována. Nyní je potřeba je roztřídit a vytvořit z nich Vaši strukturu kategorií.",
                   wraplength=500, justify=tk.CENTER).pack(pady=10)
         
-        # TODO: Až budeme mít přepínání záložek, odkomentujeme command
-        ttk.Button(self.tab_frame, text="Přejít na tvorbu osnovy").pack(pady=20)
+        ttk.Button(self.tab_frame, 
+                   text="Přejít na tvorbu osnovy",
+                   command=lambda: self.app.switch_to_tab('Účetní osnova') 
+        ).pack(pady=20)
 
     def _show_step_create_budget(self):
-        pass
+        """Průvodce pro vytvoření rozpočtu."""
+        ttk.Label(self.tab_frame, text="Krok 3/3: Tvorba rozpočtu", font=("Arial", 18, "bold")).pack(pady=(20, 10))
+        
+        ttk.Label(
+            self.tab_frame, 
+            text="Vaše struktura kategorií je hotová. Posledním krokem je vytvoření samotného rozpočtu.",
+            wraplength=500, 
+            justify=tk.CENTER
+        ).pack(pady=10)
+        
+        ttk.Button(
+            self.tab_frame, 
+            text="Přejít na tvorbu rozpočtu",
+            command=lambda: self.app.switch_to_tab('Rozpočet')
+        ).pack(pady=20)
 
     def _show_dashboard(self):
         pass
 
 
-    def imp(self):
+    def import_historical(self):
         """Zpracovává PRVNÍ import transakcí z Excelu do nového profilu."""
         filepath = filedialog.askopenfilename(
             filetypes=[("Excel soubory", "*.xlsx *.xlsm")]
@@ -89,10 +105,12 @@ class HomeTab:
         # Zde voláme importér se správnou cestou k profilu, kterou zná jen "ředitel" (self.app)
         if file_importer.import_from_excel(filepath, self.app.profile_path):
             
-            # Po úspěšném importu řekneme řediteli, aby dal pokyn manažerovi "Zdrojů"
+            # Aktualizujeme viditelnost záložek
+            self.app.update_tabs_visibility()
             self.app.sources_ui.load_items()
             self.app.sources_ui.update_total()
-            
+            self.app.accounting_ui.refresh_data()
+
             # Také musíme znovu zkontrolovat stav, aby se zobrazil další krok průvodce
             self.check_profile_state()
             
