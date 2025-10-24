@@ -69,3 +69,12 @@ def get_total_amount(db_path):
     total = cursor.fetchone()[0]
     conn.close()
     return total if total is not None else 0
+
+def has_transactions(db_path):
+    """Vrátí True, pokud v databázi existuje alespoň jedna transakce."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM items LIMIT 1")
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None

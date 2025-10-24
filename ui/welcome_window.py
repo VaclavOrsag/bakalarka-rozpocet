@@ -38,7 +38,7 @@ class WelcomeWindow:
         ttk.Label(self.main_frame, text="Máte již vytvořený profil?", font=("Arial", 14)).pack(pady=10)
         
         ttk.Button(self.main_frame, text="Ano, vybrat ze seznamu", command=self.show_profile_list).pack(fill="x", pady=5)
-        ttk.Button(self.main_frame, text="Ne, vytvořit nový", command=self.show_create_options).pack(fill="x", pady=5)
+        ttk.Button(self.main_frame, text="Ne, vytvořit nový", command=self.confirm_create_empty).pack(fill="x", pady=5)
 
     def show_profile_list(self):
         """Zobrazí seznam existujících .db souborů."""

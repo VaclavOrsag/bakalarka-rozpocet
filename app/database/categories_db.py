@@ -47,3 +47,13 @@ def delete_category(db_path, category_id):
     cursor.execute("DELETE FROM kategorie WHERE id = ?", (category_id,))
     conn.commit()
     conn.close()
+
+def has_categories(db_path):
+    """Vrátí True, pokud v databázi existuje alespoň jedna kategorie."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    # LIMIT 1 je optimalizace - databáze přestane hledat hned po prvním nálezu.
+    cursor.execute("SELECT 1 FROM kategorie LIMIT 1")
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
