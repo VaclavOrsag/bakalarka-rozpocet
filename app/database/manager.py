@@ -1,6 +1,7 @@
 import sqlite3
 from . import items_db
 from . import categories_db
+from . import budgets_db
 
 def init_db(db_path):
     """
@@ -12,6 +13,7 @@ def init_db(db_path):
     # Postupně zavoláme funkce pro vytvoření jednotlivých tabulek
     categories_db.create_categories_table(cursor)
     items_db.create_items_table(cursor)
+    budgets_db.create_budgets_table(cursor)
     
     conn.commit()
     conn.close()
