@@ -71,6 +71,7 @@ class HomeTab:
 
     def _show_step_create_budget(self):
         """Průvodce pro vytvoření rozpočtu."""
+        self.app.update_tabs_visibility()
         ttk.Label(self.tab_frame, text="Krok 3/3: Tvorba rozpočtu", font=("Arial", 18, "bold")).pack(pady=(20, 10))
         
         ttk.Label(

@@ -140,7 +140,7 @@ class App:
 
         if db.has_categories(self.profile_path):
             self.notebook.add(self.tab_budget, text='Rozpočet')
-
+            return
         # a tak dále... (tuto logiku budeme postupně doplňovat)
 
         # Na konci vždy obnovíme stav v 'Home'

@@ -45,7 +45,7 @@ class BudgetTab:
         # Nastavíme hlavičky sloupců
         tree.heading('#0', text='Kategorie')
         tree.heading('plan', text='Minulé období')
-        tree.heading('rozpocet', text='Nový rozpočet')
+        tree.heading('rozpocet', text='Rozpočet')
         
         # Nastavíme vlastnosti sloupců (šířka, zarovnání)
         tree.column('#0', width=120, stretch=tk.YES) 
@@ -81,6 +81,11 @@ class BudgetTab:
         items_added_in_pass = -1
         while items_added_in_pass != 0:
             items_added_in_pass = 0
+            # Projdeme všechny zbývající kategorie, které ještě nebyly vloženy do stromu.
+            # Trik s `list()`: Volání `list(to_process.items())` vytvoří dočasnou, statickou KOPII položek.
+            # To je nezbytné, protože budeme mazat položky (`del to_process[cat_id]`) z PŮVODNÍHO
+            # slovníku `to_process` přímo uprostřed cyklu. Bez vytvoření kopie by program
+            # spadl s chybou `RuntimeError`.
             for cat_id, cat_data in list(to_process.items()):
                 nazev, typ, parent_id = cat_data[1], cat_data[2], cat_data[3]
 
