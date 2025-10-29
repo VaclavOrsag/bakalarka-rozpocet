@@ -60,6 +60,7 @@ def determine_category_type(db_path, co_name):
 def assign_category_to_items(db_path, co_name, category_id):
     """
     Najde všechny transakce s daným 'co' a přiřadí jim ID kategorie.
+    Tato operace se provádí pro historická i aktuální data.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()

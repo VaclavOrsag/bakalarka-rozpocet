@@ -1,101 +1,96 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
+
 from app import database as db
 
 class SourcesTab:
     def __init__(self, tab_frame, app_controller):
-        """
-        Inicializuje obsah záložky 'Zdroje'.
-        :param tab_frame: Rám (Frame) záložky, do kterého se má vše vykreslit.
-        :param app_controller: Odkaz na hlavní třídu App pro přístup k profilu a dalším metodám.
-        """
         self.app = app_controller
-        
-        self.columns = ('id', 'datum', 'doklad', 'zdroj', 'firma', 'text', 'madati', 'dal', 'castka', 'cin', 'cislo', 'co', 'kdo', 'stredisko')
-        
-        tree_frame = ttk.Frame(tab_frame)
-        tree_frame.pack(fill='both', expand=True, padx=5, pady=5)
-        
-        display_cols = [col for col in self.columns if col != 'id']
-        self.tree = ttk.Treeview(tree_frame, columns=self.columns, displaycolumns=display_cols, show='headings')
-        
-        column_widths = {'id': 40, 'datum': 90, 'doklad': 80, 'zdroj': 80, 'firma': 150, 'text': 300, 'madati': 80, 'dal': 80, 'castka': 100, 'cin': 80, 'cislo': 80, 'co': 100, 'kdo': 120, 'stredisko': 120}
-        right_aligned_cols = ['madati', 'dal', 'castka']
-        for col in self.columns:
-            self.tree.heading(col, text=col.capitalize())
-            width = column_widths.get(col, 100)
-            anchor = 'e' if col in right_aligned_cols else 'w'
-            stretch = tk.NO if col == 'id' else tk.YES
-            self.tree.column(col, width=width, anchor=anchor, stretch=stretch)
+        self.tab_frame = tab_frame
+        self.current_view = 0  # 0 pro historické, 1 pro aktuální
 
-        self.tree.bind("<Double-1>", self.open_edit_window)
+        # --- Horní panel s ovládacími prvky ---
+        top_frame = ttk.Frame(self.tab_frame)
+        top_frame.pack(fill='x', padx=10, pady=5)
 
-        vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.tree.xview)
-        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        self.toggle_button = ttk.Button(top_frame, text="Přepnout na Aktuální transakce", command=self.toggle_view)
+        self.toggle_button.pack(side='left', padx=(0, 10))
 
-        vsb.pack(side='right', fill='y')
-        hsb.pack(side='bottom', fill='x')
-        self.tree.pack(side='left', fill='both', expand=True)
+        self.import_button = ttk.Button(top_frame, text="Importovat z Excelu...", command=self.start_import)
+        self.import_button.pack(side='left', padx=(0, 10))
+
+        self.add_button = ttk.Button(top_frame, text="Přidat záznam...", command=self.add_new_item)
+        self.add_button.pack(side='left')
+
+        # --- Treeview pro zobrazení dat ---
+        tree_frame = ttk.Frame(self.tab_frame)
+        tree_frame.pack(expand=True, fill='both', padx=10, pady=(0, 10))
         
-        bottom_controls = ttk.Frame(tab_frame)
-        bottom_controls.pack(fill='x', pady=5)
-
-        self.delete_button = ttk.Button(bottom_controls, text="Smazat vybranou položku", command=self.delete_item)
-        self.delete_button.pack(side='left')
+        self.tree = self._create_treeview(tree_frame)
         
-        self.total_label = ttk.Label(bottom_controls, text="Celkem: 0.00 Kč", font=("Arial", 14, "bold"))
+        # --- Spodní panel se součtem ---
+        bottom_frame = ttk.Frame(self.tab_frame)
+        bottom_frame.pack(fill='x', padx=10, pady=5)
+        self.total_label = ttk.Label(bottom_frame, text="Celková částka: 0.00 Kč", font=("Arial", 10, "bold"))
         self.total_label.pack(side='right')
 
+        self.tab_frame.bind("<Visibility>", lambda e: self.load_items())
+
+    def _create_treeview(self, parent):
+        columns = ('datum', 'doklad', 'firma', 'text', 'castka')
+        tree = ttk.Treeview(parent, columns=columns, show='headings')
+        
+        tree.heading('datum', text='Datum')
+        tree.heading('doklad', text='Doklad')
+        tree.heading('firma', text='Firma')
+        tree.heading('text', text='Text')
+        tree.heading('castka', text='Částka')
+
+        tree.column('castka', anchor='e')
+
+        scrollbar = ttk.Scrollbar(parent, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        tree.pack(side="left", fill="both", expand=True)
+        
+        return tree
+
+    def toggle_view(self):
+        """Přepíná mezi historickým (0) a aktuálním (1) pohledem."""
+        self.current_view = 1 - self.current_view
+        if self.current_view == 0:
+            self.toggle_button.config(text="Přepnout na Aktuální transakce")
+        else:
+            self.toggle_button.config(text="Přepnout na Historické transakce")
         self.load_items()
         self.update_total()
 
     def load_items(self):
+        """Načte položky do Treeview podle aktuálně zvoleného pohledu."""
         for i in self.tree.get_children():
             self.tree.delete(i)
-        self.all_items = db.get_all_items(self.app.profile_path)
-        for item in self.all_items:
-            display_values = ["" if v is None else v for v in item]
-            self.tree.insert('', tk.END, values=display_values)
-
-    def delete_item(self):
-        selected_item_id = self.tree.focus()
-        if not selected_item_id: return
-        if not messagebox.askyesno("Potvrdit smazání", "Opravdu chcete smazat vybranou položku?"): return
-        item_values = self.tree.item(selected_item_id, 'values')
-        db_id = item_values[0]
-        db.delete_item(self.app.profile_path, db_id)
-        self.load_items()
-        self.update_total()
-
-    def open_edit_window(self, event):
-        selected_item_id = self.tree.focus()
-        if not selected_item_id: return
-        item_values = self.tree.item(selected_item_id, 'values')
-        edit_win = tk.Toplevel(self.app.root) # Rodičem je hlavní okno z 'app'
-        edit_win.title("Upravit položku")
-        entries = {}
-        for i, col_name in enumerate(self.columns[1:], 1):
-            ttk.Label(edit_win, text=f"{col_name.capitalize()}:").grid(row=i-1, column=0, padx=10, pady=5, sticky="w")
-            entry = ttk.Entry(edit_win, width=50)
-            entry.grid(row=i-1, column=1, padx=10, pady=5, sticky="ew")
-            entry.insert(0, item_values[i])
-            entries[col_name] = entry
-        def save_changes():
-            try:
-                new_values = [entries[col].get() for col in self.columns[1:]]
-                db_id = item_values[0]
-                db.update_item(self.app.profile_path, db_id, *new_values)
-                self.load_items()
-                self.update_total()
-                edit_win.destroy()
-            except Exception as e:
-                messagebox.showerror("Chyba", f"Při ukládání nastala chyba: {e}")
-        save_button = ttk.Button(edit_win, text="Uložit změny", command=save_changes)
-        save_button.grid(row=len(self.columns), column=0, columnspan=2, pady=10)
-        self.app._center_window(edit_win) # Voláme centrovací metodu z 'app'
+        
+        items = db.get_items(self.app.profile_path, self.current_view)
+        for item in items:
+            # ID, datum, doklad, zdroj, firma, text, madati, dal, castka, ...
+            # Zobrazujeme jen některé sloupce
+            self.tree.insert('', 'end', values=(item[1], item[2], item[4], item[5], f"{item[8]:,.2f} Kč"))
 
     def update_total(self):
-        total = db.get_total_amount(self.app.profile_path)
-        self.total_label.config(text=f"Celkem: {total:.2f} Kč")
+        """Aktualizuje zobrazenou celkovou částku."""
+        total = db.get_total_amount(self.app.profile_path, self.current_view)
+        self.total_label.config(text=f"Celková částka: {total:,.2f} Kč")
+
+    def start_import(self):
+        """Zahájí proces importu na základě aktuálního zobrazení."""
+        self.app.import_excel(is_current=self.current_view)
+
+    def add_new_item(self):
+        # Zde by byla logika pro otevření dialogového okna pro přidání nového záznamu
+        # Po úspěšném přidání by se zavolalo:
+        # db.add_item(..., is_current=self.current_view)
+        # self.load_items()
+        # self.update_total()
+        # self.app.budget_ui.load_data() # Aktualizace záložky rozpočtu
+        messagebox.showinfo("Info", "Funkce pro přidání nového záznamu bude implementována.")

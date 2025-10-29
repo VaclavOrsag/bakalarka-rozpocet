@@ -26,8 +26,8 @@ class HomeTab:
         self.clear_tab()
         current_year = datetime.now().year
         
-        # Priorita 1: Chybí vůbec nějaká data (transakce)?
-        if not db.has_transactions(self.app.profile_path):
+        # Priorita 1: Chybí vůbec nějaká historická data?
+        if not db.has_transactions(self.app.profile_path, is_current=0):
             self._show_step_import_data()
             return
         
@@ -71,7 +71,6 @@ class HomeTab:
 
     def _show_step_create_budget(self):
         """Průvodce pro vytvoření rozpočtu."""
-        self.app.update_tabs_visibility()
         ttk.Label(self.tab_frame, text="Krok 3/3: Tvorba rozpočtu", font=("Arial", 18, "bold")).pack(pady=(20, 10))
         
         ttk.Label(
@@ -93,28 +92,7 @@ class HomeTab:
 
     def import_historical(self):
         """Zpracovává PRVNÍ import transakcí z Excelu do nového profilu."""
-        filepath = filedialog.askopenfilename(
-            filetypes=[("Excel soubory", "*.xlsx *.xlsm")]
-        )
-        if not filepath:
-            return
-
-        # Zjednodušený dotaz pro první import
-        if not messagebox.askyesno("Potvrdit import", "Chcete naimportovat data z tohoto souboru?"):
-            return
-        
-        # Zde voláme importér se správnou cestou k profilu, kterou zná jen "ředitel" (self.app)
-        if file_importer.import_from_excel(filepath, self.app.profile_path):
-            
-            # Aktualizujeme viditelnost záložek
-            self.app.update_tabs_visibility()
-            self.app.sources_ui.load_items()
-            self.app.sources_ui.update_total()
-            self.app.accounting_ui.refresh_data()
-
-            # Také musíme znovu zkontrolovat stav, aby se zobrazil další krok průvodce
-            self.check_profile_state()
-            
-            messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována.")
-        else:
-            messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
+        # Zavoláme centrální importní funkci s parametrem is_current=0
+        self.app.import_excel(is_current=0)
+        # Po úspěšném importu se stav automaticky zkontroluje a UI se aktualizuje
+        self.check_profile_state()

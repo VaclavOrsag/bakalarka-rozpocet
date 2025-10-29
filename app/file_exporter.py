@@ -3,11 +3,11 @@ from . import database as db
 
 def export_to_csv(filepath, db_path):
     """
-    Získá všechna data z databáze a zapíše je do zadaného CSV souboru.
+    Získá všechna historická data z databáze a zapíše je do zadaného CSV souboru.
     """
     try:
-        # Získáme všechna data z databáze
-        all_items = db.get_all_items(db_path)
+        # Získáme všechna historická data z databáze
+        all_items = db.get_items(db_path, is_current=0)
 
         # Otevřeme soubor pro zápis
         # newline='' zabraňuje vkládání prázdných řádků mezi záznamy
@@ -17,7 +17,7 @@ def export_to_csv(filepath, db_path):
             # Zapíšeme hlavičku souboru (názvy sloupců)
             writer.writerow([
                 'ID', 'Datum', 'Doklad', 'Zdroj', 'Firma', 'Text', 'MD', 'D', 
-                'Částka', 'Cin', 'Číslo', 'Co', 'Kdo', 'Středisko'
+                'Částka', 'Cin', 'Číslo', 'Co', 'Kdo', 'Středisko', 'is_current'
             ])
 
             # Zapíšeme všechny datové řádky

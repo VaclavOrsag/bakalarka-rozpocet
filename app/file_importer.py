@@ -1,7 +1,7 @@
 import pandas as pd
 from . import database as db
 
-def import_from_excel(filepath, db_path):
+def import_from_excel(filepath, db_path, is_current):
     """
     Načte data, nahradí prázdné hodnoty a bezpečně je převede na správné
     datové typy před vložením do databáze.
@@ -49,7 +49,8 @@ def import_from_excel(filepath, db_path):
                     str(datum), str(doklad), str(zdroj), str(firma), str(text),
                     madati, dal, castka, # Už posíláme bezpečně převedené floaty
                     cin, cislo,
-                    str(co), str(kdo), str(stredisko)
+                    str(co), str(kdo), str(stredisko),
+                    is_current=is_current
                 )
         return True
     except FileNotFoundError:

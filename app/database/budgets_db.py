@@ -13,21 +13,20 @@ def create_budgets_table(cursor):
         )
     ''')
 
-def calculate_actual_sums_by_category(db_path):
+def calculate_sums_by_category(db_path, is_current):
     """
-    Spočítá součet částek pro každou přiřazenou kategorii z tabulky 'items'.
+    Spočítá součet částek pro každou přiřazenou kategorii z tabulky 'items'
+    pro daný stav (historický/aktuální).
     Vrátí slovník ve formátu {kategorie_id: skutecny_soucet}.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    # Seskupíme transakce podle ID kategorie a sečteme jejich částky.
-    # Ignorujeme transakce, které ještě nemají kategorii (kategorie_id IS NOT NULL).
     cursor.execute("""
         SELECT kategorie_id, SUM(castka) 
         FROM items 
-        WHERE kategorie_id IS NOT NULL 
+        WHERE kategorie_id IS NOT NULL AND is_current = ?
         GROUP BY kategorie_id
-    """)
+    """, (is_current,))
     actual_sums = {row[0]: row[1] for row in cursor.fetchall()}
     conn.close()
     return actual_sums

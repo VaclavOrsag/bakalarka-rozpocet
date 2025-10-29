@@ -182,7 +182,9 @@ class AccountingStructureTab:
                 return name, typ
         return None, None
     
-    def add_as_main_category(self):        
+    def add_as_main_category(self):
+        # Zjistíme, zda se jedná o první kategorii, abychom mohli zobrazit notifikaci
+        is_first_category = not db.has_categories(self.app.profile_path)        
         name, typ = self.get_selected_unassigned_with_type()
         if not name:
             messagebox.showwarning("Chyba", "Nejprve vyberte položku v jednom z levých seznamů.")
@@ -192,6 +194,13 @@ class AccountingStructureTab:
             return
         new_category_id = db.add_category(self.app.profile_path, name, typ, None)
         db.assign_category_to_items(self.app.profile_path, name, new_category_id)
+        # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
+        if is_first_category:
+            self.app.update_tabs_visibility()
+            messagebox.showinfo(
+                "Rozpočet je připraven",
+                "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
+            )
         self.refresh_data()
 
     def add_as_subcategory(self):
@@ -238,6 +247,8 @@ class AccountingStructureTab:
         Umožní uživateli vytvořit úplně novou kategorii, která nepochází
         z nalezených položek.
         """
+        # Zjistíme, zda se jedná o první kategorii, abychom mohli zobrazit notifikaci
+        is_first_category = not db.has_categories(self.app.profile_path)
         parent_id = None
         parent_type = None
         
@@ -264,5 +275,12 @@ class AccountingStructureTab:
         # Vložíme do databáze
         db.add_category(self.app.profile_path, name, typ, parent_id)
         
+        # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
+        if is_first_category:
+            self.app.update_tabs_visibility()
+            messagebox.showinfo(
+                "Rozpočet je připraven",
+                "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
+            )
         # Obnovíme zobrazení
         self.refresh_data()

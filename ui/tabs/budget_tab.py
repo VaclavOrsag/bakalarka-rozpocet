@@ -39,18 +39,20 @@ class BudgetTab:
         tree_frame.pack(fill='both', expand=True, padx=5, pady=5)
         
         # Definujeme sloupce, které bude tabulka mít
-        columns = ('plan', 'rozpocet')
+        columns = ('plan', 'rozpocet', 'plneni')
         tree = ttk.Treeview(tree_frame, columns=columns, show='tree headings')
         
         # Nastavíme hlavičky sloupců
         tree.heading('#0', text='Kategorie')
         tree.heading('plan', text='Minulé období')
         tree.heading('rozpocet', text='Rozpočet')
+        tree.heading('plneni', text='Plnění')
         
         # Nastavíme vlastnosti sloupců (šířka, zarovnání)
         tree.column('#0', width=120, stretch=tk.YES) 
         tree.column('plan', width=120, anchor='e') 
         tree.column('rozpocet', width=120, anchor='e')
+        tree.column('plneni', width=120, anchor='e')
 
         # Propojíme se scrollbarem
         scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
@@ -71,7 +73,8 @@ class BudgetTab:
 
         # Načteme potřebná data z databáze
         all_categories = db.get_all_categories(self.app.profile_path)
-        actual_sums = db.calculate_actual_sums_by_category(self.app.profile_path)
+        historical_sums = db.calculate_sums_by_category(self.app.profile_path, is_current=0)
+        current_sums = db.calculate_sums_by_category(self.app.profile_path, is_current=1)
 
         # Připravíme data pro stavbu stromu
         to_process = {cat[0]: cat for cat in all_categories}
@@ -81,20 +84,15 @@ class BudgetTab:
         items_added_in_pass = -1
         while items_added_in_pass != 0:
             items_added_in_pass = 0
-            # Projdeme všechny zbývající kategorie, které ještě nebyly vloženy do stromu.
-            # Trik s `list()`: Volání `list(to_process.items())` vytvoří dočasnou, statickou KOPII položek.
-            # To je nezbytné, protože budeme mazat položky (`del to_process[cat_id]`) z PŮVODNÍHO
-            # slovníku `to_process` přímo uprostřed cyklu. Bez vytvoření kopie by program
-            # spadl s chybou `RuntimeError`.
             for cat_id, cat_data in list(to_process.items()):
                 nazev, typ, parent_id = cat_data[1], cat_data[2], cat_data[3]
 
-                # Získáme skutečný součet pro tuto kategorii
-                actual_sum = actual_sums.get(cat_id, 0.0)
+                # Získáme skutečné součty pro tuto kategorii
+                historical_sum = historical_sums.get(cat_id, 0.0)
+                current_sum = current_sums.get(cat_id, 0.0)
                 
-                # Prozatím zobrazíme skutečný součet ve sloupci "Minulé období"
-                # Ostatní sloupce necháme prázdné
-                values_tuple = (f"{actual_sum:,.2f} Kč", "")
+                # Zobrazíme součty ve správných sloupcích
+                values_tuple = (f"{historical_sum:,.2f} Kč", "", f"{current_sum:,.2f} Kč")
 
                 # Rozhodneme, do kterého stromu položka patří
                 tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
@@ -130,33 +128,39 @@ class BudgetTab:
         # Zjistíme, jestli má položka nějaké "děti" (podkategorie)
         children = tree.get_children(item_iid)
         
-        # Získáme PŮVODNÍ hodnotu položky, která byla vložena v 'load_data'.
-        # Toto je její "přímá hodnota" z transakcí zařazených přímo pod ni.
+        # Získáme PŮVODNÍ hodnoty položky, které byly vloženy v 'load_data'.
         values = tree.item(item_iid, 'values')
         try:
-            # Převedeme textovou hodnotu zpět na číslo
-            direct_value_str = values[0].replace(' Kč', '').replace(',', '')
-            direct_value = float(direct_value_str)
+            # Převedeme textové hodnoty zpět na čísla
+            direct_value_plan_str = values[0].replace(' Kč', '').replace(',', '')
+            direct_value_plan = float(direct_value_plan_str)
+            direct_value_plneni_str = values[2].replace(' Kč', '').replace(',', '')
+            direct_value_plneni = float(direct_value_plneni_str)
         except (ValueError, IndexError):
-            direct_value = 0.0
+            direct_value_plan = 0.0
+            direct_value_plneni = 0.0
 
-        # Pokud položka nemá žádné děti, její hodnota je finální.
+        # Pokud položka nemá žádné děti, její hodnoty jsou finální.
         if not children:
-            return direct_value
+            return direct_value_plan, direct_value_plneni
 
-        # Pokud MÁ položka děti, její finální hodnota je její PŘÍMÁ HODNOTA
+        # Pokud MÁ položka děti, její finální hodnoty jsou její PŘÍMÉ HODNOTY
         # plus součet finálních hodnot všech jejích dětí.
-        total_sum_of_children = 0
+        total_sum_of_children_plan = 0
+        total_sum_of_children_plneni = 0
         for child_iid in children:
-            total_sum_of_children += self._recursive_sum(tree, child_iid)
+            child_plan, child_plneni = self._recursive_sum(tree, child_iid)
+            total_sum_of_children_plan += child_plan
+            total_sum_of_children_plneni += child_plneni
         
-        final_total = direct_value + total_sum_of_children
+        final_total_plan = direct_value_plan + total_sum_of_children_plan
+        final_total_plneni = direct_value_plneni + total_sum_of_children_plneni
 
-        # Aktualizujeme zobrazenou hodnotu pro rodičovskou položku
-        # (pouze v prvním sloupci 'plan'/'Minulé období')
+        # Aktualizujeme zobrazené hodnoty pro rodičovskou položku
         values = list(tree.item(item_iid, 'values'))
-        values[0] = f"{final_total:,.2f} Kč"
+        values[0] = f"{final_total_plan:,.2f} Kč"
+        values[2] = f"{final_total_plneni:,.2f} Kč"
         tree.item(item_iid, values=values)
 
-        # Vrátíme finální spočítanou hodnotu, aby ji mohl použít rodič o úroveň výš
-        return final_total
+        # Vrátíme finální spočítané hodnoty, aby je mohl použít rodič o úroveň výš
+        return final_total_plan, final_total_plneni

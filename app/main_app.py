@@ -27,7 +27,6 @@ class App:
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Soubor", menu=file_menu)
         file_menu.add_command(label="Exportovat do CSV...", command=self.export_csv)
-        file_menu.add_command(label="Importovat z Excelu...", command=self.import_excel)
         file_menu.add_separator()
         file_menu.add_command(label="Konec", command=self.root.quit)
 
@@ -82,7 +81,7 @@ class App:
             else:
                 messagebox.showerror("Chyba exportu", "Při exportu dat nastala chyba.")
 
-    def import_excel(self):
+    def import_excel(self, is_current):
         """Zpracovává import transakcí z Excelu do aktuálního profilu."""
         filepath = filedialog.askopenfilename(
             filetypes=[("Excel soubory", "*.xlsx *.xlsm")]
@@ -90,33 +89,35 @@ class App:
         if not filepath:
             return
 
-        choice = messagebox.askyesnocancel(
-            "Možnosti importu", 
-            "Přidat data k existujícím (Ano),\nnebo přepsat všechna data (Ne)?"
-        )
-
-        if choice is None: # Uživatel klikl na Storno
-            return
-        
-        if choice is False: # Uživatel zvolil "Ne" - přepsat
-            # ✅ KROK 1: Přidáme potvrzovací dialog pro bezpečnost
-            if not messagebox.askyesno("Potvrdit přepsání", "Opravdu chcete smazat VŠECHNY existující transakce?\n\nVaše vytvořená účetní osnova zůstane zachována."):
-                return # Pokud uživatel klikne na Ne, operaci zrušíme
-            db.delete_all_items(self.profile_path)
+        # Pokud importujeme aktuální data, neptáme se na přepsání, jen přidáváme.
+        # Pokud importujeme historická, zachováme původní logiku.
+        if is_current == 0:
+            choice = messagebox.askyesnocancel(
+                "Možnosti importu historických dat", 
+                "Přidat data k existujícím (Ano),\nnebo přepsat všechna historická data (Ne)?"
+            )
+            if choice is None: return # Storno
+            if choice is False: # Přepsat
+                if not messagebox.askyesno("Potvrdit přepsání", "Opravdu chcete smazat VŠECHNY existující historické transakce?"):
+                    return
+                db.delete_all_items(self.profile_path, is_current=0)
         
         # Samotný import
-        if file_importer.import_from_excel(filepath, self.profile_path):
-            # ✅ KROK 2: Po importu se pokusíme automaticky zařadit nová data
+        if file_importer.import_from_excel(filepath, self.profile_path, is_current):
+            # Po importu se pokusíme automaticky zařadit nová data
             db.reapply_all_categories(self.profile_path)
             
             # Obnovíme všechny relevantní záložky
             self.sources_ui.load_items()
             self.sources_ui.update_total()
-            # hasattr() je bezpečnostní kontrola pro případ, že by UI ještě neexistovalo
             if hasattr(self, 'accounting_ui'):
                 self.accounting_ui.refresh_data()
+            if hasattr(self, 'budget_ui'):
+                self.budget_ui.load_data()
 
-            # ✅ KROK 3: Vylepšená zpráva pro uživatele
+            # Po importu musíme zkontrolovat, zda se mají zobrazit nové záložky
+            self.update_tabs_visibility()
+
             messagebox.showinfo("Import úspěšný", "Data byla úspěšně naimportována a automaticky zařazena podle vaší osnovy.")
         else:
             messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
@@ -126,6 +127,13 @@ class App:
         """
         Zkontroluje stav profilu a dynamicky zobrazí nebo skryje záložky.
         """
+        # Zapamatujeme si aktuálně vybranou záložku, abychom ji po úpravách obnovili
+        try:
+            _prev_selected = self.notebook.select()
+            prev_selected_text = self.notebook.tab(_prev_selected, "text") if _prev_selected else None
+        except tk.TclError:
+            prev_selected_text = None
+
         # Skryjeme všechny záložky kromě 'Home'
         for tab in [self.tab_sources, self.tab_budget, self.tab_analysis, self.tab_accounting]:
             try:
@@ -134,14 +142,26 @@ class App:
                 pass # Ignorujeme chybu, pokud záložka ještě není přidána
 
         # Podmíněně "odemkneme" další záložky
-        if db.has_transactions(self.profile_path):
-            self.notebook.add(self.tab_sources, text='Zdroje')
+        if db.has_transactions(self.profile_path, is_current=0):
+            self.notebook.add(self.tab_sources, text='Transakce')
             self.notebook.add(self.tab_accounting, text='Účetní osnova')
 
         if db.has_categories(self.profile_path):
             self.notebook.add(self.tab_budget, text='Rozpočet')
-            return
         # a tak dále... (tuto logiku budeme postupně doplňovat)
 
-        # Na konci vždy obnovíme stav v 'Home'
+        # Obnovíme dříve vybranou záložku, pokud stále existuje
+        if prev_selected_text:
+            try:
+                for tab_id in self.notebook.tabs():
+                    if self.notebook.tab(tab_id, "text") == prev_selected_text:
+                        self.notebook.select(tab_id)
+                        break
+            except tk.TclError:
+                # Pokud by záložka mezitím zmizela (což by se nemělo stát), nic se nestane
+                pass
+        
+        # Volání check_profile_state zde není ideální, protože se volá i když nejsme na Home.
+        # Lepší je, aby si HomeTab obnovoval stav sám, když je zobrazen.
+        # Prozatím ponecháme, ale budeme refaktorovat.
         self.home_ui.check_profile_state()
