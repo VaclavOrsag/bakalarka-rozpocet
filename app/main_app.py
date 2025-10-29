@@ -89,9 +89,8 @@ class App:
         if not filepath:
             return
 
-        # Pokud importujeme aktuální data, neptáme se na přepsání, jen přidáváme.
-        # Pokud importujeme historická, zachováme původní logiku.
-        if is_current == 0:
+        # Zeptáme se na přepsání pouze pokud importujeme historická data A NĚJAKÁ UŽ EXISTUJÍ.
+        if is_current == 0 and db.has_transactions(self.profile_path, is_current=0):
             choice = messagebox.askyesnocancel(
                 "Možnosti importu historických dat", 
                 "Přidat data k existujícím (Ano),\nnebo přepsat všechna historická data (Ne)?"
