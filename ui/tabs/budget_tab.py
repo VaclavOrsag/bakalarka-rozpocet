@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 
 from app import database as db
 
@@ -28,8 +29,19 @@ class BudgetTab:
         expense_frame = ttk.LabelFrame(main_pane, text="Výdaje")
         main_pane.add(expense_frame, weight=1)
         self.tree_vydaje = self._create_budget_treeview(expense_frame)
+
+        # Mapy a stav pro editaci (oddělené mapy pro oba stromy, aby se nepletla iid)
+        self._iid_to_catid_income = {}
+        self._iid_to_catid_expense = {}
+        self._cats_with_children = set()
+        self._active_editor = None  # (entry, tree, iid)
+
         # Tato událost zajistí, že se data načtou vždy, když se na záložku přepnete.
         self.tab_frame.bind("<Visibility>", self.load_data)
+
+        # Dvojklik pro editaci rozpočtu (jen sloupec Rozpočet a jen listové kategorie)
+        self.tree_prijmy.bind('<Double-1>', lambda e, t=self.tree_prijmy: self._on_double_click_budget(e, t))
+        self.tree_vydaje.bind('<Double-1>', lambda e, t=self.tree_vydaje: self._on_double_click_budget(e, t))
 
     def _create_budget_treeview(self, parent_frame):
         """Pomocná metoda pro vytvoření a konfiguraci Treeview pro rozpočet."""
@@ -65,102 +77,156 @@ class BudgetTab:
     
     def load_data(self, event=None):
         """
-        Načte účetní osnovu a skutečné součty z transakcí a zobrazí je.
+        Načte kompletní přehled z databáze (agregace řeší SQL) a zobrazí jej.
         """
         # Vyčistíme oba stromy od starých dat
         for tree in [self.tree_prijmy, self.tree_vydaje]:
             tree.delete(*tree.get_children())
+        self._iid_to_catid_income.clear()
+        self._iid_to_catid_expense.clear()
+        self._cats_with_children.clear()
 
-        # Načteme potřebná data z databáze
-        all_categories = db.get_all_categories(self.app.profile_path)
-        historical_sums = db.calculate_sums_by_category(self.app.profile_path, is_current=0)
-        current_sums = db.calculate_sums_by_category(self.app.profile_path, is_current=1)
+        # Zjistíme aktuální rok (rozpočet je vztažen k roku)
+        year = datetime.now().year
 
-        # Připravíme data pro stavbu stromu
-        to_process = {cat[0]: cat for cat in all_categories}
+    # Jediný dotaz do DB, který vrátí vše potřebné včetně agregací nad podstromy
+        overview = db.get_budget_overview(self.app.profile_path, year)
+
+        # Připravíme data pro stavbu dvou stromů (příjmy/výdaje)
+        # Formát záznamu: {id, nazev, typ, parent_id, sum_past, sum_current, budget_plan}
+        by_id = {row['id']: row for row in overview}
+        # Zjistíme rodiče (kategorie, které mají potomky) – tam nebudeme povolovat přímou editaci
+        for row in overview:
+            if row['parent_id'] is not None:
+                self._cats_with_children.add(row['parent_id'])
+        to_process = set(by_id.keys())
         tree_items = {}
 
-        # Spolehlivě sestavíme stromy patro po patru
+        def fmt(val: float) -> str:
+            # Konzistentní formát bez vlivu locale
+            return f"{val:,.2f}".replace(",", " ") + " Kč"
+
+        # Vkládáme patro po patru, až dokud nevložíme všechny položky
         items_added_in_pass = -1
-        while items_added_in_pass != 0:
+        while items_added_in_pass != 0 and to_process:
             items_added_in_pass = 0
-            for cat_id, cat_data in list(to_process.items()):
-                nazev, typ, parent_id = cat_data[1], cat_data[2], cat_data[3]
+            for cat_id in list(to_process):
+                row = by_id[cat_id]
+                nazev = row['nazev']
+                typ = row['typ']
+                parent_id = row['parent_id']
 
-                # Získáme skutečné součty pro tuto kategorii
-                historical_sum = historical_sums.get(cat_id, 0.0)
-                current_sum = current_sums.get(cat_id, 0.0)
-                
-                # Zobrazíme součty ve správných sloupcích
-                values_tuple = (f"{historical_sum:,.2f} Kč", "", f"{current_sum:,.2f} Kč")
+                # Z databáze už máme finální agregované hodnoty
+                values_tuple = (
+                    fmt(row['sum_past']),
+                    fmt(row['budget_plan']),
+                    fmt(row['sum_current']),
+                )
 
-                # Rozhodneme, do kterého stromu položka patří
                 tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
 
-                # Vložíme do stromu (hlavní kategorie nebo podkategorie)
                 if parent_id is None:
                     iid = tree.insert('', 'end', text=nazev, values=values_tuple, open=True)
+                    if tree is self.tree_prijmy:
+                        self._iid_to_catid_income[iid] = cat_id
+                    else:
+                        self._iid_to_catid_expense[iid] = cat_id
                     tree_items[cat_id] = iid
-                    del to_process[cat_id]
+                    to_process.remove(cat_id)
                     items_added_in_pass += 1
                 elif parent_id in tree_items:
                     parent_iid = tree_items[parent_id]
                     iid = tree.insert(parent_iid, 'end', text=nazev, values=values_tuple, open=True)
+                    if tree is self.tree_prijmy:
+                        self._iid_to_catid_income[iid] = cat_id
+                    else:
+                        self._iid_to_catid_expense[iid] = cat_id
                     tree_items[cat_id] = iid
-                    del to_process[cat_id]
+                    to_process.remove(cat_id)
                     items_added_in_pass += 1
-        self._update_parent_sums(self.tree_prijmy)
-        self._update_parent_sums(self.tree_vydaje)
 
-    def _update_parent_sums(self, tree):
-        """
-        Projde zadaný strom a rekurzivně sečte hodnoty z podkategorií
-        do jejich nadřazených kategorií.
-        """
-        # Projdeme všechny hlavní kategorie (ty na nejvyšší úrovni)
-        for parent_iid in tree.get_children():
-            self._recursive_sum(tree, parent_iid)
+        # Není třeba dopočítávat sumy v Pythonu – vše spočítala databáze.
+        return
 
-    def _recursive_sum(self, tree, item_iid):
-        """
-        Pomocná rekurzivní funkce, která správně sečte hodnoty zdola nahoru.
-        """
-        # Zjistíme, jestli má položka nějaké "děti" (podkategorie)
-        children = tree.get_children(item_iid)
-        
-        # Získáme PŮVODNÍ hodnoty položky, které byly vloženy v 'load_data'.
-        values = tree.item(item_iid, 'values')
+    def _on_double_click_budget(self, event, tree: ttk.Treeview):
+        """Zahájí editaci ve sloupci Rozpočet, pokud jde o listovou kategorii."""
+        # Identifikace sloupce – '#2' odpovídá 'rozpoctu' (('plan','rozpocet','plneni'))
+        col = tree.identify_column(event.x)
+        if col != '#2':
+            return
+        iid = tree.identify_row(event.y)
+        if not iid:
+            return
+        # vyber správnou mapu podle stromu
+        if tree is self.tree_prijmy:
+            if iid not in self._iid_to_catid_income:
+                return
+            cat_id = self._iid_to_catid_income[iid]
+        else:
+            if iid not in self._iid_to_catid_expense:
+                return
+            cat_id = self._iid_to_catid_expense[iid]
+        if cat_id in self._cats_with_children:
+            # Rodičovské kategorie jsou součty – needitujeme přímo
+            return
+
+        # Souřadnice buňky pro overlay Entry
+        bbox = tree.bbox(iid, col)
+        if not bbox:
+            return
+        x, y, w, h = bbox
+        editor = ttk.Entry(tree)
+        editor.place(x=x, y=y, width=w, height=h)
+
+        # Předvyplnit vlastní plán, ne agregát
+        year = datetime.now().year
         try:
-            # Převedeme textové hodnoty zpět na čísla
-            direct_value_plan_str = values[0].replace(' Kč', '').replace(',', '')
-            direct_value_plan = float(direct_value_plan_str)
-            direct_value_plneni_str = values[2].replace(' Kč', '').replace(',', '')
-            direct_value_plneni = float(direct_value_plneni_str)
-        except (ValueError, IndexError):
-            direct_value_plan = 0.0
-            direct_value_plneni = 0.0
+            current_own = db.get_own_budget(self.app.profile_path, cat_id, year)
+        except Exception:
+            current_own = 0.0
+        editor.insert(0, self._format_number_for_edit(current_own))
+        editor.select_range(0, 'end')
+        editor.focus_set()
 
-        # Pokud položka nemá žádné děti, její hodnoty jsou finální.
-        if not children:
-            return direct_value_plan, direct_value_plneni
+        self._active_editor = (editor, tree, iid)
 
-        # Pokud MÁ položka děti, její finální hodnoty jsou její PŘÍMÉ HODNOTY
-        # plus součet finálních hodnot všech jejích dětí.
-        total_sum_of_children_plan = 0
-        total_sum_of_children_plneni = 0
-        for child_iid in children:
-            child_plan, child_plneni = self._recursive_sum(tree, child_iid)
-            total_sum_of_children_plan += child_plan
-            total_sum_of_children_plneni += child_plneni
-        
-        final_total_plan = direct_value_plan + total_sum_of_children_plan
-        final_total_plneni = direct_value_plneni + total_sum_of_children_plneni
+        def commit():
+            text = editor.get()
+            value = self._parse_money(text)
+            editor.destroy()
+            self._active_editor = None
+            if value is None:
+                return
+            if abs(value - float(current_own)) < 1e-9:
+                return
+            db.update_or_insert_budget(self.app.profile_path, cat_id, year, float(value))
+            self.load_data()
 
-        # Aktualizujeme zobrazené hodnoty pro rodičovskou položku
-        values = list(tree.item(item_iid, 'values'))
-        values[0] = f"{final_total_plan:,.2f} Kč"
-        values[2] = f"{final_total_plneni:,.2f} Kč"
-        tree.item(item_iid, values=values)
+        def cancel():
+            editor.destroy()
+            self._active_editor = None
 
-        # Vrátíme finální spočítané hodnoty, aby je mohl použít rodič o úroveň výš
-        return final_total_plan, final_total_plneni
+        editor.bind('<Return>', lambda e: commit())
+        editor.bind('<KP_Enter>', lambda e: commit())
+        editor.bind('<Escape>', lambda e: cancel())
+        editor.bind('<FocusOut>', lambda e: commit())
+
+    def _format_number_for_edit(self, val: float) -> str:
+        # Pro editor bez měny a bez oddělovačů tisíců
+        if abs(val - int(val)) < 1e-9:
+            return str(int(val))
+        return f"{val:.2f}"
+
+    def _parse_money(self, text: str):
+        # Odstranit měnu a mezery, podporovat čárku i tečku jako desetinnou
+        if text is None:
+            return None
+        s = str(text).strip()
+        if s == '':
+            return None
+        s = s.replace('Kč', '').replace('kč', '').replace(' ', '')
+        s = s.replace(',', '.')
+        try:
+            return float(s)
+        except ValueError:
+            return None
