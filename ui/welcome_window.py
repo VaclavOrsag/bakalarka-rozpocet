@@ -68,15 +68,6 @@ class WelcomeWindow:
         ttk.Button(self.main_frame, text="Otevřít vybraný", command=self.confirm_open_profile).pack(pady=10)
         ttk.Button(self.main_frame, text="Zpět", command=self.show_initial_choice).pack()
 
-    def show_create_options(self):
-        """Zobrazí možnosti pro vytvoření nového profilu."""
-        self.clear_frame()
-        ttk.Label(self.main_frame, text="Jak chcete vytvořit nový profil?", font=("Arial", 12)).pack(pady=10)
-        
-        ttk.Button(self.main_frame, text="Vytvořit prázdný profil", command=self.confirm_create_empty).pack(fill="x", pady=5)
-        ttk.Button(self.main_frame, text="Vytvořit profil z Excel souboru", command=self.confirm_create_from_excel).pack(fill="x", pady=5)
-        ttk.Button(self.main_frame, text="Zpět", command=self.show_initial_choice).pack(pady=10)
-
     
     def confirm_open_profile(self):
         selection = self.profile_listbox.curselection()
