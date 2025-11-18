@@ -148,7 +148,8 @@ class App:
         if db.has_categories(self.profile_path):
             self.notebook.add(self.tab_budget, text='Rozpočet')
         # a tak dále... (tuto logiku budeme postupně doplňovat)
-
+        if db.has_any_budget(self.profile_path):
+            self.notebook.add(self.tab_analysis, text='Analýza')
         # Obnovíme dříve vybranou záložku, pokud stále existuje
         if prev_selected_text:
             try:

@@ -105,6 +105,15 @@ def has_budget_for_year(db_path, year):
     conn.close()
     return result is not None
 
+def has_any_budget(db_path) -> bool:
+    """Vrátí True pokud tabulka 'rozpocty' obsahuje alespoň jeden záznam (bez nutnosti zadat rok)."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM rozpocty LIMIT 1")
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
+
 def get_own_budget(db_path: str, category_id: int, year: int) -> float:
     """Vrátí vlastní plánovanou částku pro danou kategorii a rok (bez potomků)."""
     conn = sqlite3.connect(db_path)
