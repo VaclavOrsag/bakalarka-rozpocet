@@ -3,6 +3,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from app import database as db
 
+from ui.hierarchy_dialog import open_hierarchy_dialog
+
+
 class AnalysisTab:
     """Analysis tab UI scaffold.
 
@@ -25,7 +28,7 @@ class AnalysisTab:
         self.preset_cb = ttk.Combobox(
             ctrl,
             textvariable=self.preset_var,
-            values=['Analýza středisek', 'Analýza rozpočtu', 'Vlastní'],
+            values=['Analýza středisek', 'Analýza rozpočtu','Analýza rozpočtu 2', 'Vlastní'],
             state='readonly',
             width=20
         )
@@ -177,11 +180,15 @@ class AnalysisTab:
         preset = self.preset_var.get()
         if preset == 'Analýza středisek':
             # fixed preset: rows = stredisko
-            self.row_dims = ['stredisko']
+            self.row_dims = ['stredisko', 'kdo', 'kategorie', 'text']
             self.hierarchy_btn.state(['disabled'])
         elif preset == 'Analýza rozpočtu':
             # fixed preset: rows = kategorie, stredisko
-            self.row_dims = ['kategorie', 'stredisko']
+            self.row_dims = ['kategorie', 'stredisko', 'text']
+            self.hierarchy_btn.state(['disabled'])
+        elif preset == 'Analýza rozpočtu 2':
+            # co - text - kdo
+            self.row_dims = ['kategorie', 'text', 'kdo']
             self.hierarchy_btn.state(['disabled'])
         else:  # 'Vlastní'
             # allow user to edit hierarchy
@@ -195,101 +202,10 @@ class AnalysisTab:
         self.refresh()
 
     def _open_hierarchy_dialog(self):
-        """Open modal to edit ordered list of row dimensions (available -> selected)."""
-        # only allow editing when preset == 'Vlastní' (extra safety)
-        if self.preset_var.get() != 'Vlastní':
-            messagebox.showinfo("Upozornění", "Hierarchii lze upravovat pouze v režimu 'Vlastní'.")
-            return
-
-        dlg = tk.Toplevel(self.parent)
-        dlg.title("Upravit hierarchii řádků")
-        dlg.transient(self.parent)
-        dlg.grab_set()
-
-        left = ttk.Frame(dlg, padding=6)
-        left.pack(side='left', fill='both', expand=True)
-        ttk.Label(left, text="Dostupné pole").pack()
-        avail_lb = tk.Listbox(left, height=8, exportselection=False)
-        for it in self.available_dims:
-            avail_lb.insert('end', it)
-        avail_lb.pack(fill='both', expand=True, padx=4, pady=4)
-
-        mid = ttk.Frame(dlg, padding=6)
-        mid.pack(side='left', fill='y')
-
-        def add_one():
-            sel = avail_lb.curselection()
-            if not sel: return
-            val = avail_lb.get(sel[0])
-            if val in selected_lb.get(0, 'end'): return
-            selected_lb.insert('end', val)
-
-        def remove_one():
-            sel = selected_lb.curselection()
-            if not sel: return
-            selected_lb.delete(sel[0])
-
-        def move_up():
-            sel = selected_lb.curselection()
-            if not sel: return
-            i = sel[0]
-            if i == 0: return
-            v = selected_lb.get(i)
-            selected_lb.delete(i)
-            selected_lb.insert(i-1, v)
-            selected_lb.selection_set(i-1)
-
-        def move_down():
-            sel = selected_lb.curselection()
-            if not sel: return
-            i = sel[0]
-            if i >= selected_lb.size()-1: return
-            v = selected_lb.get(i)
-            selected_lb.delete(i)
-            selected_lb.insert(i+1, v)
-            selected_lb.selection_set(i+1)
-
-        ttk.Button(mid, text="→", width=4, command=add_one).pack(pady=4)
-        ttk.Button(mid, text="←", width=4, command=remove_one).pack(pady=4)
-        ttk.Button(mid, text="▲", width=4, command=move_up).pack(pady=4)
-        ttk.Button(mid, text="▼", width=4, command=move_down).pack(pady=4)
-
-        right = ttk.Frame(dlg, padding=6)
-        right.pack(side='left', fill='both', expand=True)
-        ttk.Label(right, text="Vybraná hierarchie (pořadí)").pack()
-        selected_lb = tk.Listbox(right, height=8, exportselection=False)
-        for it in self.row_dims:
-            selected_lb.insert('end', it)
-        selected_lb.pack(fill='both', expand=True, padx=4, pady=4)
-
-        btns = ttk.Frame(dlg, padding=6)
-        btns.pack(side='bottom', fill='x')
-
-        def on_ok():
-            vals = list(selected_lb.get(0, 'end'))
-            MAX_LEVELS = 5
-            if len(vals) > MAX_LEVELS:
-                messagebox.showwarning("Omezení", f"Maximálně {MAX_LEVELS} úrovní povoleno.")
-                return
-            if not vals:
-                messagebox.showwarning("Vyberte pole", "Musíte vybrat alespoň jedno pole pro řádky.")
-                return
-            # Sanitize: povolíme pouze aktuálně dostupné labely
-            self.row_dims = [d for d in vals if d in self.available_dims]
-            dlg.destroy()
+        def _apply(new_dims):
+            self.row_dims = [d for d in new_dims if d in self.available_dims]
             self.refresh()
-
-        def on_cancel():
-            dlg.destroy()
-
-        ttk.Button(btns, text="OK", command=on_ok).pack(side='right', padx=6)
-        ttk.Button(btns, text="Zrušit", command=on_cancel).pack(side='right')
-
-        dlg.wait_window()
-
-    def _on_double_click(self, event):
-        # placeholder kept but not bound; drill-down will be implemented later
-        pass
+        open_hierarchy_dialog(self.parent, self.available_dims, self.row_dims, _apply)
 
     def _map_dim_to_column(self, dim_label: str) -> str:
         """Mapuje UI label na název sloupce v DB."""
