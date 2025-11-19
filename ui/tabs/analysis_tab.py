@@ -167,7 +167,7 @@ class AnalysisTab:
                     parent_iid, 'end',
                     text=path[-1],
                     values=(self._format_money(sums[path]),),
-                    open=True
+                    open=False
                 )
                 nodes[path] = iid
                 added.add(path)
