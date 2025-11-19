@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import datetime
 
 from app import database as db
@@ -191,6 +192,9 @@ class BudgetTab:
         self._active_editor = (editor, tree, iid)
 
         def commit():
+            # detekce prvního rozpočtu (před uložením)
+            had_any_before = db.has_any_budget(self.app.profile_path)
+
             text = editor.get()
             value = self._parse_money(text)
             editor.destroy()
@@ -201,6 +205,18 @@ class BudgetTab:
                 return
             db.update_or_insert_budget(self.app.profile_path, cat_id, year, float(value))
             self.load_data()
+
+            # po uložení: pokud předtím žádný rozpočet nebyl, právě vznikl první
+            has_any_now = db.has_any_budget(self.app.profile_path)
+            # uložení prvního rozpočtu odemkne záložku analýzy + nabídne import aktuálních dat
+            if not had_any_before and has_any_now:
+                # přepočet viditelnosti záložek (odemkne Analýzu dle logiky v main_app)
+                self.app.update_tabs_visibility()
+                if messagebox.askyesno(
+                    "Rozpočet vytvořen",
+                    "První rozpočet byl vytvořen.\nChcete nyní importovat aktuální data pro Analýzu a Plnění?"
+                ):
+                    self.app.import_excel(is_current=1)
 
         def cancel():
             editor.destroy()

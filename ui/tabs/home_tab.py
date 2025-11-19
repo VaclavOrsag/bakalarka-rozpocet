@@ -40,6 +40,11 @@ class HomeTab:
         if not db.has_budget_for_year(self.app.profile_path, current_year):
             self._show_step_create_budget()
             return
+        
+        # Priorita 4: Chybí aktuální transakce?
+        if not db.has_transactions(self.app.profile_path, is_current=1):
+            self._show_step_import_current()
+            return
 
         # Vše je hotovo, zobrazíme hlavní dashboard
         self._show_dashboard()
@@ -86,8 +91,24 @@ class HomeTab:
             command=lambda: self.app.switch_to_tab('Rozpočet')
         ).pack(pady=20)
 
+    def _show_step_import_current(self):
+        ttk.Label(self.tab_frame, text="Krok 4/4: Import aktuálních dat", font=("Arial", 18, "bold")).pack(pady=(20,10))
+
+        ttk.Label(self.tab_frame,
+                  text="Rozpočet je vytvořen. Pro zobrazení plnění a analýzy aktuálních dat můžete nyní naimportovat aktuální transakce.\nTento import lze provést i později v záložce 'Transakce'.",
+                  wraplength=520, justify=tk.CENTER).pack(pady=10)
+        ttk.Button(self.tab_frame,
+                   text="Importovat aktuální transakce (Excel)...",
+                   command=self.import_current
+        ).pack(pady=20)
+
+    def import_current(self):
+        self.app.import_excel(is_current=1)
+        self.check_profile_state()
+
+
     def _show_dashboard(self):
-        pass
+        ttk.Label(self.tab_frame, text="Dashboard", font=("Arial", 18, "bold")).pack(pady=(20,10))
 
 
     def import_historical(self):
