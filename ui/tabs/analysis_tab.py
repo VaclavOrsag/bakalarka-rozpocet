@@ -85,6 +85,8 @@ class AnalysisTab:
 
         # Initial placeholder
         self._on_preset_change()  # set initial state and load
+        # Načtení aktuálních změn (učetní osnova...) při zviditelnění tabu
+        self.parent.bind("<Visibility>", lambda e: self.load())
 
     def _show_placeholder(self):
         for i in self.tree.get_children():
