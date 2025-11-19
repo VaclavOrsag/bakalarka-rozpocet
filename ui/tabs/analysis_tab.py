@@ -54,7 +54,7 @@ class AnalysisTab:
             width=12
         )
         self.current_cb.pack(side='left', padx=6)
-        self.current_cb.bind('<<ComboboxSelected>>', lambda e: self.refresh())
+        self.current_cb.bind('<<ComboboxSelected>>', lambda e: self.load())
 
         # Filtr typu (Příjmy/Výdaje) dvěma checkboxy
         types_frame = ttk.Frame(ctrl)
@@ -62,8 +62,8 @@ class AnalysisTab:
         ttk.Label(types_frame, text="Typ:").pack(side='left')
         self.include_income_var = tk.BooleanVar(value=True)
         self.include_expense_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(types_frame, text='Příjmy', variable=self.include_income_var, command=self.refresh).pack(side='left', padx=4)
-        ttk.Checkbutton(types_frame, text='Výdaje', variable=self.include_expense_var, command=self.refresh).pack(side='left', padx=4)
+        ttk.Checkbutton(types_frame, text='Příjmy', variable=self.include_income_var, command=self.load).pack(side='left', padx=4)
+        ttk.Checkbutton(types_frame, text='Výdaje', variable=self.include_expense_var, command=self.load).pack(side='left', padx=4)
 
         # Note: search/export/drilldown are postponed; UI simplified for MVP.
 
@@ -84,7 +84,7 @@ class AnalysisTab:
         # Drill-down is postponed; do not bind double-click yet.
 
         # Initial placeholder
-        self._on_preset_change()  # set initial state and refresh
+        self._on_preset_change()  # set initial state and load
 
     def _show_placeholder(self):
         for i in self.tree.get_children():
@@ -96,7 +96,7 @@ class AnalysisTab:
         s = f"{val:,.2f}".replace(",", " ").replace(".", ",")
         return s + " Kč"
 
-    def refresh(self):
+    def load(self):
         """Načte agregovaná data dle self.row_dims a zobrazení a vykreslí strom."""
         # Vyčistit strom
         for i in self.tree.get_children():
@@ -198,13 +198,13 @@ class AnalysisTab:
                 self.row_dims = ['stredisko']
         # Sanitize na aktuální dostupné dimenze (odstraníme legacy 'co' apod.)
         self.row_dims = [d for d in self.row_dims if d in self.available_dims]
-        # refresh view for new preset
-        self.refresh()
+        # load view for new preset
+        self.load()
 
     def _open_hierarchy_dialog(self):
         def _apply(new_dims):
             self.row_dims = [d for d in new_dims if d in self.available_dims]
-            self.refresh()
+            self.load()
         open_hierarchy_dialog(self.parent, self.available_dims, self.row_dims, _apply)
 
     def _map_dim_to_column(self, dim_label: str) -> str:
