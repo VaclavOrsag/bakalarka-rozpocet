@@ -1,6 +1,7 @@
 # ...existing code...
 import tkinter as tk
 from tkinter import ttk, messagebox
+from app import database as db
 
 class AnalysisTab:
     """Analysis tab UI scaffold.
@@ -78,15 +79,71 @@ class AnalysisTab:
             self.tree.delete(i)
         self.tree.insert('', 'end', text='Nejsou načtena data', values=('',))
 
-    def refresh(self):
-        """Refresh view: placeholder for DB hook.
+    def _format_money(self, val: float) -> str:
+        # Jednoduché česko-like formátování: mezery jako tisícové oddělovače, čárka jako desetinná
+        s = f"{val:,.2f}".replace(",", " ").replace(".", ",")
+        return s + " Kč"
 
-        Called automatically on control changes. Currently shows placeholder.
-        Later: call analysis_db.get_pivot_rows(...) and render nested hierarchy.
-        """
-        # We intentionally avoid message boxes on auto-refresh; show placeholder silently.
-        # (Later: call DB helper with self.row_dims and current selection and render results)
-        self._show_placeholder()
+    def refresh(self):
+        """Načte agregovaná data dle self.row_dims a zobrazení a vykreslí strom."""
+        # Vyčistit strom
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+
+        is_current = 1 if self.current_var.get() == 'Aktuální' else 0
+        dims = list(self.row_dims)
+
+        try:
+            rows = db.get_pivot_rows(self.app.profile_path, dims, is_current)
+        except Exception:
+            # Pokud by se něco pokazilo, zobrazíme placeholder (tiché selhání v UI)
+            self._show_placeholder()
+            return
+
+        # Bez dimenzí – jen jeden řádek s celkem
+        if not dims:
+            total = rows[0]['total'] if rows else 0.0
+            self.tree.insert('', 'end', text='Celkem', values=(self._format_money(total),))
+            return
+
+        if not rows:
+            self._show_placeholder()
+            return
+
+        # 1) Spočítat sumy pro všechny prefixy cest (aby měly hodnotu i rodiče)
+        from collections import defaultdict
+        sums = defaultdict(float)
+        max_depth = 0
+        # Předzpracujeme také sekvence klíčů s náhradou prázdných řetězců
+        processed = []
+        for r in rows:
+            keys = [k if (k is not None and k != "") else "—" for k in r['keys']]
+            total = float(r['total'] or 0.0)
+            processed.append((keys, total))
+            max_depth = max(max_depth, len(keys))
+            for d in range(1, len(keys) + 1):
+                sums[tuple(keys[:d])] += total
+
+        # 2) Vykreslit uzly po vrstvách, aby rodiče vznikli dřív
+        nodes = {}  # path tuple -> iid
+        for depth in range(1, max_depth + 1):
+            added = set()
+            for keys, _ in processed:
+                if len(keys) < depth:
+                    continue
+                path = tuple(keys[:depth])
+                if path in added:
+                    continue
+                parent_path = path[:-1]
+                parent_iid = nodes[parent_path] if parent_path in nodes else ''
+                iid = self.tree.insert(
+                    parent_iid, 'end',
+                    text=path[-1],
+                    values=(self._format_money(sums[path]),),
+                    open=True
+                )
+                nodes[path] = iid
+                added.add(path)
 
     def _on_preset_change(self, event=None):
         """Apply preset defaults and enable hierarchy editing only for 'Vlastní'."""
