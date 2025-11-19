@@ -202,6 +202,13 @@ class BudgetTab:
             self._active_editor = None
             if value is None:
                 return
+            # Normalizace znaménka podle typu stromu:
+            # - příjmy: kladné číslo
+            # - výdaje: záporné číslo
+            if tree is self.tree_prijmy and value < 0:
+                value = -value
+            elif tree is self.tree_vydaje and value > 0:
+                value = -value
             if abs(value - float(current_own)) < 1e-9:
                 return
             db.update_or_insert_budget(self.app.profile_path, cat_id, year, float(value))
