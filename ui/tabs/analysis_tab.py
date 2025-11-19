@@ -34,8 +34,8 @@ class AnalysisTab:
         self.preset_cb.bind('<<ComboboxSelected>>', self._on_preset_change)
 
         ttk.Label(ctrl, text="Řádky:").pack(side='left', padx=(12,0))
-        # hierarchy selection via dialog (prevents typos)
-        self.available_dims = ['co','stredisko','text','kdo','firma','kategorie_id']
+        # hierarchy selection via dialog (UI labels). 'kategorie' je uživatelský název pro kategorie_id
+        self.available_dims = ['kategorie','stredisko','text','kdo','firma']
         self.row_dims = ['stredisko']  # default selection
         self.hierarchy_btn = ttk.Button(ctrl, text="Upravit hierarchii...", command=self._open_hierarchy_dialog)
         self.hierarchy_btn.pack(side='left', padx=6)
@@ -52,6 +52,15 @@ class AnalysisTab:
         )
         self.current_cb.pack(side='left', padx=6)
         self.current_cb.bind('<<ComboboxSelected>>', lambda e: self.refresh())
+
+        # Filtr typu (Příjmy/Výdaje) dvěma checkboxy
+        types_frame = ttk.Frame(ctrl)
+        types_frame.pack(side='left', padx=(18,0))
+        ttk.Label(types_frame, text="Typ:").pack(side='left')
+        self.include_income_var = tk.BooleanVar(value=True)
+        self.include_expense_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(types_frame, text='Příjmy', variable=self.include_income_var, command=self.refresh).pack(side='left', padx=4)
+        ttk.Checkbutton(types_frame, text='Výdaje', variable=self.include_expense_var, command=self.refresh).pack(side='left', padx=4)
 
         # Note: search/export/drilldown are postponed; UI simplified for MVP.
 
@@ -91,10 +100,28 @@ class AnalysisTab:
             self.tree.delete(i)
 
         is_current = 1 if self.current_var.get() == 'Aktuální' else 0
-        dims = list(self.row_dims)
+        # Mapování UI labelů na DB sloupce
+        dims = [self._map_dim_to_column(d) for d in self.row_dims]
+
+        # Odvození allowed_types z checkboxů
+        inc = getattr(self, 'include_income_var', None)
+        exp = getattr(self, 'include_expense_var', None)
+        allowed_types = None
+        if inc is not None and exp is not None:
+            inc_val = self.include_income_var.get()
+            exp_val = self.include_expense_var.get()
+            if not inc_val and not exp_val:
+                self._show_placeholder()
+                return
+            if inc_val and exp_val:
+                allowed_types = ['příjem', 'výdej']
+            elif inc_val:
+                allowed_types = ['příjem']
+            elif exp_val:
+                allowed_types = ['výdej']
 
         try:
-            rows = db.get_pivot_rows(self.app.profile_path, dims, is_current)
+            rows = db.get_pivot_rows(self.app.profile_path, dims, is_current, allowed_types)
         except Exception:
             # Pokud by se něco pokazilo, zobrazíme placeholder (tiché selhání v UI)
             self._show_placeholder()
@@ -153,8 +180,8 @@ class AnalysisTab:
             self.row_dims = ['stredisko']
             self.hierarchy_btn.state(['disabled'])
         elif preset == 'Analýza rozpočtu':
-            # fixed preset: rows = co, stredisko (example)
-            self.row_dims = ['co', 'stredisko']
+            # fixed preset: rows = kategorie, stredisko
+            self.row_dims = ['kategorie', 'stredisko']
             self.hierarchy_btn.state(['disabled'])
         else:  # 'Vlastní'
             # allow user to edit hierarchy
@@ -162,6 +189,8 @@ class AnalysisTab:
             # keep existing self.row_dims (user may have set earlier)
             if not self.row_dims:
                 self.row_dims = ['stredisko']
+        # Sanitize na aktuální dostupné dimenze (odstraníme legacy 'co' apod.)
+        self.row_dims = [d for d in self.row_dims if d in self.available_dims]
         # refresh view for new preset
         self.refresh()
 
@@ -245,7 +274,8 @@ class AnalysisTab:
             if not vals:
                 messagebox.showwarning("Vyberte pole", "Musíte vybrat alespoň jedno pole pro řádky.")
                 return
-            self.row_dims = vals
+            # Sanitize: povolíme pouze aktuálně dostupné labely
+            self.row_dims = [d for d in vals if d in self.available_dims]
             dlg.destroy()
             self.refresh()
 
@@ -260,3 +290,7 @@ class AnalysisTab:
     def _on_double_click(self, event):
         # placeholder kept but not bound; drill-down will be implemented later
         pass
+
+    def _map_dim_to_column(self, dim_label: str) -> str:
+        """Mapuje UI label na název sloupce v DB."""
+        return 'kategorie_id' if dim_label == 'kategorie' else dim_label

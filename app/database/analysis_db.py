@@ -1,11 +1,16 @@
 import sqlite3
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 # Povolené dimenze (sloupce) – bezpečnost proti SQL injection
 _WHITELIST = {"co", "stredisko", "text", "kdo", "firma", "kategorie_id"}
 
 
-def get_pivot_rows(db_path: str, dims: List[str], is_current: int) -> List[Dict[str, Any]]:
+def get_pivot_rows(
+	db_path: str,
+	dims: List[str],
+	is_current: int,
+	allowed_types: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
 	"""
 	Vrátí agregované řádky pro hierarchický pohled dle zadaných dimenzí.
 
@@ -13,6 +18,9 @@ def get_pivot_rows(db_path: str, dims: List[str], is_current: int) -> List[Dict[
 	- db_path: cesta k SQLite databázi (profilu)
 	- dims: pořadí dimenzí pro GROUP BY, např. ['stredisko', 'co']
 	- is_current: 1 = aktuální data, 0 = historická
+	- allowed_types: volitelně seznam typů kategorií, např. ['příjem','výdaj'];
+	  pokud je zadán, filtruje se dle k.typ (case-insensitive match), a proto se přidá JOIN
+	  na tabulku kategorie bez ohledu na to, zda je kategorie v dimenzích.
 
 	Návratová hodnota:
 	- list slovníků tvaru { 'keys': [hodnota_dim_1, ..., hodnota_dim_n], 'total': float }
@@ -21,18 +29,31 @@ def get_pivot_rows(db_path: str, dims: List[str], is_current: int) -> List[Dict[
 
 	# Očistit dimenze dle whitelistu a zachovat pořadí
 	dims = [d for d in dims if d in _WHITELIST]
-	join_kat = any(d == "kategorie_id" for d in dims)
+	# JOIN na kategorie je potřeba pokud zobrazujeme kategorii nebo pokud filtrujeme allowed_types
+	join_kat = ("kategorie_id" in dims) or (allowed_types is not None and len(allowed_types) > 0)
 
 	conn = sqlite3.connect(db_path)
 	cursor = conn.cursor()
 
 	try:
+		# WHERE sestavení
+		where_clauses = ["i.is_current = ?"]
+		params: List[Any] = [is_current]
+		if allowed_types:
+			# použijeme case-insensitive porovnání přes LOWER
+			placeholders = ", ".join(["LOWER(?)" for _ in allowed_types])
+			where_clauses.append(f"LOWER(k.typ) IN ({placeholders})")
+			params.extend(allowed_types)
+
 		if not dims:
-			# Bez dimenzí: jen jeden celkový součet
-			cursor.execute(
-				"SELECT COALESCE(SUM(castka), 0) FROM items WHERE is_current = ?",
-				(is_current,),
-			)
+			# Bez dimenzí: jen jeden celkový součet (s případným filtrem typů)
+			sql_total = f"""
+				SELECT COALESCE(SUM(i.castka), 0)
+				FROM items i
+				{"LEFT JOIN kategorie k ON k.id = i.kategorie_id" if join_kat else ""}
+				WHERE {' AND '.join(where_clauses)}
+			"""
+			cursor.execute(sql_total, tuple(params))
 			total = float(cursor.fetchone()[0] or 0.0)
 			return [{"keys": [], "total": total}]
 
@@ -55,12 +76,12 @@ def get_pivot_rows(db_path: str, dims: List[str], is_current: int) -> List[Dict[
 			SELECT {", ".join(select_parts)}, COALESCE(SUM(i.castka), 0) AS total
 			FROM items i
 			{"LEFT JOIN kategorie k ON k.id = i.kategorie_id" if join_kat else ""}
-			WHERE i.is_current = ?
+			WHERE {' AND '.join(where_clauses)}
 			GROUP BY {", ".join(group_parts)}
 			ORDER BY {", ".join(order_parts)}
 		"""
 
-		cursor.execute(sql, (is_current,))
+		cursor.execute(sql, tuple(params))
 		rows = cursor.fetchall()
 
 		out: List[Dict[str, Any]] = []
