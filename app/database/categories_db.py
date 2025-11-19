@@ -4,7 +4,7 @@ def create_categories_table(cursor):
     """Vytvoří tabulku 'kategorie', pokud neexistuje."""
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS kategorie (
-            id INTEGER PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             nazev TEXT NOT NULL,
             typ TEXT NOT NULL,
             parent_id INTEGER,
@@ -43,6 +43,7 @@ def update_category(db_path, category_id, new_name):
 def delete_category(db_path, category_id):
     """Smaže kategorii z databáze."""
     conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA foreign_keys = ON")  # Nutné pro Cascade delete (mazání kategorie = mazání rozpočtu v sql)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM kategorie WHERE id = ?", (category_id,))
     conn.commit()

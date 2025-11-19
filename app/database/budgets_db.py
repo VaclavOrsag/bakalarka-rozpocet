@@ -9,7 +9,7 @@ def create_budgets_table(cursor):
             kategorie_id INTEGER NOT NULL,
             planovana_castka REAL NOT NULL,
             UNIQUE(rok, kategorie_id),
-            FOREIGN KEY (kategorie_id) REFERENCES kategorie (id)
+            FOREIGN KEY (kategorie_id) REFERENCES kategorie (id) ON DELETE CASCADE
         )
     ''')
 
