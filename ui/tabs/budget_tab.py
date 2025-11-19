@@ -167,9 +167,10 @@ class BudgetTab:
             if iid not in self._iid_to_catid_expense:
                 return
             cat_id = self._iid_to_catid_expense[iid]
-        if cat_id in self._cats_with_children:
+        #Prozatím povolit editaci i rodičovských kategorií - do budoucna možná přidat do roll downu?
+        #if cat_id in self._cats_with_children:
             # Rodičovské kategorie jsou součty – needitujeme přímo
-            return
+            #return
 
         # Souřadnice buňky pro overlay Entry
         bbox = tree.bbox(iid, col)
