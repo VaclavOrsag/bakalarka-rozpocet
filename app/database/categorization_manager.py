@@ -16,18 +16,23 @@ def get_unassigned_categories_by_type(db_path):
     result = {'příjem': [], 'výdej': [], 'neurčeno': []}
 
     for item_name in unassigned_items:
-        # Pro každou položku zjistíme její typ
-        cursor.execute("SELECT castka FROM items WHERE co = ? AND castka != 0 LIMIT 1", (item_name,))
-        row = cursor.fetchone()
+        # Pro každou položku zkontrolujeme, jestli má příjmy a/nebo výdaje
+        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka > 0", (item_name,))
+        has_income = cursor.fetchone()[0] > 0
         
-        if not row:
+        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka < 0", (item_name,))
+        has_expense = cursor.fetchone()[0] > 0
+        
+        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka = 0", (item_name,))
+        has_zero = cursor.fetchone()[0] > 0
+        
+        # Položka se může objevit v obou seznamech, pokud má obojí
+        if has_income:
+            result['příjem'].append(item_name)
+        if has_expense:
+            result['výdej'].append(item_name)
+        if not has_income and not has_expense and has_zero:
             result['neurčeno'].append(item_name)
-        else:
-            amount = row[0]
-            if amount > 0:
-                result['příjem'].append(item_name)
-            else:
-                result['výdej'].append(item_name)
     
     conn.close()
     # Seřadíme seznamy pro přehlednost
@@ -65,6 +70,22 @@ def assign_category_to_items(db_path, co_name, category_id):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("UPDATE items SET kategorie_id = ? WHERE co = ?", (category_id, co_name))
+    conn.commit()
+    conn.close()
+
+def assign_category_to_items_by_type(db_path, co_name, category_id, transaction_type):
+    """
+    Přiřadí kategorii pouze transakcím určitého typu (příjem/výdaj).
+    transaction_type: 'příjem' nebo 'výdaj'
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    if transaction_type == 'příjem':
+        cursor.execute("UPDATE items SET kategorie_id = ? WHERE co = ? AND castka > 0 AND kategorie_id IS NULL", (category_id, co_name))
+    elif transaction_type == 'výdaj':
+        cursor.execute("UPDATE items SET kategorie_id = ? WHERE co = ? AND castka < 0 AND kategorie_id IS NULL", (category_id, co_name))
+    
     conn.commit()
     conn.close()
 

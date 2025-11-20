@@ -8,7 +8,8 @@ def create_categories_table(cursor):
             nazev TEXT NOT NULL,
             typ TEXT NOT NULL,
             parent_id INTEGER,
-            FOREIGN KEY (parent_id) REFERENCES kategorie (id)
+            FOREIGN KEY (parent_id) REFERENCES kategorie (id),
+            UNIQUE(nazev, typ)
         )
     ''')
 
@@ -21,15 +22,31 @@ def get_all_categories(db_path):
     conn.close()
     return categories
 
-def add_category(db_path, nazev, typ, parent_id):
-    """Přidá novou kategorii do databáze."""
+def category_exists(db_path, nazev, typ):
+    """Kontroluje, zda kategorie s daným názvem a typem již existuje."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO kategorie (nazev, typ, parent_id) VALUES (?, ?, ?)", (nazev, typ, parent_id))
-    new_id = cursor.lastrowid
-    conn.commit()
+    cursor.execute("SELECT id FROM kategorie WHERE nazev = ? AND typ = ?", (nazev, typ))
+    result = cursor.fetchone()
     conn.close()
-    return new_id # Vrátíme ID pro další použití
+    return result is not None
+
+def add_category(db_path, nazev, typ, parent_id):
+    """Přidá novou kategorii do databáze. Kontroluje duplicity."""
+    if category_exists(db_path, nazev, typ):
+        raise ValueError(f"Kategorie '{nazev}' typu '{typ}' již existuje.")
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO kategorie (nazev, typ, parent_id) VALUES (?, ?, ?)", (nazev, typ, parent_id))
+        new_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return new_id # Vrátíme ID pro další použití
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise ValueError(f"Kategorie '{nazev}' typu '{typ}' již existuje.")
 
 """"
 def update_category(db_path, category_id, new_name):

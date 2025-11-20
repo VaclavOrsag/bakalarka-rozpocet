@@ -192,16 +192,22 @@ class AccountingStructureTab:
         if typ not in ['příjem', 'výdej']:
             messagebox.showerror("Chyba zařazení", f"Položku '{name}' nelze automaticky zařadit.")
             return
-        new_category_id = db.add_category(self.app.profile_path, name, typ, None)
-        db.assign_category_to_items(self.app.profile_path, name, new_category_id)
-        # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
-        if is_first_category:
-            self.app.update_tabs_visibility()
-            messagebox.showinfo(
-                "Rozpočet je připraven",
-                "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
-            )
-        self.refresh_data()
+        
+        try:
+            new_category_id = db.add_category(self.app.profile_path, name, typ, None)
+            # Použijeme novou funkci pro přiřazení podle typu
+            db.assign_category_to_items_by_type(self.app.profile_path, name, new_category_id, typ)
+            
+            # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
+            if is_first_category:
+                self.app.update_tabs_visibility()
+                messagebox.showinfo(
+                    "Rozpočet je připraven",
+                    "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
+                )
+            self.refresh_data()
+        except ValueError as e:
+            messagebox.showerror("Duplicitní kategorie", str(e))
 
     def add_as_subcategory(self):
         name, actual_type = self.get_selected_unassigned_with_type()
@@ -220,9 +226,14 @@ class AccountingStructureTab:
         if actual_type != parent_type:
             messagebox.showerror("Chyba zařazení", f"Nelze zařadit položku typu '{actual_type.capitalize()}' pod '{parent_type.capitalize()}'.")
             return
-        new_category_id = db.add_category(self.app.profile_path, name, parent_type, parent_id)
-        db.assign_category_to_items(self.app.profile_path, name, new_category_id)
-        self.refresh_data()
+        
+        try:
+            new_category_id = db.add_category(self.app.profile_path, name, parent_type, parent_id)
+            # Použijeme novou funkci pro přiřazení podle typu
+            db.assign_category_to_items_by_type(self.app.profile_path, name, new_category_id, parent_type)
+            self.refresh_data()
+        except ValueError as e:
+            messagebox.showerror("Duplicitní kategorie", str(e))
 
     def delete_category(self):       
         if not self.active_tree:
@@ -273,6 +284,11 @@ class AccountingStructureTab:
             typ = parent_type
 
         # Vložíme do databáze
+        # Přidáme kontrolu existence PŘED pokusem o vytvoření
+        if db.category_exists(self.app.profile_path, name, typ):
+            messagebox.showwarning("Kategorie již existuje", f"Kategorie '{name}' typu '{typ}' již existuje.\n\nPokud chcete přidat novou kategorii, zvolte jiný název.")
+            return
+        
         db.add_category(self.app.profile_path, name, typ, parent_id)
         
         # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet

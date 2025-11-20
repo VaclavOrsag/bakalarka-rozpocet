@@ -15,13 +15,34 @@ def create_items_table(cursor):
     ''')
 
 def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current):
-    """Přidá novou položku se všemi sloupci do databáze."""
+    """Přidá novou položku do databáze a pokusí se ji automaticky přiřadit k existující kategorii."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    # Pokusíme se najít existující kategorii pro automatické přiřazení
+    kategorie_id = None
+    if co and co.strip() and castka != 0:
+        # Určíme typ podle znaménka částky
+        if castka > 0:
+            transaction_type = 'příjem'
+        elif castka < 0:
+            transaction_type = 'výdej'
+        else:
+            transaction_type = None
+        
+        # Pokud dokážeme určit typ, pokusíme se najít existující kategorii
+        if transaction_type:
+            cursor.execute("SELECT id FROM kategorie WHERE nazev = ? AND typ = ?", (co, transaction_type))
+            existing_category = cursor.fetchone()
+            if existing_category:
+                kategorie_id = existing_category[0]
+    
+    # Vložíme transakci s příslušnou kategorie_id (může být None nebo nalezená)
     cursor.execute('''
-        INSERT INTO items (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current))
+        INSERT INTO items (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, kategorie_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, kategorie_id))
+    
     conn.commit()
     conn.close()
 
