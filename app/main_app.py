@@ -53,15 +53,6 @@ class App:
 
         # Po spuštění zkontrolujeme stav a zobrazíme správné záložky
         self.root.after(100, self.update_tabs_visibility)
-
-    def _center_window(self, win):
-        # ... (metoda zůstává stejná)
-        win.update_idletasks()
-        root_x, root_y, root_w, root_h = self.root.winfo_x(), self.root.winfo_y(), self.root.winfo_width(), self.root.winfo_height()
-        win_w, win_h = win.winfo_width(), win.winfo_height()
-        x = root_x + (root_w - win_w) // 2
-        y = root_y + (root_h - win_h) // 2
-        win.geometry(f"+{x}+{y}")
     
     def switch_to_tab(self, tab_name: str):
         """Programově přepne na záložku se zadaným názvem."""
@@ -103,9 +94,6 @@ class App:
         
         # Samotný import
         if file_importer.import_from_excel(filepath, self.profile_path, is_current):
-            # Po importu se pokusíme automaticky zařadit nová data
-            db.reapply_all_categories(self.profile_path)
-            
             # Obnovíme všechny relevantní záložky
             self.sources_ui.load_items()
             self.sources_ui.update_total()

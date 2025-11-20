@@ -48,15 +48,6 @@ def add_category(db_path, nazev, typ, parent_id):
         conn.close()
         raise ValueError(f"Kategorie '{nazev}' typu '{typ}' již existuje.")
 
-""""
-def update_category(db_path, category_id, new_name):
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("UPDATE kategorie SET nazev = ? WHERE id = ?", (new_name, category_id))
-    conn.commit()
-    conn.close()
-"""
-
 def delete_category(db_path, category_id):
     """Smaže kategorii z databáze."""
     conn = sqlite3.connect(db_path)

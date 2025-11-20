@@ -70,18 +70,6 @@ def delete_all_items(db_path, is_current):
     cursor.execute("DELETE FROM items WHERE is_current = ?", (is_current,))
     conn.commit()
     conn.close()
-    
-def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current):
-    """Aktualizuje položku v databázi podle jejího ID."""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE items 
-        SET datum=?, doklad=?, zdroj=?, firma=?, text=?, madati=?, dal=?, castka=?, cin=?, cislo=?, co=?, kdo=?, stredisko=?, is_current=? 
-        WHERE id = ?
-    ''', (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, item_id))
-    conn.commit()
-    conn.close()
 
 def get_total_amount(db_path, is_current):
     """Vrátí součet všech částek pro daný stav."""
