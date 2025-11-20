@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 # Povolené dimenze (sloupce) – bezpečnost proti SQL injection
 _WHITELIST = {"co", "stredisko", "text", "kdo", "firma", "kategorie_id"}
 # Normalizované platné typy kategorií
-VALID_TYPES = {"příjem", "výdej", "neurčeno"}
+VALID_TYPES = {"příjem", "výdej"}
 
 
 def get_pivot_rows(
@@ -36,7 +36,7 @@ def get_pivot_rows(
 		where_clauses = ["i.is_current = ?"]
 		params: List[Any] = [is_current]
 		if allowed_types:
-			filtered = [t for t in allowed_types if t in VALID_TYPES and t != 'neurčeno']
+			filtered = [t for t in allowed_types if t in VALID_TYPES]
 			if filtered:
 				placeholders = ", ".join(["?"] * len(filtered))
 				where_clauses.append(f"k.typ IN ({placeholders})")

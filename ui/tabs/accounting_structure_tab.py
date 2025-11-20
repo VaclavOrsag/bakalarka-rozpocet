@@ -39,18 +39,14 @@ class AccountingStructureTab:
         main_pane.add(self.right_frame, weight=3)
 
     def _setup_left_panel(self):
-        """Vytvoří obsah levého panelu (3 seznamy)."""
+        """Vytvoří obsah levého panelu (2 seznamy)."""
         income_lf = ttk.LabelFrame(self.left_pane, text="Příjmy")
-        self.left_pane.add(income_lf, weight=2)
+        self.left_pane.add(income_lf, weight=1)
         self.list_prijmy = self._create_scrolled_listbox(income_lf)
 
         expense_lf = ttk.LabelFrame(self.left_pane, text="Výdaje")
-        self.left_pane.add(expense_lf, weight=3)
+        self.left_pane.add(expense_lf, weight=1)
         self.list_vydaje = self._create_scrolled_listbox(expense_lf)
-        
-        unknown_lf = ttk.LabelFrame(self.left_pane, text="Nelze určit / Nutná kontrola")
-        self.left_pane.add(unknown_lf, weight=1)
-        self.list_neurceno = self._create_scrolled_listbox(unknown_lf, height=3)
 
     def _setup_controls_panel(self):
         """Vytvoří obsah středního panelu (tlačítka)."""
@@ -121,12 +117,11 @@ class AccountingStructureTab:
         self.load_categories_tree()
 
     def load_unassigned_list(self):   
-        for lst in [self.list_prijmy, self.list_vydaje, self.list_neurceno]:
+        for lst in [self.list_prijmy, self.list_vydaje]:
             lst.delete(0, tk.END)
         sorted_items = db.get_unassigned_categories_by_type(self.app.profile_path)
         for item in sorted_items['příjem']: self.list_prijmy.insert(tk.END, item)
         for item in sorted_items['výdej']: self.list_vydaje.insert(tk.END, item)
-        # Neurčeno se už nepoužívá - neúplné transakce jsou řešené vizuálně v sources_tab
 
     def load_categories_tree(self):
         """
