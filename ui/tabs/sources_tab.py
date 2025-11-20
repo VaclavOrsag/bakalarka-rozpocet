@@ -47,9 +47,9 @@ class SourcesTab:
         self.tab_frame.bind("<Visibility>", lambda e: self.load_items())
 
     def _create_treeview(self, parent):
-        # Přidáváme 'id' jako skrytý sloupec
-        columns = ('id', 'datum', 'doklad', 'firma', 'text', 'castka')
-        tree = ttk.Treeview(parent, columns=columns, show='headings', displaycolumns=('datum', 'doklad', 'firma', 'text', 'castka'))
+        # Přidáváme 'id' jako skrytý sloupec a 'co' sloupec
+        columns = ('id', 'datum', 'doklad', 'firma', 'text', 'co', 'castka')
+        tree = ttk.Treeview(parent, columns=columns, show='headings', displaycolumns=('datum', 'doklad', 'firma', 'text', 'co', 'castka'))
         
         # ID sloupec je skrytý, nastavíme ale jeho heading pro lepší kód
         tree.heading('id', text='ID')
@@ -59,9 +59,13 @@ class SourcesTab:
         tree.heading('doklad', text='Doklad')
         tree.heading('firma', text='Firma')
         tree.heading('text', text='Text')
+        tree.heading('co', text='Co')
         tree.heading('castka', text='Částka')
 
         tree.column('castka', anchor='e')
+        
+        # Konfigurace tagu pro neúplné řádky (červené pozadí)
+        tree.tag_configure("incomplete", background="#ffcccc", foreground="#cc0000")
 
         scrollbar = ttk.Scrollbar(parent, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
@@ -87,9 +91,32 @@ class SourcesTab:
         
         items = db.get_items(self.app.profile_path, self.current_view)
         for item in items:
-            # ID, datum, doklad, zdroj, firma, text, madati, dal, castka, ...
-            # Vložíme ID jako první hodnotu (skrytý sloupec), pak zobrazované sloupce
-            self.tree.insert('', 'end', values=(item[0], item[1], item[2], item[4], item[5], f"{item[8]:,.2f} Kč"))
+            # Struktura: (id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, kategorie_id)
+            
+            # Formátování částky
+            castka_formatted = f"{item[8]:,.2f} Kč" if item[8] != 0 else "0,00 Kč"
+            
+            # Data pro zobrazení včetně sloupce "Co"
+            display_values = (
+                item[0],           # ID (skryté)
+                item[1],           # Datum
+                item[2],           # Doklad  
+                item[4],           # Firma
+                item[5],           # Text
+                item[11] or "",    # Co
+                castka_formatted   # Částka
+            )
+            
+            # Detekce neúplných dat
+            is_incomplete = (
+                not item[11] or               # Chybí "Co"
+                str(item[11]).strip() == "" or  # "Co" je prázdné
+                item[8] == 0                  # Částka je nula
+            )
+            
+            # Vložení řádku s příslušným tagem
+            tag = "incomplete" if is_incomplete else ""
+            self.tree.insert('', 'end', values=display_values, tags=(tag,) if tag else ())
 
     def update_total(self):
         """Aktualizuje zobrazenou celkovou částku."""
@@ -107,8 +134,8 @@ class SourcesTab:
         item_data = self.tree.item(selection[0], 'values')
         item_id = int(item_data[0])  # ID je první hodnota
         
-        # Zobrazíme detaily pro potvrzení
-        item_text = f"Datum: {item_data[1]}\nDoklad: {item_data[2]}\nFirma: {item_data[3]}\nText: {item_data[4]}\nČástka: {item_data[5]}"
+        # Zobrazíme detaily pro potvrzení - upraveno pro nový sloupec "Co"
+        item_text = f"Datum: {item_data[1]}\nDoklad: {item_data[2]}\nFirma: {item_data[3]}\nText: {item_data[4]}\nCo: {item_data[5]}\nČástka: {item_data[6]}"
         
         result = messagebox.askyesno(
             "Potvrzení smazání", 
