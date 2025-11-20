@@ -85,6 +85,13 @@ def add_new_item(self):
             co = v_co.get().strip()
             kdo = v_kdo.get().strip()
             stredisko = v_stred.get().strip()
+            """
+            Přidání validaco "Co", prozatím zakomentováno, pro účely testování
+            # Validace povinného pole "Co"
+            if not co:
+                messagebox.showerror("Chybné pole", "Pole 'Co' je povinné!")
+                return"""
+            
             try:
                 db.add_item(
                     self.app.profile_path,
