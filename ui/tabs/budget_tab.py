@@ -119,9 +119,10 @@ class BudgetTab:
 
                 # Z databáze už máme finální agregované hodnoty
                 values_tuple = (
-                    fmt(row['sum_past']),
-                    fmt(row['budget_plan']),
-                    fmt(row['sum_current']),
+                    # Všechny tři sloupce zobrazujeme kladně
+                    fmt(abs(row['sum_past'])),
+                    fmt(abs(row['budget_plan'])),
+                    fmt(abs(row['sum_current'])),
                 )
 
                 tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
@@ -186,7 +187,8 @@ class BudgetTab:
             current_own = db.get_own_budget(self.app.profile_path, cat_id, year)
         except Exception:
             current_own = 0.0
-        editor.insert(0, self._format_number_for_edit(current_own))
+        # Editor předvyplníme kladnou hodnotou, 2 desetinná místa dle _format_number_for_edit
+        editor.insert(0, self._format_number_for_edit(abs(current_own)))
         editor.select_range(0, 'end')
         editor.focus_set()
 
@@ -202,13 +204,11 @@ class BudgetTab:
             self._active_editor = None
             if value is None:
                 return
-            # Normalizace znaménka podle typu stromu:
-            # - příjmy: kladné číslo
-            # - výdaje: záporné číslo
-            if tree is self.tree_prijmy and value < 0:
+            # Rozpočet ukládáme se správným znaménkem dle stromu, ale velikost bereme jako kladnou (2 desetinná místa)
+            value = round(abs(value), 2)
+            if tree is self.tree_vydaje:
                 value = -value
-            elif tree is self.tree_vydaje and value > 0:
-                value = -value
+            # Pokud se fakticky nic nezměnilo oproti uložené hodnotě, neukládej
             if abs(value - float(current_own)) < 1e-9:
                 return
             db.update_or_insert_budget(self.app.profile_path, cat_id, year, float(value))
