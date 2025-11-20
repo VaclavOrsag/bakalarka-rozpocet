@@ -2,7 +2,7 @@ import sqlite3
 
 def get_unassigned_categories_by_type(db_path):
     """
-    Najde všechny nezařazené položky 'co' a roztřídí je na příjmy, výdaje a neurčené.
+    Najde všechny nezařazené položky 'co' a roztřídí je na příjmy, výdej a neurčené.
     Vrací slovník se třemi seznamy.
     """
     conn = sqlite3.connect(db_path)
@@ -16,7 +16,7 @@ def get_unassigned_categories_by_type(db_path):
     result = {'příjem': [], 'výdej': [], 'neurčeno': []}
 
     for item_name in unassigned_items:
-        # Pro každou položku zkontrolujeme, jestli má NEZAŘAZENÉ příjmy a/nebo výdaje
+        # Pro každou položku zkontrolujeme, jestli má NEZAŘAZENÉ příjmy a/nebo výdej
         cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka > 0 AND kategorie_id IS NULL", (item_name,))
         has_income = cursor.fetchone()[0] > 0
         
@@ -75,8 +75,8 @@ def assign_category_to_items(db_path, co_name, category_id):
 
 def assign_category_to_items_by_type(db_path, co_name, category_id, transaction_type):
     """
-    Přiřadí kategorii pouze transakcím určitého typu (příjem/výdaj).
-    transaction_type: 'příjem' nebo 'výdaj'
+    Přiřadí kategorii pouze transakcím určitého typu (příjem/výdej).
+    transaction_type: 'příjem' nebo 'výdej'
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
