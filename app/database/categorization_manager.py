@@ -16,14 +16,14 @@ def get_unassigned_categories_by_type(db_path):
     result = {'příjem': [], 'výdej': [], 'neurčeno': []}
 
     for item_name in unassigned_items:
-        # Pro každou položku zkontrolujeme, jestli má příjmy a/nebo výdaje
-        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka > 0", (item_name,))
+        # Pro každou položku zkontrolujeme, jestli má NEZAŘAZENÉ příjmy a/nebo výdaje
+        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka > 0 AND kategorie_id IS NULL", (item_name,))
         has_income = cursor.fetchone()[0] > 0
         
-        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka < 0", (item_name,))
+        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka < 0 AND kategorie_id IS NULL", (item_name,))
         has_expense = cursor.fetchone()[0] > 0
         
-        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka = 0", (item_name,))
+        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka = 0 AND kategorie_id IS NULL", (item_name,))
         has_zero = cursor.fetchone()[0] > 0
         
         # Položka se může objevit v obou seznamech, pokud má obojí
@@ -83,7 +83,7 @@ def assign_category_to_items_by_type(db_path, co_name, category_id, transaction_
     
     if transaction_type == 'příjem':
         cursor.execute("UPDATE items SET kategorie_id = ? WHERE co = ? AND castka > 0 AND kategorie_id IS NULL", (category_id, co_name))
-    elif transaction_type == 'výdaj':
+    elif transaction_type == 'výdej':
         cursor.execute("UPDATE items SET kategorie_id = ? WHERE co = ? AND castka < 0 AND kategorie_id IS NULL", (category_id, co_name))
     
     conn.commit()
