@@ -2,40 +2,42 @@ import sqlite3
 
 def get_unassigned_categories_by_type(db_path):
     """
-    Najde všechny nezařazené položky 'co' a roztřídí je na příjmy, výdej a neurčené.
-    Vrací slovník se třemi seznamy.
+    Najde všechny nezařazené položky 'co' a roztřídí je na příjmy a výdaje.
+    Vrací slovník se dvěma seznamy (neurčeno odstraněno).
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Nejdříve získáme všechny unikátní nezařazené položky
-    cursor.execute("SELECT DISTINCT co FROM items WHERE kategorie_id IS NULL AND co IS NOT NULL AND co != ''")
+    # Získáme pouze položky s validním "co" A částkou != 0
+    cursor.execute("""
+        SELECT DISTINCT co FROM items 
+        WHERE kategorie_id IS NULL 
+        AND co IS NOT NULL 
+        AND co != '' 
+        AND castka != 0
+    """)
     unassigned_items = [item[0] for item in cursor.fetchall()]
 
-    # Připravíme si slovník pro výsledky
-    result = {'příjem': [], 'výdej': [], 'neurčeno': []}
+    # Připravíme si slovník pro výsledky (BEZ neurčeno)
+    result = {'příjem': [], 'výdej': []}
 
     for item_name in unassigned_items:
-        # Pro každou položku zkontrolujeme, jestli má NEZAŘAZENÉ příjmy a/nebo výdej
+        # Zkontrolujeme typ transakcí
         cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka > 0 AND kategorie_id IS NULL", (item_name,))
         has_income = cursor.fetchone()[0] > 0
         
         cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka < 0 AND kategorie_id IS NULL", (item_name,))
         has_expense = cursor.fetchone()[0] > 0
         
-        cursor.execute("SELECT COUNT(*) FROM items WHERE co = ? AND castka = 0 AND kategorie_id IS NULL", (item_name,))
-        has_zero = cursor.fetchone()[0] > 0
-        
-        # Položka se může objevit v obou seznamech, pokud má obojí
+        # Přidáme do příslušných kategorií
         if has_income:
             result['příjem'].append(item_name)
         if has_expense:
             result['výdej'].append(item_name)
-        if not has_income and not has_expense and has_zero:
-            result['neurčeno'].append(item_name)
     
     conn.close()
-    # Seřadíme seznamy pro přehlednost
+    
+    # Seřadíme seznamy
     for key in result:
         result[key].sort()
         

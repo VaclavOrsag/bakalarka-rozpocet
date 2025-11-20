@@ -126,7 +126,7 @@ class AccountingStructureTab:
         sorted_items = db.get_unassigned_categories_by_type(self.app.profile_path)
         for item in sorted_items['příjem']: self.list_prijmy.insert(tk.END, item)
         for item in sorted_items['výdej']: self.list_vydaje.insert(tk.END, item)
-        for item in sorted_items['neurčeno']: self.list_neurceno.insert(tk.END, item)
+        # Neurčeno se už nepoužívá - neúplné transakce jsou řešené vizuálně v sources_tab
 
     def load_categories_tree(self):
         """
@@ -174,7 +174,7 @@ class AccountingStructureTab:
     # --- METODY PRO AKCE (BUSINESS LOGIKA) ---
 
     def get_selected_unassigned_with_type(self):        
-        listbox_map = {'příjem': self.list_prijmy, 'výdej': self.list_vydaje, 'neurčeno': self.list_neurceno}
+        listbox_map = {'příjem': self.list_prijmy, 'výdej': self.list_vydaje}
         for typ, listbox in listbox_map.items():
             selected_indices = listbox.curselection()
             if selected_indices:
