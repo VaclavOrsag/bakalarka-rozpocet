@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 from tkinter import ttk, messagebox
 from datetime import datetime
 
@@ -128,7 +127,14 @@ class BudgetTab:
                 tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
 
                 if parent_id is None:
-                    iid = tree.insert('', 'end', text=nazev, values=values_tuple, open=True)
+                    # Zobrazení s ikonou pro custom kategorie
+                    display_text = f"📁 {nazev}" if row.get('is_custom') == 1 else nazev
+                    iid = tree.insert('', 'end', text=display_text, values=values_tuple, open=True)
+                    
+                    # Přidáme tag pro červenou barvu
+                    if row.get('is_custom') == 1:
+                        tree.item(iid, tags=('custom',))
+                    
                     if tree is self.tree_prijmy:
                         self._iid_to_catid_income[iid] = cat_id
                     else:
@@ -138,7 +144,14 @@ class BudgetTab:
                     items_added_in_pass += 1
                 elif parent_id in tree_items:
                     parent_iid = tree_items[parent_id]
-                    iid = tree.insert(parent_iid, 'end', text=nazev, values=values_tuple, open=True)
+                    # Zobrazení s ikonou pro custom kategorie
+                    display_text = f"📁 {nazev}" if row.get('is_custom') == 1 else nazev
+                    iid = tree.insert(parent_iid, 'end', text=display_text, values=values_tuple, open=True)
+                    
+                    # Přidáme tag pro červenou barvu
+                    if row.get('is_custom') == 1:
+                        tree.item(iid, tags=('custom',))
+                    
                     if tree is self.tree_prijmy:
                         self._iid_to_catid_income[iid] = cat_id
                     else:
@@ -146,6 +159,10 @@ class BudgetTab:
                     tree_items[cat_id] = iid
                     to_process.remove(cat_id)
                     items_added_in_pass += 1
+
+        # Konfigurace červené barvy pro custom kategorie
+        for tree in [self.tree_prijmy, self.tree_vydaje]:
+            tree.tag_configure('custom', foreground='red')
 
         # Není třeba dopočítávat sumy v Pythonu – vše spočítala databáze.
         return
@@ -168,10 +185,15 @@ class BudgetTab:
             if iid not in self._iid_to_catid_expense:
                 return
             cat_id = self._iid_to_catid_expense[iid]
-        #Prozatím povolit editaci i rodičovských kategorií - do budoucna možná přidat do roll downu?
-        #if cat_id in self._cats_with_children:
-            # Rodičovské kategorie jsou součty – needitujeme přímo
-            #return
+            
+        # VALIDACE: Custom kategorie nelze editovat - rozpočet se počítá automaticky
+        if db.is_custom_category(self.app.profile_path, cat_id):
+            messagebox.showinfo(
+                "Nelze editovat", 
+                "Rozpočet custom kategorie se počítá automaticky jako součet podkategorií.\n\n"
+                "Pro změnu rozpočtu upravte rozpočty jednotlivých podkategorií."
+            )
+            return
 
         # Souřadnice buňky pro overlay Entry
         bbox = tree.bbox(iid, col)
@@ -194,6 +216,7 @@ class BudgetTab:
 
         self._active_editor = (editor, tree, iid)
 
+
         def commit():
             # detekce prvního rozpočtu (před uložením)
             had_any_before = db.has_any_budget(self.app.profile_path)
@@ -212,6 +235,10 @@ class BudgetTab:
             if abs(value - float(current_own)) < 1e-9:
                 return
             db.update_or_insert_budget(self.app.profile_path, cat_id, year, float(value))
+            
+            # NOVÉ: Přepočítej custom kategorie po změně podkategorie
+            db.update_custom_category_budgets(self.app.profile_path, year)
+            
             self.load_data()
 
             # po uložení: pokud předtím žádný rozpočet nebyl, právě vznikl první

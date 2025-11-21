@@ -78,14 +78,17 @@ def get_budget_overview(db_path: str, year: int):
         a.nazev,
         a.typ,
         a.parent_id,
+        a.is_custom,
         COALESCE(SUM(ia.sum_past), 0) AS sum_past,
         COALESCE(SUM(ia.sum_current), 0) AS sum_current,
-        COALESCE(SUM(ba.budget_plan), 0) AS budget_plan
+        -- Všechny kategorie: jen vlastní rozpočet
+        -- (custom = automatický součet, transakční = vlastní hodnota)
+        COALESCE(ba_own.budget_plan, 0) AS budget_plan
     FROM kategorie a
     LEFT JOIN tree t ON t.ancestor_id = a.id
     LEFT JOIN items_agg ia ON ia.descendant_id = t.descendant_id
-    LEFT JOIN budgets_agg ba ON ba.descendant_id = t.descendant_id
-    GROUP BY a.id, a.nazev, a.typ, a.parent_id
+    LEFT JOIN budgets_agg ba_own ON ba_own.descendant_id = a.id
+    GROUP BY a.id, a.nazev, a.typ, a.parent_id, a.is_custom, ba_own.budget_plan
     ORDER BY a.typ, a.nazev
     ;
     """
@@ -125,3 +128,32 @@ def get_own_budget(db_path: str, category_id: int, year: int) -> float:
     row = cursor.fetchone()
     conn.close()
     return float(row[0]) if row is not None else 0.0
+
+def update_custom_category_budgets(db_path, year):
+    """Automaticky aktualizuje rozpočty custom kategorií jako součet jejich podkategorií."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Najdi všechny custom kategorie
+    cursor.execute("SELECT id FROM kategorie WHERE is_custom = 1")
+    custom_categories = cursor.fetchall()
+    
+    for (custom_id,) in custom_categories:
+        # Spočítej součet rozpočtů podkategorií
+        cursor.execute("""
+            SELECT COALESCE(SUM(r.planovana_castka), 0)
+            FROM kategorie k
+            LEFT JOIN rozpocty r ON k.id = r.kategorie_id AND r.rok = ?
+            WHERE k.parent_id = ?
+        """, (year, custom_id))
+        
+        total_budget = cursor.fetchone()[0]
+        
+        # Aktualizuj nebo vlož rozpočet custom kategorie
+        cursor.execute("""
+            INSERT OR REPLACE INTO rozpocty (kategorie_id, rok, planovana_castka)
+            VALUES (?, ?, ?)
+        """, (custom_id, year, total_budget))
+    
+    conn.commit()
+    conn.close()

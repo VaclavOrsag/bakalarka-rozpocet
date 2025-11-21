@@ -88,6 +88,21 @@ def get_custom_category_names(db_path):
         print(f"Chyba při získávání custom kategorií: {e}")
         return []
 
+def is_custom_category(db_path, category_id):
+    """Vrátí True pokud kategorie je custom (is_custom = 1)."""
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT is_custom FROM kategorie WHERE id = ?", (category_id,))
+        result = cursor.fetchone()
+        
+        conn.close()
+        return result and result[0] == 1
+    except Exception as e:
+        print(f"Chyba při kontrole custom kategorie: {e}")
+        return False
+
 def delete_category(db_path, category_id):
     """Smaže kategorii z databáze."""
     conn = sqlite3.connect(db_path)
