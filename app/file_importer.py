@@ -28,7 +28,7 @@ def import_from_excel(filepath, db_path, is_current):
                     return 0.0 # Pokud konverze selže, vrátíme 0.0
 
             # Získáme všechny hodnoty s použitím nových funkcí
-            datum = row.get('Datum', '')
+            datum = normalize_date(row.get('Datum', ''))
             doklad = row.get('Doklad', '')
             zdroj = row.get('Zdroj', '')
             firma = row.get('Firma', '')
@@ -62,3 +62,18 @@ def import_from_excel(filepath, db_path, is_current):
     except Exception as e:
         print(f"Při importu nastala neočekávaná chyba: {e}")
         return False
+    
+def normalize_date(value):
+    """Převede DD.MM.YYYY na YYYY-MM-DD."""
+    value = str(value).strip()
+    
+    # CZ formát → ISO
+    if "." in value and len(value) == 10:
+        try:
+            parts = value.split(".")
+            if len(parts) == 3:
+                return f"{parts[2]}-{parts[1]}-{parts[0]}"
+        except:
+            pass
+    
+    return value

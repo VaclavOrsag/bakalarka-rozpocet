@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
+from ..stats_window import StatsWindow
 
 
 class DashboardTab:
@@ -52,7 +53,8 @@ class DashboardTab:
                                      font=("Arial", 11, "bold"),
                                      width=15,
                                      height=6,
-                                     relief="raised")
+                                     relief="raised",
+                                     command=lambda m=i+1: self._open_month_detail(m))
             month_button.pack(fill=tk.BOTH, expand=True)
             
             self.monthly_buttons[i + 1] = month_button
@@ -61,4 +63,5 @@ class DashboardTab:
         """Aktualizuje všechna měsíční tlačítka s aktuálními daty."""
         pass
     
-    
+    def _open_month_detail(self, month: int):
+        StatsWindow(self.tab_frame, self.app, month)

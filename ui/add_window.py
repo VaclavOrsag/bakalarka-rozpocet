@@ -19,7 +19,7 @@ def add_new_item(self):
             ent.pack(side='left', fill='x', expand=True)
             return ent
 
-        v_datum = add_row("Datum (DD.MM.YYYY)")
+        v_datum = add_row("Datum (YYYY-MM-DD)")
         v_doklad = add_row("Doklad")
         v_zdroj = add_row("Zdroj")
         v_firma = add_row("Firma")
@@ -39,7 +39,19 @@ def add_new_item(self):
 
         def _valid_date(s: str) -> bool:
             import re
-            return bool(re.fullmatch(r"\d{2}\.\d{2}\.\d{4}", s))
+            import datetime
+            
+            if not s.strip():
+                return True  # Prázdné datum je OK
+            
+            # ISO formát YYYY-MM-DD s validací platnosti
+            if re.fullmatch(r"\d{4}-\d{1,2}-\d{1,2}", s.strip()):
+                try:
+                    datetime.datetime.strptime(s.strip(), "%Y-%m-%d")
+                    return True
+                except ValueError:
+                    return False
+            return False
 
         def _parse_float(s: str):
             if s is None: return None
@@ -60,10 +72,14 @@ def add_new_item(self):
                 return None
 
         def save():
-            datum = v_datum.get().strip()
-            if datum and not _valid_date(datum):
-                messagebox.showerror("Chybný formát", "Datum musí být ve formátu DD.MM.YYYY.")
+            raw_datum = v_datum.get().strip()
+            if raw_datum and not _valid_date(raw_datum):
+                messagebox.showerror("Chybný formát", "Datum musí být ve formátu YYYY-MM-DD (např. 2024-03-15).")
                 return
+            
+            # Datum je už v ISO formátu, nemusíme normalizovat
+            datum = raw_datum
+            
             amt = _parse_float(v_castka.get())
             if amt is None:
                 messagebox.showerror("Chybná částka", "Zadejte platnou číselnou hodnotu.")
