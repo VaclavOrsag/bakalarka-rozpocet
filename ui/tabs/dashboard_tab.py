@@ -9,8 +9,9 @@ class DashboardTab:
         self.tab_frame = tab_frame
         self.app = app_controller
         
-        # Aktuální zobrazovaný rok
+        # Aktuální zobrazovaný rok a typ
         self.current_year = datetime.now().year
+        self.current_type = "výdej"  # Výchozí typ
         
         # Reference na UI komponenty
         self.monthly_buttons = {}
@@ -25,8 +26,24 @@ class DashboardTab:
         title_frame.pack(fill=tk.X, padx=20, pady=(20, 10))
         
         ttk.Label(title_frame, 
-                  text="📊 Dashboard - Přehled výdajů", 
+                  text="📊 Dashboard - Přehled", 
                   font=("Arial", 18, "bold")).pack()
+        
+        # Přepínač typu transakce
+        switch_frame = ttk.Frame(self.tab_frame)
+        switch_frame.pack(fill=tk.X, padx=20, pady=(0, 10))
+        
+        ttk.Label(switch_frame, text="Zobrazit:", font=("Arial", 11)).pack(side="left")
+        
+        self.type_var = tk.StringVar(value="výdej")
+        
+        ttk.Radiobutton(switch_frame, text="Výdaje", 
+                       variable=self.type_var, value="výdej",
+                       command=self._on_type_change).pack(side="left", padx=(10, 5))
+        
+        ttk.Radiobutton(switch_frame, text="Příjmy", 
+                       variable=self.type_var, value="příjem",
+                       command=self._on_type_change).pack(side="left", padx=(5, 0))
         
         # Mřížka měsíčních tlačítek (4x3)
         months_frame = ttk.Frame(self.tab_frame)
@@ -61,7 +78,21 @@ class DashboardTab:
     
     def _refresh_dashboard(self):
         """Aktualizuje všechna měsíční tlačítka s aktuálními daty."""
-        pass
+        month_names = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
+                       "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"]
+        
+        for m in range(1, 13):
+            btn = self.monthly_buttons.get(m)
+            if btn:
+                # Zatím jen placeholder text
+                type_name = "Výdaje" if self.current_type == "výdej" else "Příjmy"
+                btn.config(text=f"{month_names[m-1]}\n\n— Kč\n({type_name})")
     
+    def _on_type_change(self):
+        """Callback při změně typu - aktualizuje tlačítka."""
+        self.current_type = self.type_var.get()
+        self._refresh_dashboard()
+
     def _open_month_detail(self, month: int):
-        StatsWindow(self.tab_frame, self.app, month)
+        """Otevře okno s detailem měsíce pro aktuální typ."""
+        StatsWindow(self.tab_frame, self.app, month, self.current_type)
