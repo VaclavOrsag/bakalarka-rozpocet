@@ -108,7 +108,24 @@ class HomeTab:
 
 
     def _show_dashboard(self):
-        ttk.Label(self.tab_frame, text="Dashboard", font=("Arial", 18, "bold")).pack(pady=(20,10))
+        """Vloží dashboard obsah přímo do home tabu."""
+        try:
+            # Import dashboard komponenty
+            from ui.tabs.dashboard_tab import DashboardTab
+            
+            # Vytvoříme a vložíme dashboard
+            self.dashboard_instance = DashboardTab(self.tab_frame, self.app)
+            
+            
+        except Exception as e:
+            # Fallback při chybě načítání dashboardu
+            ttk.Label(self.tab_frame, text="🏠 Dashboard", 
+                    font=("Arial", 18, "bold")).pack(pady=(20,10))
+            ttk.Label(self.tab_frame, text="Chyba při načítání dashboardu", 
+                    foreground="red").pack(pady=10)
+            ttk.Label(self.tab_frame, text=f"Detail: {str(e)}", 
+                    foreground="gray", font=("Arial", 9)).pack(pady=5)
+            print(f"Dashboard embedding error: {e}")
 
 
     def import_historical(self):
