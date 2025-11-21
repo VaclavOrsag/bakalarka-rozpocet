@@ -99,6 +99,14 @@ def add_new_item(self):
             firma = v_firma.get().strip()
             text = v_text.get().strip()
             co = v_co.get().strip()
+            
+            # Validace: Co nesmí odpovídat custom kategorii
+            if co:
+                custom_categories = db.get_custom_category_names(self.app.profile_path)
+                if co in custom_categories:
+                    messagebox.showerror("Chybné pole Co", f"'{co}' je název custom kategorie (kontejneru). Použijte prosím jinou hodnotu.")
+                    return
+            
             kdo = v_kdo.get().strip()
             stredisko = v_stred.get().strip()
             """

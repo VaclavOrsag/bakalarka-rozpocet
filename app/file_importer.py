@@ -10,6 +10,9 @@ def import_from_excel(filepath, db_path, is_current):
         df = pd.read_excel(filepath, sheet_name='Zdroj')
         df = df.fillna('')  # Nahradíme NaN za prázdný řetězec
 
+        # Získáme seznam custom kategorií pro validaci
+        custom_categories = db.get_custom_category_names(db_path)
+
         for _, row in df.iterrows():
             # Helper funkce pro bezpečnou konverzi na int
             def to_int(value):
@@ -39,6 +42,11 @@ def import_from_excel(filepath, db_path, is_current):
             cin = to_int(row.get('Cin', ''))
             cislo = to_int(row.get('Číslo', ''))
             co = row.get('Co', '')
+            
+            # Validace: pokud Co odpovídá custom kategorii, přejmenuj na "Import {původní}"
+            if str(co).strip() and str(co).strip() in custom_categories:
+                co = f"Import {co}"
+            
             kdo = row.get('Kdo', '')
             stredisko = row.get('Středisko', '')
 

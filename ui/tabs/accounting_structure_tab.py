@@ -148,11 +148,23 @@ class AccountingStructureTab:
             # Projdeme všechny zbývající kategorie
             for cat_id, cat_data in list(to_process.items()):
                 nazev, typ, parent_id = cat_data[1], cat_data[2], cat_data[3]
+                is_custom = cat_data[4] if len(cat_data) > 4 else 0  # Přidáno čtení is_custom
                 
+                # Připravíme zobrazovaný text podle typu kategorie
+                if is_custom == 1:
+                    display_text = f"📁 {nazev}"
+                else:
+                    display_text = nazev
+                    
                 # Případ 1: Je to hlavní kategorie (nemá rodiče)
                 if parent_id is None:
                     tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
-                    iid = tree.insert('', 'end', text=nazev, values=(cat_id,), open=True)
+                    iid = tree.insert('', 'end', text=display_text, values=(cat_id,), open=True)
+                    
+                    # Červená barva pro custom kategorie
+                    if is_custom == 1:
+                        tree.item(iid, tags=('custom',))
+                    
                     tree_items[cat_id] = iid
                     del to_process[cat_id] # Odstraníme ze seznamu "ke zpracování"
                     items_added_in_pass += 1
@@ -161,10 +173,19 @@ class AccountingStructureTab:
                 elif parent_id in tree_items:
                     tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
                     parent_iid = tree_items[parent_id]
-                    iid = tree.insert(parent_iid, 'end', text=nazev, values=(cat_id,), open=True)
+                    iid = tree.insert(parent_iid, 'end', text=display_text, values=(cat_id,), open=True)
+                    
+                    # Červená barva pro custom kategorie
+                    if is_custom == 1:
+                        tree.item(iid, tags=('custom',))
+                    
                     tree_items[cat_id] = iid
                     del to_process[cat_id] # Odstraníme ze seznamu "ke zpracování"
                     items_added_in_pass += 1
+
+        # Konfigurace červené barvy pro custom kategorie
+        for tree in [self.tree_prijmy, self.tree_vydaje]:
+            tree.tag_configure('custom', foreground='red')
 
     # --- METODY PRO AKCE (BUSINESS LOGIKA) ---
 
@@ -222,6 +243,22 @@ class AccountingStructureTab:
             messagebox.showerror("Chyba zařazení", f"Nelze zařadit položku typu '{actual_type.capitalize()}' pod '{parent_type.capitalize()}'.")
             return
         
+        # STRIKTNÍ VALIDACE: Pouze custom kategorie mohou mít podkategorie
+        import sqlite3
+        conn = sqlite3.connect(self.app.profile_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT is_custom FROM kategorie WHERE id = ?", (parent_id,))
+        parent_result = cursor.fetchone()
+        conn.close()
+        
+        if parent_result and parent_result[0] == 0:  # is_custom = 0 (transakční kategorie)
+            messagebox.showerror(
+                "Nelze přidat podkategorii",
+                "Podkategorie lze přidávat pouze k custom kategoriím (červené s ikonou 📁).\n\n"
+                "Transakční kategorie slouží pouze pro přiřazování transakcí."
+            )
+            return
+        
         try:
             new_category_id = db.add_category(self.app.profile_path, name, parent_type, parent_id)
             # Použijeme novou funkci pro přiřazení podle typu
@@ -263,6 +300,22 @@ class AccountingStructureTab:
             selected_iid = self.active_tree.focus()
             parent_id = self.active_tree.item(selected_iid)['values'][0]
             parent_type = 'příjem' if self.active_tree == self.tree_prijmy else 'výdej'
+            
+            # VALIDACE: Pokud je rodič transakční kategorie, nelze pod ni přidat custom kategorii
+            import sqlite3
+            conn = sqlite3.connect(self.app.profile_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT is_custom FROM kategorie WHERE id = ?", (parent_id,))
+            parent_result = cursor.fetchone()
+            conn.close()
+            
+            if parent_result and parent_result[0] == 0:  # is_custom = 0 (transakční kategorie)
+                messagebox.showerror(
+                    "Nelze přidat podkategorii",
+                    "Custom kategorie (kontejnery) lze přidávat pouze pod jiné custom kategorie.\n\n"
+                    "Transakční kategorie nemohou mít žádné podkategorie."
+                )
+                return
 
         # Zeptáme se na název
         name = simpledialog.askstring("Nová kategorie", "Zadejte název nové kategorie:")
@@ -284,7 +337,7 @@ class AccountingStructureTab:
             messagebox.showwarning("Kategorie již existuje", f"Kategorie '{name}' typu '{typ}' již existuje.\n\nPokud chcete přidat novou kategorii, zvolte jiný název.")
             return
         
-        db.add_category(self.app.profile_path, name, typ, parent_id)
+        db.add_category(self.app.profile_path, name, typ, parent_id, is_custom=1)
         
         # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
         if is_first_category:
