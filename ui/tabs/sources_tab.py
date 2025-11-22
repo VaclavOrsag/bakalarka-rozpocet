@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
 
-from ui.add_window import add_new_item as show_add_dialog
+from ui.item_dialog import open_item_dialog
 
 from app import database as db
 
@@ -25,8 +25,8 @@ class SourcesTab:
         self.add_button = ttk.Button(top_frame, text="Přidat záznam...", command=self.open_add_dialog)
         self.add_button.pack(side='left', padx=(0, 10))
 
-        # UI prvky pro editaci a odstranění (zatím bez logiky)
-        self.edit_button = ttk.Button(top_frame, text="Upravit…", command=lambda: messagebox.showinfo("Info", "Editace transakce bude implementována."))
+        # UI prvky pro editaci a odstranění 
+        self.edit_button = ttk.Button(top_frame, text="Upravit…", command=self.open_edit_dialog)
         self.edit_button.pack(side='left', padx=(0, 10))
 
         self.delete_button = ttk.Button(top_frame, text="Smazat", command=self.delete_selected_item)
@@ -162,4 +162,27 @@ class SourcesTab:
 
     def open_add_dialog(self):
         """Otevře dialog pro přidání nové transakce."""
-        show_add_dialog(self)
+        open_item_dialog(self, mode="add")
+        
+    def open_edit_dialog(self):
+        """Otevře dialog pro editaci vybrané transakce."""
+        # Zkontroluj výběr
+        selection = self.tree.selection()
+        if not selection:
+            messagebox.showwarning("Výběr transakce", 
+                                 "Nejprve vyberte transakci, kterou chcete upravit.")
+            return
+        
+        # Získej ID z treeview (první sloupec je skrytý ID)
+        selected_item = selection[0]
+        values = self.tree.item(selected_item)['values']
+        item_id = values[0]  # ID je první hodnota
+        
+        # Načti data z databáze
+        item_data = db.get_item_by_id(self.app.profile_path, item_id)
+        if not item_data:
+            messagebox.showerror("Chyba", "Nepodařilo se načíst data transakce.")
+            return
+            
+        # Otevři edit dialog
+        open_item_dialog(self, mode="edit", item_data=item_data)

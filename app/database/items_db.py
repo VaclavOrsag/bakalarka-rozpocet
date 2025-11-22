@@ -88,3 +88,93 @@ def has_transactions(db_path, is_current):
     result = cursor.fetchone()
     conn.close()
     return result is not None
+
+def get_item_by_id(db_path, item_id):
+    """
+    Získá kompletní data jedné transakce podle jejího ID.
+    
+    Tato funkce je užitečná pro načtení všech údajů transakce při editaci,
+    kde potřebujeme předvyplnit formulář s existujícími hodnotami.
+    
+    Args:
+        db_path (str): Cesta k SQLite databázi
+        item_id (int): Jedinečný identifikátor transakce
+        
+    Returns:
+        tuple nebo None: Kompletní záznam transakce jako tuple 
+                        (id, datum, doklad, zdroj, firma, text, madati, dal, 
+                         castka, cin, cislo, co, kdo, stredisko, kategorie_id, is_current)
+                        nebo None pokud transakce s daným ID neexistuje
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result
+
+def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko):
+    """
+    Aktualizuje existující transakci v databázi s automatickým přiřazením kategorie.
+    
+    Funkce provede úplnou aktualizaci všech polí transakce a zároveň se pokusí
+    automaticky přiřadit kategorii na základě pole "co" a typu transakce (příjem/výdej).
+    Typ je určen podle znaménka částky - kladná = příjem, záporná = výdej.
+    
+    Pokud existuje kategorie se jménem shodným s polem "co" a správným typem,
+    transakce bude automaticky k této kategorii přiřazena. Pokud ne, zůstane
+    nepřiřazená (kategorie_id = None).
+    
+    Args:
+        db_path (str): Cesta k SQLite databázi
+        item_id (int): ID transakce, která má být aktualizována
+        datum (str): Datum ve formátu YYYY-MM-DD (může být prázdné)
+        doklad (str): Číslo nebo označení dokladu
+        zdroj (str): Zdroj transakce (např. banka, hotovost)
+        firma (str): Název firmy nebo protistrany
+        text (str): Popis transakce
+        madati (float): Částka v koloně "Má dáti" (obvykle pro příjmy)
+        dal (float): Částka v koloně "Dal" (obvykle pro výdaje)
+        castka (float): Výsledná částka (+ pro příjem, - pro výdaj)
+        cin (int nebo None): Číslo činnosti (může být prázdné)
+        cislo (int nebo None): Pořadové číslo (může být prázdné)
+        co (str): Kategorie nebo účel transakce
+        kdo (str): Osoba zodpovědná za transakci
+        stredisko (str): Středisko nebo oddělení
+        
+    Note:
+        Funkce automaticky zachová původní is_current hodnotu transakce.
+        Pokud kategorie s názvem z pole "co" neexistuje, transakce zůstane
+        nepřiřazená a bude k dispozici v levých seznamech účetní osnovy.
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Najdeme kategorii podle 'co' a typu (určeného ze znaménka částky)
+    kategorie_id = None
+    if co and co.strip() and castka != 0:
+        if castka > 0:
+            transaction_type = 'příjem'
+        elif castka < 0:
+            transaction_type = 'výdej'
+        else:
+            transaction_type = None
+        
+        if transaction_type:
+            cursor.execute("SELECT id FROM kategorie WHERE nazev = ? AND typ = ?", (co, transaction_type))
+            existing_category = cursor.fetchone()
+            if existing_category:
+                kategorie_id = existing_category[0]
+    
+    # Update transakce s automaticky přiřazenou nebo None kategorie_id
+    cursor.execute("""
+        UPDATE items SET 
+        datum = ?, doklad = ?, zdroj = ?, firma = ?, text = ?,
+        madati = ?, dal = ?, castka = ?, cin = ?, cislo = ?,
+        co = ?, kdo = ?, stredisko = ?, kategorie_id = ?
+        WHERE id = ?
+    """, (datum, doklad, zdroj, firma, text, madati, dal, castka, 
+          cin, cislo, co, kdo, stredisko, kategorie_id, item_id))
+    
+    conn.commit()
+    conn.close()
