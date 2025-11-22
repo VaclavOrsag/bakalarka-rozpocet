@@ -183,6 +183,10 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
             parent_tab.app.budget_ui.load_data()
         if hasattr(parent_tab.app, 'analysis_tab'):
             parent_tab.app.analysis_tab.load()
+        
+        # Invalidace cache pro dashboard a stats_window
+        if hasattr(parent_tab.app, 'dashboard_ui'):
+            parent_tab.app.dashboard_ui.invalidate_cache()
 
     def cancel():
         win.destroy()

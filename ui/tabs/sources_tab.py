@@ -151,6 +151,10 @@ class SourcesTab:
                 self.load_items()
                 self.update_total()
                 
+                # Invalidace cache pro dashboard
+                if hasattr(self.app, 'dashboard_ui'):
+                    self.app.dashboard_ui.invalidate_cache()
+                
                 messagebox.showinfo("Úspěch", "Transakce byla úspěšně smazána.")
             except Exception as e:
                 messagebox.showerror("Chyba", f"Při mazání transakce došlo k chybě:\n{str(e)}")

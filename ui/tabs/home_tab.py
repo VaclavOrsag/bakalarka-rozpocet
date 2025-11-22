@@ -116,6 +116,9 @@ class HomeTab:
             # Vytvoříme a vložíme dashboard
             self.dashboard_instance = DashboardTab(self.tab_frame, self.app)
             
+            # Uložíme referenci do app pro invalidaci cache
+            self.app.dashboard_ui = self.dashboard_instance
+            
             
         except Exception as e:
             # Fallback při chybě načítání dashboardu

@@ -33,6 +33,102 @@ def update_or_insert_budget(db_path, category_id: int, year: int, budget_value: 
     conn.commit()
     conn.close()
 
+
+def check_budget_completeness(db_path: str, transaction_type: str, year: int) -> dict:
+    """
+    Zkontroluje jestli všechny transakční kategorie mají přiřazený rozpočet.
+    
+    Args:
+        db_path: Cesta k databázi
+        transaction_type: 'výdej' nebo 'příjem'
+        year: Rok pro kontrolu rozpočtu
+        
+    Returns:
+        {
+            'is_complete': bool,           # True = všechny kategorie mají rozpočet
+            'total_categories': int,       # Počet transakčních kategorií
+            'categories_with_budget': int, # Kolik má rozpočet
+            'missing_categories': list     # Seznam názvů kategorií bez rozpočtu
+        }
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Najdi všechny transakční kategorie (non-custom) daného typu
+    cursor.execute("""
+        SELECT k.id, k.nazev
+        FROM kategorie k
+        WHERE k.typ = ?
+          AND k.is_custom = 0
+        ORDER BY k.nazev
+    """, (transaction_type,))
+    
+    all_categories = cursor.fetchall()
+    total_categories = len(all_categories)
+    
+    # Zjisti které kategorie MAJÍ rozpočet
+    cursor.execute("""
+        SELECT k.id, k.nazev
+        FROM kategorie k
+        JOIN rozpocty r ON r.kategorie_id = k.id
+        WHERE k.typ = ?
+          AND k.is_custom = 0
+          AND r.rok = ?
+    """, (transaction_type, year))
+    
+    categories_with_budget = cursor.fetchall()
+    categories_with_budget_ids = {cat[0] for cat in categories_with_budget}
+    
+    # Zjisti které kategorie NEMAJÍ rozpočet
+    missing_categories = [
+        cat[1] for cat in all_categories 
+        if cat[0] not in categories_with_budget_ids
+    ]
+    
+    conn.close()
+    
+    return {
+        'is_complete': len(missing_categories) == 0,
+        'total_categories': total_categories,
+        'categories_with_budget': len(categories_with_budget),
+        'missing_categories': missing_categories
+    }
+
+
+def get_total_budget_for_type(db_path: str, transaction_type: str, year: int) -> float:
+    """
+    Vypočítá celkový roční rozpočet pro daný typ transakce.
+    
+    Sčítá JEN kategorie které NEJSOU custom (is_custom=0) aby nedošlo k duplicitnímu počítání.
+    Custom kategorie jsou agregáty svých dětí, takže jejich rozpočet se nepočítá samostatně.
+    
+    Používá ABS() protože výdaje jsou uloženy jako záporné hodnoty.
+    
+    Args:
+        db_path: Cesta k databázi
+        transaction_type: 'výdej' nebo 'příjem'
+        year: Rok pro filtrování rozpočtu
+        
+    Returns:
+        Celkový roční rozpočet (suma absolutních hodnot planovanych_castek pro non-custom kategorie)
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT COALESCE(SUM(ABS(r.planovana_castka)), 0) as total_budget
+        FROM rozpocty r
+        JOIN kategorie k ON r.kategorie_id = k.id
+        WHERE k.typ = ?
+          AND k.is_custom = 0
+          AND r.rok = ?
+    """, (transaction_type, year))
+    
+    total_budget = cursor.fetchone()[0]
+    conn.close()
+    
+    return float(total_budget)
+
 def get_budget_overview(db_path: str, year: int):
     """
     Vrátí kompletní přehled pro záložku Rozpočet.

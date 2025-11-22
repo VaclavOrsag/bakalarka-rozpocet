@@ -101,6 +101,10 @@ class App:
                 self.accounting_ui.refresh_data()
             if hasattr(self, 'budget_ui'):
                 self.budget_ui.load_data()
+            
+            # Invalidace cache pro dashboard
+            if hasattr(self, 'dashboard_ui'):
+                self.dashboard_ui.invalidate_cache()
 
             # Po importu musíme zkontrolovat, zda se mají zobrazit nové záložky
             self.update_tabs_visibility()
