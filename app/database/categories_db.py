@@ -50,12 +50,20 @@ def add_category(db_path, nazev, typ, parent_id, is_custom=0):
         
         parent_is_custom = parent_result[0]
         
-        # PRAVIDLO 1: Transakční kategorie (is_custom=0) nemohou mít žádné podkategorie
+        # PRAVIDLO 1: Transakční kategorie nemohou mít žádné podkategorie
         if parent_is_custom == 0:
             conn.close()
             raise ValueError(
-                "Podkategorie lze přidávat pouze k custom kategoriím (červené s ikonou 📁).\n\n"
-                "Transakční kategorie slouží pouze pro přiřazování transakcí."
+                "Transakční kategorie nemohou mít podkategorie.\n\n"
+                "Pouze custom kategorie (červené s 📁) mohou obsahovat podkategorie."
+            )
+        
+        # PRAVIDLO 2: Pouze transakční podkategorie pod custom kategoriemi
+        if is_custom == 1:
+            conn.close()
+            raise ValueError(
+                "Custom kategorie lze vytvářet pouze na první úrovni.\n\n"
+                "Pod custom kategoriemi lze přidávat pouze transakční kategorie."
             )
         
         conn.close()

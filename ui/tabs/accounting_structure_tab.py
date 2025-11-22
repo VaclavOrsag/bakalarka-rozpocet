@@ -59,7 +59,7 @@ class AccountingStructureTab:
 
         # --- Tlačítka pro správu osnovy v pravém panelu ---
         ttk.Label(self.controls_frame, text="Spravovat osnovu:").pack(pady=(10, 2))
-        ttk.Button(self.controls_frame, text="Přidat novou kategorii...", command=self.add_custom_category).pack(pady=5, padx=5, fill='x')
+        ttk.Button(self.controls_frame, text="Přidat custom kategorii...", command=self.add_custom_category).pack(pady=5, padx=5, fill='x')
         ttk.Button(self.controls_frame, text="Smazat vybranou", command=self.delete_category).pack(pady=5, padx=5, fill='x')
 
     def _setup_right_panel(self):
@@ -243,22 +243,6 @@ class AccountingStructureTab:
             messagebox.showerror("Chyba zařazení", f"Nelze zařadit položku typu '{actual_type.capitalize()}' pod '{parent_type.capitalize()}'.")
             return
         
-        # STRIKTNÍ VALIDACE: Pouze custom kategorie mohou mít podkategorie
-        import sqlite3
-        conn = sqlite3.connect(self.app.profile_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT is_custom FROM kategorie WHERE id = ?", (parent_id,))
-        parent_result = cursor.fetchone()
-        conn.close()
-        
-        if parent_result and parent_result[0] == 0:  # is_custom = 0 (transakční kategorie)
-            messagebox.showerror(
-                "Nelze přidat podkategorii",
-                "Podkategorie lze přidávat pouze k custom kategoriím (červené s ikonou 📁).\n\n"
-                "Transakční kategorie slouží pouze pro přiřazování transakcí."
-            )
-            return
-        
         try:
             new_category_id = db.add_category(self.app.profile_path, name, parent_type, parent_id)
             # Použijeme novou funkci pro přiřazení podle typu
@@ -287,8 +271,8 @@ class AccountingStructureTab:
 
     def add_custom_category(self):
         """
-        Umožní uživateli vytvořit úplně novou kategorii, která nepochází
-        z nalezených položek.
+        Umožní uživateli vytvořit custom kategorii (📁 červená s ikonou),
+        která může obsahovat podkategorie. Pouze na root úrovni.
         """
         # Zjistíme, zda se jedná o první kategorii, abychom mohli zobrazit notifikaci
         is_first_category = not db.has_categories(self.app.profile_path)
@@ -300,22 +284,6 @@ class AccountingStructureTab:
             selected_iid = self.active_tree.focus()
             parent_id = self.active_tree.item(selected_iid)['values'][0]
             parent_type = 'příjem' if self.active_tree == self.tree_prijmy else 'výdej'
-            
-            # VALIDACE: Pokud je rodič transakční kategorie, nelze pod ni přidat custom kategorii
-            import sqlite3
-            conn = sqlite3.connect(self.app.profile_path)
-            cursor = conn.cursor()
-            cursor.execute("SELECT is_custom FROM kategorie WHERE id = ?", (parent_id,))
-            parent_result = cursor.fetchone()
-            conn.close()
-            
-            if parent_result and parent_result[0] == 0:  # is_custom = 0 (transakční kategorie)
-                messagebox.showerror(
-                    "Nelze přidat podkategorii",
-                    "Custom kategorie (kontejnery) lze přidávat pouze pod jiné custom kategorie.\n\n"
-                    "Transakční kategorie nemohou mít žádné podkategorie."
-                )
-                return
 
         # Zeptáme se na název
         name = simpledialog.askstring("Nová kategorie", "Zadejte název nové kategorie:")
@@ -331,13 +299,20 @@ class AccountingStructureTab:
         else:
             typ = parent_type
 
+        # Custom kategorie má vždy is_custom = 1
+        is_custom = 1
+
         # Vložíme do databáze
         # Přidáme kontrolu existence PŘED pokusem o vytvoření
         if db.category_exists(self.app.profile_path, name, typ):
             messagebox.showwarning("Kategorie již existuje", f"Kategorie '{name}' typu '{typ}' již existuje.\n\nPokud chcete přidat novou kategorii, zvolte jiný název.")
             return
         
-        db.add_category(self.app.profile_path, name, typ, parent_id, is_custom=1)
+        try:
+            db.add_category(self.app.profile_path, name, typ, parent_id, is_custom)
+        except ValueError as e:
+            messagebox.showerror("Nelze přidat kategorii", str(e))
+            return
         
         # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
         if is_first_category:
