@@ -42,11 +42,11 @@ class StatsWindow:
         table_frame.pack(fill="both", expand=True)
 
         # Definice sloupců - 7 sloupců pro kompletní přehled
-        columns = ("Kategorie", "Min.transakce", "Akt.transakce", "%(M→M)", "Rozpočet", "Plnění R.", "%(R)")
-        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=18)
+        columns = ("Min.transakce", "Akt.transakce", "%(M→M)", "Rozpočet", "Plnění R.", "%(R)")
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="tree headings", height=18)
         
         # Nastavení hlaviček a šířek sloupců
-        self.tree.heading("Kategorie", text="Kategorie")
+        self.tree.heading("#0", text="Kategorie")  # Stromová část (s +/- boxíky)
         self.tree.heading("Min.transakce", text="Min.transakce")
         self.tree.heading("Akt.transakce", text="Akt.transakce")
         self.tree.heading("%(M→M)", text="%(M→M)")
@@ -54,7 +54,7 @@ class StatsWindow:
         self.tree.heading("Plnění R.", text="Plnění R.")
         self.tree.heading("%(R)", text="%(R)")
         
-        self.tree.column("Kategorie", width=250, anchor="w")
+        self.tree.column("#0", width=250, anchor="w")  # Stromová část
         self.tree.column("Min.transakce", width=120, anchor="e")
         self.tree.column("Akt.transakce", width=120, anchor="e")
         self.tree.column("%(M→M)", width=100, anchor="e")
@@ -123,7 +123,7 @@ class StatsWindow:
                     month_data.append(row)
             
             if not month_data:
-                self.tree.insert("", "end", values=("Žádný rozpočet nastaven", "—", "—", "—", "—", "—", "—"), tags=('gray',))
+                self.tree.insert("", "end", text="Žádný rozpočet nastaven", values=("—", "—", "—", "—", "—", "—"), tags=('gray',))
                 self._update_footer(0, 0, 0)
                 return
             
@@ -143,7 +143,7 @@ class StatsWindow:
             print(f"Chyba při načítání dat: {e}")
             import traceback
             traceback.print_exc()
-            self.tree.insert("", "end", values=("Chyba při načítání", str(e), "—", "—", "—", "—", "—"), tags=('gray',))
+            self.tree.insert("", "end", text="Chyba při načítání", values=(str(e), "—", "—", "—", "—", "—"), tags=('gray',))
             self._update_footer(0, 0, 0)
     
     def _load_budgets(self) -> dict:
@@ -234,9 +234,8 @@ class StatsWindow:
             info = hierarchy[cat_id]
             row = info['data']
             
-            # Odsazení názvu kategorie podle úrovně
-            indent = "    " * level
-            category_name = f"{indent}{row['nazev']}"
+            # Název kategorie (už bez manuálního odsazení - Treeview to dělá automaticky)
+            category_name = row['nazev']
             
             # Formátování částek
             historical = row['historical']
@@ -277,11 +276,16 @@ class StatsWindow:
                 row_color = mm_color
             
             # Vložení řádku do Treeview
+            # text = název kategorie (ve stromové části)
+            # values = ostatní sloupce (částky a procenta)
+            # open=True → custom kategorie budou rovnou rozbalené
             item_id = self.tree.insert(
                 parent_item, 
-                "end", 
-                values=(category_name, historical_text, current_text, mm_text, budget_text, ytd_text, r_text),
-                tags=(row_color,)
+                "end",
+                text=category_name,  # Název kategorie do stromové části (#0)
+                values=(historical_text, current_text, mm_text, budget_text, ytd_text, r_text),  # Ostatní sloupce
+                tags=(row_color,),
+                open=True  # Rozbal custom kategorie automaticky
             )
             
             # Rekurzivně zobraz děti
