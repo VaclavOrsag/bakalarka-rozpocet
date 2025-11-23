@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from datetime import datetime
 
 from app import database as db
+from app.utils import format_money, parse_money
 
 class BudgetTab:
     def __init__(self, tab_frame, app_controller):
@@ -130,10 +131,6 @@ class BudgetTab:
         to_process = set(by_id.keys())
         tree_items = {}
 
-        def fmt(val: float) -> str:
-            # Konzistentní formát bez vlivu locale
-            return f"{val:,.2f}".replace(",", " ") + " Kč"
-
         # Vkládáme patro po patru, až dokud nevložíme všechny položky
         items_added_in_pass = -1
         while items_added_in_pass != 0 and to_process:
@@ -147,9 +144,9 @@ class BudgetTab:
                 # Z databáze už máme finální agregované hodnoty
                 values_tuple = (
                     # Všechny tři sloupce zobrazujeme kladně
-                    fmt(abs(row['sum_past'])),
-                    fmt(abs(row['budget_plan'])),
-                    fmt(abs(row['sum_current'])),
+                    format_money(abs(row['sum_past'])),
+                    format_money(abs(row['budget_plan'])),
+                    format_money(abs(row['sum_current'])),
                 )
 
                 tree = self.tree_prijmy if typ == 'příjem' else self.tree_vydaje
@@ -253,7 +250,7 @@ class BudgetTab:
             had_any_before = db.has_any_budget(self.app.profile_path)
 
             text = editor.get()
-            value = self._parse_money(text)
+            value = parse_money(text)
             editor.destroy()
             self._active_editor = None
             if value is None:
@@ -299,20 +296,6 @@ class BudgetTab:
             return str(int(val))
         return f"{val:.2f}"
 
-    def _parse_money(self, text: str):
-        # Odstranit měnu a mezery, podporovat čárku i tečku jako desetinnou
-        if text is None:
-            return None
-        s = str(text).strip()
-        if s == '':
-            return None
-        s = s.replace('Kč', '').replace('kč', '').replace(' ', '')
-        s = s.replace(',', '.')
-        try:
-            return float(s)
-        except ValueError:
-            return None
-
     def _update_footer_totals(self):
         """Vypočítá a zobrazí celkové součty pro oba stromy (příjmy/výdaje)."""
         
@@ -327,19 +310,15 @@ class BudgetTab:
                 values = tree.item(iid, 'values')
                 if values:
                     # Formát: ('909 101,39 Kč', '570 000,00 Kč', '446 250,35 Kč')
-                    past = self._parse_money(values[0]) or 0.0
-                    budget = self._parse_money(values[1]) or 0.0
-                    current = self._parse_money(values[2]) or 0.0
+                    past = parse_money(values[0]) or 0.0
+                    budget = parse_money(values[1]) or 0.0
+                    current = parse_money(values[2]) or 0.0
                     
                     total_past += past
                     total_budget += budget
                     total_current += current
             
             return total_past, total_budget, total_current
-        
-        def fmt(val: float) -> str:
-            """Formátuje číslo jako 1 234 567,89 Kč"""
-            return f"{abs(val):,.2f}".replace(",", " ") + " Kč"
         
         def get_color(current: float, budget: float) -> str:
             """Vrací barvu podle % plnění."""
@@ -355,18 +334,18 @@ class BudgetTab:
         
         # Aktualizace příjmů
         past_in, budget_in, current_in = calculate_totals(self.tree_prijmy)
-        self.tree_prijmy.footer_labels['past'].config(text=fmt(past_in))
-        self.tree_prijmy.footer_labels['budget'].config(text=fmt(budget_in))
+        self.tree_prijmy.footer_labels['past'].config(text=format_money(past_in))
+        self.tree_prijmy.footer_labels['budget'].config(text=format_money(budget_in))
         self.tree_prijmy.footer_labels['current'].config(
-            text=fmt(current_in),
+            text=format_money(current_in),
             foreground=get_color(current_in, budget_in)
         )
         
         # Aktualizace výdajů
         past_out, budget_out, current_out = calculate_totals(self.tree_vydaje)
-        self.tree_vydaje.footer_labels['past'].config(text=fmt(past_out))
-        self.tree_vydaje.footer_labels['budget'].config(text=fmt(budget_out))
+        self.tree_vydaje.footer_labels['past'].config(text=format_money(past_out))
+        self.tree_vydaje.footer_labels['budget'].config(text=format_money(budget_out))
         self.tree_vydaje.footer_labels['current'].config(
-            text=fmt(current_out),
+            text=format_money(current_out),
             foreground=get_color(current_out, budget_out)
         )

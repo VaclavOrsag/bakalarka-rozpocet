@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from app import database as db
+from app.utils import format_money
 
 from ui.hierarchy_dialog import open_hierarchy_dialog
 
@@ -93,11 +94,6 @@ class AnalysisTab:
             self.tree.delete(i)
         self.tree.insert('', 'end', text='Nejsou načtena data', values=('',))
 
-    def _format_money(self, val: float) -> str:
-        # Jednoduché česko-like formátování: mezery jako tisícové oddělovače, čárka jako desetinná
-        s = f"{val:,.2f}".replace(",", " ").replace(".", ",")
-        return s + " Kč"
-
     def load(self):
         """Načte agregovaná data dle self.row_dims a zobrazení a vykreslí strom."""
         # Vyčistit strom
@@ -135,7 +131,7 @@ class AnalysisTab:
         # Bez dimenzí – jen jeden řádek s celkem
         if not dims:
             total = rows[0]['total'] if rows else 0.0
-            self.tree.insert('', 'end', text='Celkem', values=(self._format_money(total),))
+            self.tree.insert('', 'end', text='Celkem', values=(format_money(total, use_abs=False),))
             return
 
         if not rows:
@@ -171,7 +167,7 @@ class AnalysisTab:
                 iid = self.tree.insert(
                     parent_iid, 'end',
                     text=path[-1],
-                    values=(self._format_money(sums[path]),),
+                    values=(format_money(sums[path], use_abs=False),),
                     open=False
                 )
                 nodes[path] = iid

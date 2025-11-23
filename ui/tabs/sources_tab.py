@@ -5,6 +5,7 @@ import tkinter.messagebox as messagebox
 from ui.item_dialog import open_item_dialog
 
 from app import database as db
+from app.utils import format_money
 
 class SourcesTab:
     def __init__(self, tab_frame, app_controller):
@@ -93,8 +94,8 @@ class SourcesTab:
         for item in items:
             # Struktura: (id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, kategorie_id)
             
-            # Formátování částky
-            castka_formatted = f"{item[8]:,.2f} Kč" if item[8] != 0 else "0,00 Kč"
+            # Formátování částky - zobrazujeme se znaménkem (výdaje záporné, příjmy kladné)
+            castka_formatted = format_money(item[8], use_abs=False) if item[8] != 0 else "0,00 Kč"
             
             # Data pro zobrazení včetně sloupce "Co"
             display_values = (
@@ -121,7 +122,7 @@ class SourcesTab:
     def update_total(self):
         """Aktualizuje zobrazenou celkovou částku."""
         total = db.get_total_amount(self.app.profile_path, self.current_view)
-        self.total_label.config(text=f"Celková částka: {total:,.2f} Kč")
+        self.total_label.config(text=f"Celková částka: {format_money(total, use_abs=False)}")
 
     def delete_selected_item(self):
         """Smaže vybranou transakci po potvrzení."""

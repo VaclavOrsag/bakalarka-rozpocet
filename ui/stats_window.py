@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from app.database import dashboard_db
+from app.utils import format_money
 
 class StatsWindow:
     def __init__(self, parent, app, month: int, transaction_type: str):
@@ -206,11 +207,11 @@ class StatsWindow:
                 self.app.profile_path, cat_id, self.month, data=self.stats_data
             )
             
-            # Formátování částek
-            historical_text = f"{historical_month:,.0f} Kč" if historical_month > 0 else "—"
-            current_text = f"{current_month:,.0f} Kč" if current_month > 0 else "—"
-            budget_text = f"{budget:,.0f} Kč"
-            ytd_text = f"{ytd:,.0f} Kč" if ytd > 0 else "—"
+            # Formátování částek (s 2 desetinnými místy)
+            historical_text = format_money(historical_month) if historical_month > 0 else "—"
+            current_text = format_money(current_month) if current_month > 0 else "—"
+            budget_text = format_money(budget)
+            ytd_text = format_money(ytd) if ytd > 0 else "—"
             
             # Výpočet %(M→M) - month-to-month comparison
             if historical_month > 0:
@@ -297,8 +298,8 @@ class StatsWindow:
             self.footer_label.config(text="Žádný rozpočet nastaven", foreground="gray")
             return
         
-        # Formátování textu
-        text = f"Celkem: {total_ytd:,.0f} Kč / {total_budget:,.0f} Kč ({total_percentage:.1f}%)"
+        # Formátování textu (s 2 desetinnými místy)
+        text = f"Celkem: {format_money(total_ytd)} / {format_money(total_budget)} ({total_percentage:.1f}%)"
         
         # Určení barvy podle výkonnosti
         if total_percentage <= 80:
