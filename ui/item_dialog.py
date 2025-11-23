@@ -79,7 +79,8 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
         if not s.strip():
             return True  # Prázdné datum je OK
         
-        if re.fullmatch(r"\d{4}-\d{1,2}-\d{1,2}", s.strip()):
+        # Validace formátu: přesně YYYY-MM-DD (s nulovými paddingem)
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", s.strip()):
             try:
                 datetime.datetime.strptime(s.strip(), "%Y-%m-%d")
                 return True
