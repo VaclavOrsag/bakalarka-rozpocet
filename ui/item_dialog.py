@@ -173,7 +173,6 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
         # Zavření a refresh
         win.destroy()
         parent_tab.load_items()
-        parent_tab.update_total()
 
         # Po operaci refresh
         parent_tab.app.update_tabs_visibility()
