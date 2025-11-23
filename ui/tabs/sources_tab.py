@@ -38,12 +38,6 @@ class SourcesTab:
         tree_frame.pack(expand=True, fill='both', padx=10, pady=(0, 10))
         
         self.tree = self._create_treeview(tree_frame)
-        
-        # --- Spodní panel se součtem ---
-        bottom_frame = ttk.Frame(self.tab_frame)
-        bottom_frame.pack(fill='x', padx=10, pady=5)
-        self.total_label = ttk.Label(bottom_frame, text="Celková částka: 0.00 Kč", font=("Arial", 10, "bold"))
-        self.total_label.pack(side='right')
 
         self.tab_frame.bind("<Visibility>", lambda e: self.load_items())
 
@@ -83,7 +77,6 @@ class SourcesTab:
         else:
             self.toggle_button.config(text="Přepnout na Historické transakce")
         self.load_items()
-        self.update_total()
 
     def load_items(self):
         """Načte položky do Treeview podle aktuálně zvoleného pohledu."""
@@ -119,11 +112,6 @@ class SourcesTab:
             tag = "incomplete" if is_incomplete else ""
             self.tree.insert('', 'end', values=display_values, tags=(tag,) if tag else ())
 
-    def update_total(self):
-        """Aktualizuje zobrazenou celkovou částku."""
-        total = db.get_total_amount(self.app.profile_path, self.current_view)
-        self.total_label.config(text=f"Celková částka: {format_money(total, use_abs=False)}")
-
     def delete_selected_item(self):
         """Smaže vybranou transakci po potvrzení."""
         selection = self.tree.selection()
@@ -150,7 +138,6 @@ class SourcesTab:
                 
                 # Obnovíme zobrazení
                 self.load_items()
-                self.update_total()
                 
                 # Invalidace cache pro dashboard
                 if hasattr(self.app, 'dashboard_ui'):

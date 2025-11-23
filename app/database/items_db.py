@@ -117,15 +117,6 @@ def delete_all_items(db_path, is_current):
     # Přepočítej metriky všech kategorií po smazání
     update_all_metrics(db_path)
 
-def get_total_amount(db_path, is_current):
-    """Vrátí součet všech částek pro daný stav."""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("SELECT SUM(castka) FROM items WHERE is_current = ?", (is_current,))
-    total = cursor.fetchone()[0]
-    conn.close()
-    return total if total is not None else 0
-
 def has_transactions(db_path, is_current):
     """Vrátí True, pokud v databázi existuje alespoň jedna transakce pro daný stav."""
     conn = sqlite3.connect(db_path)
