@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime
 from ..stats_window import StatsWindow
 from app.database import dashboard_db, budgets_db
 
@@ -10,8 +9,7 @@ class DashboardTab:
         self.tab_frame = tab_frame
         self.app = app_controller
         
-        # Aktuální zobrazovaný rok a typ
-        self.current_year = datetime.now().year
+        # Aktuální zobrazovaný typ
         self.current_type = "výdej"  # Výchozí typ
         
         # Reference na UI komponenty
@@ -168,8 +166,7 @@ class DashboardTab:
             # Zkontroluj kompletnost rozpočtu pro aktuální typ
             completeness = budgets_db.check_budget_completeness(
                 self.app.profile_path,
-                self.current_type,
-                self.current_year
+                self.current_type
             )
             
             if not completeness['is_complete']:
@@ -202,8 +199,7 @@ class DashboardTab:
                 budget_summary = dashboard_db.get_month_total_budget_summary(
                     self.app.profile_path,
                     self.current_type,
-                    month,
-                    self.current_year
+                    month
                 )
                 
                 if not budget_summary:

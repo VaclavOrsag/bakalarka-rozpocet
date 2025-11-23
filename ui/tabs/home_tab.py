@@ -24,7 +24,6 @@ class HomeTab:
         Zkontroluje stav AKTUÁLNÍHO profilu a zobrazí další logický krok.
         """
         self.clear_tab()
-        current_year = datetime.now().year
         
         # Priorita 1: Chybí vůbec nějaká historická data?
         if not db.has_transactions(self.app.profile_path, is_current=0):
@@ -36,8 +35,8 @@ class HomeTab:
             self._show_step_create_structure()
             return
 
-        # Priorita 3: Chybí rozpočet pro aktuální rok?
-        if not db.has_budget_for_year(self.app.profile_path, current_year):
+        # Priorita 3: Chybí rozpočet?
+        if not db.has_any_budget(self.app.profile_path):
             self._show_step_create_budget()
             return
         
