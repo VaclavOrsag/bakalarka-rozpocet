@@ -5,6 +5,9 @@ def import_from_excel(filepath, db_path, is_current):
     """
     Načte data, nahradí prázdné hodnoty a bezpečně je převede na správné
     datové typy před vložením do databáze.
+    
+    Optimalizace: Při importu se metriky nepřepočítávají pro každou transakci,
+    ale jednou najednou na konci pro všechny kategorie.
     """
     try:
         df = pd.read_excel(filepath, sheet_name='Zdroj')
@@ -51,6 +54,7 @@ def import_from_excel(filepath, db_path, is_current):
             stredisko = row.get('Středisko', '')
 
             # Přidáme položku, jen pokud má vyplněný text
+            # OPTIMALIZACE: Přeskočíme přepočet metrik (uděláme ho jednou na konci)
             if str(text).strip():
                 db.add_item(
                     db_path,
@@ -58,8 +62,13 @@ def import_from_excel(filepath, db_path, is_current):
                     madati, dal, castka, # Už posíláme bezpečně převedené floaty
                     cin, cislo,
                     str(co), str(kdo), str(stredisko),
-                    is_current=is_current
+                    is_current=is_current,
+                    skip_metrics_update=True  # OPTIMALIZACE: Skip během importu
                 )
+        
+        # OPTIMALIZACE: Přepočítej metriky JEDNOU pro všechny kategorie na konci
+        db.update_all_metrics(db_path)
+        
         return True
     except FileNotFoundError:
         print("Chyba: Soubor nebyl nalezen.")

@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from app.database import dashboard_db
-from datetime import datetime
-import sqlite3
 
 class StatsWindow:
     def __init__(self, parent, app, month: int, transaction_type: str):
@@ -10,7 +8,6 @@ class StatsWindow:
         self.app = app
         self.month = month
         self.transaction_type = transaction_type  # "výdej" nebo "příjem"
-        self.current_year = datetime.now().year
         
         self.window = tk.Toplevel(parent)
         self.window.title(self._get_title())
@@ -100,42 +97,62 @@ class StatsWindow:
         self.tree.delete(*self.tree.get_children())
         
         try:
-            # Načti performance data (původní funkce)
-            performance_data = dashboard_db.get_year_performance_summary(
+            # NOVÝ SYSTÉM: Načti pre-computed data
+            self.stats_data = dashboard_db.get_stats_data(
                 self.app.profile_path,
-                self.transaction_type,
-                self.current_year
+                self.transaction_type
             )
             
-            # Načti rozpočty pro tento rok
-            budgets = self._load_budgets()
+            if not self.stats_data:
+                self.tree.insert("", "end", text="Žádné kategorie", values=("—", "—", "—", "—", "—", "—"), tags=('gray',))
+                self._update_footer(0, 0, 0)
+                return
             
-            # Načti YTD (year-to-date) plnění
-            ytd_data = self._load_ytd_spending()
+            # Vypočítej hodnoty pro všechny kategorie (LEAF i CUSTOM)
+            # a připrav data pro zobrazení
+            display_data = {}
+            for cat_id, cat_info in self.stats_data.items():
+                # Spočítej hodnoty rekurzivně (CUSTOM nebo LEAF)
+                values = dashboard_db.calculate_custom_values(self.stats_data, cat_id)
+                
+                display_data[cat_id] = {
+                    'id': cat_id,
+                    'nazev': cat_info['nazev'],
+                    'parent_id': cat_info['parent_id'],
+                    'is_custom': cat_info['is_custom'],
+                    'children': cat_info['children'],
+                    'sum_past': values['sum_past'],
+                    'sum_current': values['sum_current'],
+                    'budget_plan': values['budget_plan']
+                }
             
-            # Filtruj data jen pro aktuální měsíc A jen kategorie s rozpočtem
-            month_data = []
-            for row in performance_data:
-                if row['month'] == self.month and row['id'] in budgets:
-                    # Přidej budget a ytd info
-                    row['budget'] = budgets.get(row['id'], 0)
-                    row['ytd_current'] = ytd_data.get(row['id'], 0)
-                    month_data.append(row)
+            # Filtruj jen kategorie s rozpočtem (použij ABS pro výdaje se záporným rozpočtem)
+            filtered_data = {
+                cat_id: data for cat_id, data in display_data.items()
+                if abs(data['budget_plan']) > 0
+            }
             
-            if not month_data:
+            if not filtered_data:
                 self.tree.insert("", "end", text="Žádný rozpočet nastaven", values=("—", "—", "—", "—", "—", "—"), tags=('gray',))
                 self._update_footer(0, 0, 0)
                 return
             
-            # Seřadí data hierarchicky
-            hierarchy = self._build_hierarchy(month_data)
-            
             # Zobrazí data v hierarchické struktuře
-            self._display_hierarchy(hierarchy, parent_item="", level=0)
+            self._display_hierarchy(filtered_data, parent_item="")
             
-            # Aktualizuj footer s celkovými hodnotami (jen top-level kategorie)
-            total_budget = sum(abs(row['budget']) for row in month_data if row['parent_id'] is None)
-            total_ytd = sum(row['ytd_current'] for row in month_data if row['parent_id'] is None)
+            # Aktualizuj footer s celkovými hodnotami (jen top-level kategorie, použij YTD do měsíce)
+            total_budget = sum(abs(data['budget_plan']) for data in filtered_data.values() 
+                             if data['parent_id'] is None)
+            
+            # Spočítej YTD pro top-level kategorie
+            total_ytd = 0.0
+            for cat_id, data in filtered_data.items():
+                if data['parent_id'] is None:
+                    ytd = dashboard_db.get_ytd_for_category(
+                        self.app.profile_path, cat_id, self.month, data=self.stats_data
+                    )
+                    total_ytd += ytd
+            
             total_percentage = (total_ytd / total_budget * 100) if total_budget > 0 else 0
             self._update_footer(total_budget, total_ytd, total_percentage)
         
@@ -146,151 +163,92 @@ class StatsWindow:
             self.tree.insert("", "end", text="Chyba při načítání", values=(str(e), "—", "—", "—", "—", "—"), tags=('gray',))
             self._update_footer(0, 0, 0)
     
-    def _load_budgets(self) -> dict:
-        """Načte rozpočty pro aktuální rok. Returns: {kategorie_id: budget_amount}"""
-        conn = sqlite3.connect(self.app.profile_path)
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT kategorie_id, planovana_castka
-            FROM rozpocty
-            WHERE rok = ?
-        """, (self.current_year,))
-        budgets = {row[0]: row[1] for row in cursor.fetchall()}
-        conn.close()
-        return budgets
-    
-    def _load_ytd_spending(self) -> dict:
-        """Načte YTD spending (leden až aktuální měsíc). Returns: {kategorie_id: ytd_amount}"""
-        conn = sqlite3.connect(self.app.profile_path)
-        cursor = conn.cursor()
-        cursor.execute("""
-            WITH RECURSIVE tree(ancestor_id, descendant_id) AS (
-                SELECT id, id FROM kategorie WHERE typ = ?
-                UNION ALL
-                SELECT t.ancestor_id, k.id
-                FROM tree t
-                JOIN kategorie k ON k.parent_id = t.descendant_id
-            )
-            SELECT 
-                t.ancestor_id,
-                COALESCE(SUM(ABS(i.castka)), 0) as ytd_total
-            FROM tree t
-            LEFT JOIN items i ON i.kategorie_id = t.descendant_id
-                AND i.is_current = 1
-                AND CAST(strftime('%m', i.datum) AS INTEGER) <= ?
-                AND i.castka != 0
-                AND i.co IS NOT NULL 
-                AND i.co != ''
-            GROUP BY t.ancestor_id
-        """, (self.transaction_type, self.month))
-        ytd = {row[0]: row[1] for row in cursor.fetchall()}
-        conn.close()
-        return ytd
-
-    def _build_hierarchy(self, data: list) -> dict:
-        """
-        Vytvoří hierarchickou strukturu z plochého listu dat.
-        
-        Returns:
-            Dict: {category_id: {'data': row_dict, 'children': [child_ids]}}
-        """
-        hierarchy = {}
-        
-        for row in data:
-            cat_id = row['id']
-            if cat_id not in hierarchy:
-                hierarchy[cat_id] = {'data': row, 'children': []}
-        
-        # Propojí rodiče s dětmi
-        for row in data:
-            parent_id = row['parent_id']
-            if parent_id and parent_id in hierarchy:
-                cat_id = row['id']
-                if cat_id not in hierarchy[parent_id]['children']:
-                    hierarchy[parent_id]['children'].append(cat_id)
-        
-        return hierarchy
-
-    def _display_hierarchy(self, hierarchy: dict, parent_item: str, level: int, parent_cat_id=None):
+    def _display_hierarchy(self, data: dict, parent_item: str, parent_cat_id=None):
         """
         Rekurzivně zobrazí hierarchii kategorií v Treeview.
         
+        NOVÝ SYSTÉM: Používá pre-computed data z get_stats_data().
+        
         Args:
-            hierarchy: Hierarchická struktura z _build_hierarchy()
+            data: Dict z _load_data() - {cat_id: {'nazev', 'parent_id', 'children', 'sum_past', 'sum_current', 'budget_plan'}}
             parent_item: ID rodiče v Treeview (prázdný string pro top-level)
-            level: Úroveň odsazení (0 = top-level, 1 = podkategorie, atd.)
             parent_cat_id: ID rodičovské kategorie (None pro top-level)
         """
         # Najdi kategorie na aktuální úrovni
         categories = [
-            cat_id for cat_id, info in hierarchy.items()
-            if info['data']['parent_id'] == parent_cat_id
+            cat_id for cat_id, info in data.items()
+            if info['parent_id'] == parent_cat_id
         ]
         
         # Seřaď podle názvu
-        categories.sort(key=lambda cid: hierarchy[cid]['data']['nazev'])
+        categories.sort(key=lambda cid: data[cid]['nazev'])
         
         for cat_id in categories:
-            info = hierarchy[cat_id]
-            row = info['data']
+            cat_info = data[cat_id]
             
-            # Název kategorie (už bez manuálního odsazení - Treeview to dělá automaticky)
-            category_name = row['nazev']
+            # Název kategorie
+            category_name = cat_info['nazev']
+            
+            # Hodnoty z pre-computed metrik (použij ABS pro výdaje)
+            historicky = abs(cat_info['sum_past'])
+            budget = abs(cat_info['budget_plan'])
+            
+            # Načti měsíční data pro Min.transakce (is_current=0) a Akt.transakce (is_current=1)
+            historical_month = dashboard_db.get_month_data_for_category(
+                self.app.profile_path, cat_id, self.month, is_current=False, data=self.stats_data
+            )
+            current_month = dashboard_db.get_month_data_for_category(
+                self.app.profile_path, cat_id, self.month, is_current=True, data=self.stats_data
+            )
+            
+            # Načti YTD (Year-To-Date) = součet od ledna do aktuálního měsíce
+            ytd = dashboard_db.get_ytd_for_category(
+                self.app.profile_path, cat_id, self.month, data=self.stats_data
+            )
             
             # Formátování částek
-            historical = row['historical']
-            current = row['current']
-            budget = abs(row['budget'])  # ABS protože výdaje jsou záporné
-            ytd_current = row['ytd_current']
-            
-            historical_text = f"{historical:,.0f} Kč" if historical > 0 else "—"
-            current_text = f"{current:,.0f} Kč" if current > 0 else "—"
+            historical_text = f"{historical_month:,.0f} Kč" if historical_month > 0 else "—"
+            current_text = f"{current_month:,.0f} Kč" if current_month > 0 else "—"
             budget_text = f"{budget:,.0f} Kč"
-            ytd_text = f"{ytd_current:,.0f} Kč" if ytd_current > 0 else "—"
+            ytd_text = f"{ytd:,.0f} Kč" if ytd > 0 else "—"
             
             # Výpočet %(M→M) - month-to-month comparison
-            if historical > 0:
-                mm_percentage = (current / historical) * 100
+            if historical_month > 0:
+                mm_percentage = (current_month / historical_month) * 100
                 mm_text = f"{mm_percentage:.1f}%"
                 mm_color = self._get_mm_color_tag(mm_percentage)
-            elif current > 0 and historical == 0:
-                mm_text = "NOVÉ"
-                mm_color = 'mm_blue'
             else:
                 mm_text = "—"
                 mm_color = 'gray'
             
-            # Výpočet %(R) - rozpočet percentage
+            # Výpočet %(R) - YTD plnění ročního rozpočtu
             if budget > 0:
-                r_percentage = (ytd_current / budget) * 100
+                r_percentage = (ytd / budget) * 100
                 r_text = f"{r_percentage:.1f}%"
                 r_color = self._get_r_color_tag(r_percentage)
             else:
                 r_text = "—"
                 r_color = 'gray'
             
-            # Určení hlavní barvy řádku (priorita: %(R) > %(M→M))
-            if r_color != 'gray':
-                row_color = r_color
-            else:
-                row_color = mm_color
+            # Určení hlavní barvy řádku
+            row_color = r_color if r_color != 'gray' else mm_color
             
             # Vložení řádku do Treeview
-            # text = název kategorie (ve stromové části)
-            # values = ostatní sloupce (částky a procenta)
-            # open=True → custom kategorie budou rovnou rozbalené
             item_id = self.tree.insert(
                 parent_item, 
                 "end",
-                text=category_name,  # Název kategorie do stromové části (#0)
-                values=(historical_text, current_text, mm_text, budget_text, ytd_text, r_text),  # Ostatní sloupce
+                text=category_name,
+                values=(historical_text, current_text, mm_text, budget_text, ytd_text, r_text),
                 tags=(row_color,),
                 open=True  # Rozbal custom kategorie automaticky
             )
             
-            # Rekurzivně zobraz děti
-            if info['children']:
-                self._display_hierarchy(hierarchy, item_id, level + 1, cat_id)
+            # Rekurzivně zobraz děti (pokud existují a jsou ve filtered data)
+            if cat_info['children']:
+                # Zobraz jen děti které prošly filtrem (mají rozpočet)
+                filtered_children = [child_id for child_id in cat_info['children'] if child_id in data]
+                if filtered_children:
+                    self._display_hierarchy(data, item_id, cat_id)
 
     def _get_mm_color_tag(self, percentage: float) -> str:
         """

@@ -189,6 +189,44 @@ class AccountingStructureTab:
 
     # --- METODY PRO AKCE (BUSINESS LOGIKA) ---
 
+    def _add_category_workflow(self, nazev, typ, parent_id, is_custom, assign_transactions):
+        """
+        Centrální workflow pro přidání kategorie s automatickým handlingem UI notifikací.
+        
+        Args:
+            nazev: Název kategorie
+            typ: 'příjem' nebo 'výdej'
+            parent_id: ID rodiče (None = root)
+            is_custom: 0 = LEAF, 1 = CUSTOM
+            assign_transactions: True = přiřadí transakce (jen pro LEAF)
+        """
+        # Zjistíme, zda se jedná o první kategorii
+        is_first_category = not db.has_categories(self.app.profile_path)
+        
+        try:
+            # Delegujeme na DB vrstvu
+            db.add_category_with_workflow(
+                self.app.profile_path,
+                nazev,
+                typ,
+                parent_id,
+                is_custom,
+                assign_transactions
+            )
+            
+            # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
+            if is_first_category:
+                self.app.update_tabs_visibility()
+                messagebox.showinfo(
+                    "Rozpočet je připraven",
+                    "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
+                )
+            
+            self.refresh_data()
+            
+        except ValueError as e:
+            messagebox.showerror("Chyba", str(e))
+
     def get_selected_unassigned_with_type(self):        
         listbox_map = {'příjem': self.list_prijmy, 'výdej': self.list_vydaje}
         for typ, listbox in listbox_map.items():
@@ -199,57 +237,42 @@ class AccountingStructureTab:
         return None, None
     
     def add_as_main_category(self):
-        # Zjistíme, zda se jedná o první kategorii, abychom mohli zobrazit notifikaci
-        is_first_category = not db.has_categories(self.app.profile_path)        
+        """Přidá LEAF kategorii na root úroveň s přiřazením transakcí."""
         name, typ = self.get_selected_unassigned_with_type()
         if not name:
             messagebox.showwarning("Chyba", "Nejprve vyberte položku v jednom z levých seznamů.")
             return
-        if typ not in ['příjem', 'výdej']:
-            messagebox.showerror("Chyba zařazení", f"Položku '{name}' nelze automaticky zařadit.")
-            return
         
-        try:
-            new_category_id = db.add_category(self.app.profile_path, name, typ, None)
-            # Použijeme novou funkci pro přiřazení podle typu
-            db.assign_category_to_items_by_type(self.app.profile_path, name, new_category_id, typ)
-            
-            # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
-            if is_first_category:
-                self.app.update_tabs_visibility()
-                messagebox.showinfo(
-                    "Rozpočet je připraven",
-                    "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
-                )
-            self.refresh_data()
-        except ValueError as e:
-            messagebox.showerror("Duplicitní kategorie", str(e))
+        self._add_category_workflow(
+            nazev=name,
+            typ=typ,
+            parent_id=None,
+            is_custom=0,
+            assign_transactions=True
+        )
 
     def add_as_subcategory(self):
+        """Přidá LEAF kategorii pod vybranou CUSTOM kategorii s přiřazením transakcí."""
         name, actual_type = self.get_selected_unassigned_with_type()
         if not name:
             messagebox.showwarning("Chyba", "Nejprve vyberte položku v jednom z levých seznamů.")
             return
-        if not self.active_tree:
-            messagebox.showwarning("Chyba", "Nejprve v pravém panelu klikněte do stromu.")
-            return
-        selected_iid_right = self.active_tree.focus()
-        if not selected_iid_right:
+        
+        # Zkontroluj že je vybrána nadřazená kategorie v pravém stromu
+        if not self.active_tree or not self.active_tree.focus():
             messagebox.showwarning("Chyba", "Nejprve v pravém stromu vyberte nadřazenou kategorii.")
             return
-        parent_id = self.active_tree.item(selected_iid_right)['values'][0]
-        parent_type = 'příjem' if self.active_tree == self.tree_prijmy else 'výdej'
-        if actual_type != parent_type:
-            messagebox.showerror("Chyba zařazení", f"Nelze zařadit položku typu '{actual_type.capitalize()}' pod '{parent_type.capitalize()}'.")
-            return
         
-        try:
-            new_category_id = db.add_category(self.app.profile_path, name, parent_type, parent_id)
-            # Použijeme novou funkci pro přiřazení podle typu
-            db.assign_category_to_items_by_type(self.app.profile_path, name, new_category_id, parent_type)
-            self.refresh_data()
-        except ValueError as e:
-            messagebox.showerror("Duplicitní kategorie", str(e))
+        parent_id = self.active_tree.item(self.active_tree.focus())['values'][0]
+        
+        # Validace typu se děje v DB vrstvě (add_category)
+        self._add_category_workflow(
+            nazev=name,
+            typ=actual_type,  # Použijeme actual_type (z levého panelu)
+            parent_id=parent_id,
+            is_custom=0,
+            assign_transactions=True
+        )
 
     def delete_category(self):       
         if not self.active_tree:
@@ -270,12 +293,7 @@ class AccountingStructureTab:
             self.refresh_data()
 
     def add_custom_category(self):
-        """
-        Umožní uživateli vytvořit custom kategorii (📁 červená s ikonou),
-        která může obsahovat podkategorie. Pouze na root úrovni.
-        """
-        # Zjistíme, zda se jedná o první kategorii, abychom mohli zobrazit notifikaci
-        is_first_category = not db.has_categories(self.app.profile_path)
+        """Vytvoří CUSTOM kategorii (agregační, bez transakcí) na root nebo pod CUSTOM parent."""
         parent_id = None
         parent_type = None
         
@@ -299,27 +317,11 @@ class AccountingStructureTab:
         else:
             typ = parent_type
 
-        # Custom kategorie má vždy is_custom = 1
-        is_custom = 1
-
-        # Vložíme do databáze
-        # Přidáme kontrolu existence PŘED pokusem o vytvoření
-        if db.category_exists(self.app.profile_path, name, typ):
-            messagebox.showwarning("Kategorie již existuje", f"Kategorie '{name}' typu '{typ}' již existuje.\n\nPokud chcete přidat novou kategorii, zvolte jiný název.")
-            return
-        
-        try:
-            db.add_category(self.app.profile_path, name, typ, parent_id, is_custom)
-        except ValueError as e:
-            messagebox.showerror("Nelze přidat kategorii", str(e))
-            return
-        
-        # Pokud to byla první přidaná kategorie, odemkneme záložku Rozpočet
-        if is_first_category:
-            self.app.update_tabs_visibility()
-            messagebox.showinfo(
-                "Rozpočet je připraven",
-                "Byla vytvořena první kategorie a záložka 'Rozpočet' je nyní k dispozici.\n\nMůžete pokračovat v tvorbě účetní osnovy."
-            )
-        # Obnovíme zobrazení
-        self.refresh_data()
+        # Validace duplicity se děje v DB vrstvě (add_category)
+        self._add_category_workflow(
+            nazev=name,
+            typ=typ,
+            parent_id=parent_id,
+            is_custom=1,
+            assign_transactions=False
+        )

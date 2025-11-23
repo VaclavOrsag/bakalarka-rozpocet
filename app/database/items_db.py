@@ -1,4 +1,5 @@
 import sqlite3
+from . import categories_db
 
 def create_items_table(cursor):
     """Vytvoří tabulku 'items', pokud neexistuje, s novým sloupcem 'is_current'."""
@@ -13,13 +14,34 @@ def create_items_table(cursor):
             FOREIGN KEY (kategorie_id) REFERENCES kategorie (id)
         )
     ''')
+    
+    # ✅ NOVÉ: Indexy pro rychlejší aggregace v update_category_metrics()
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_items_kategorie_current 
+        ON items(kategorie_id, is_current)
+    ''')
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_items_datum 
+        ON items(datum)
+    ''')
+    cursor.execute('''
+        CREATE INDEX IF NOT EXISTS idx_items_kategorie_datum 
+        ON items(kategorie_id, datum)
+    ''')
 
-def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current):
-    """Přidá novou položku do databáze a pokusí se ji automaticky přiřadit k existující kategorii."""
+def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, skip_metrics_update=False):
+    """
+    Přidá novou položku do databáze a pokusí se ji automaticky přiřadit k existující kategorii.
+    
+    Args:
+        skip_metrics_update: Pokud True, nepřepočítá metriky (užitečné při hromadném importu).
+                            Po dokončení hromadného importu je nutné zavolat update_all_metrics().
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
     # Pokusíme se najít existující kategorii pro automatické přiřazení
+    # DŮLEŽITÉ: Pouze LEAF kategorie (is_custom=0) mohou mít transakce!
     kategorie_id = None
     if co and co.strip() and castka != 0:
         # Určíme typ podle znaménka částky
@@ -30,9 +52,12 @@ def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, ci
         else:
             transaction_type = None
         
-        # Pokud dokážeme určit typ, pokusíme se najít existující kategorii
+        # Pokud dokážeme určit typ, pokusíme se najít existující LEAF kategorii
         if transaction_type:
-            cursor.execute("SELECT id FROM kategorie WHERE nazev = ? AND typ = ?", (co, transaction_type))
+            cursor.execute(
+                "SELECT id FROM kategorie WHERE nazev = ? AND typ = ? AND is_custom = 0", 
+                (co, transaction_type)
+            )
             existing_category = cursor.fetchone()
             if existing_category:
                 kategorie_id = existing_category[0]
@@ -45,6 +70,10 @@ def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, ci
     
     conn.commit()
     conn.close()
+    
+    # Přepočítej pre-computed metriky pro kategorii (pokud byla přiřazena a není skip)
+    if kategorie_id and not skip_metrics_update:
+        categories_db.update_category_metrics(db_path, kategorie_id)
 
 def get_items(db_path, is_current):
     """Získá všechny položky z databáze pro daný stav (historické/aktuální)."""
@@ -59,17 +88,34 @@ def delete_item(db_path, item_id):
     """Smaže položku z databáze podle jejího ID."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    # Před smazáním uložíme kategorie_id pro přepočet metrik
+    cursor.execute("SELECT kategorie_id FROM items WHERE id = ?", (item_id,))
+    result = cursor.fetchone()
+    kategorie_id = result[0] if result else None
+    
+    # Smažeme transakci
     cursor.execute("DELETE FROM items WHERE id = ?", (item_id,))
     conn.commit()
     conn.close()
+    
+    # Přepočítej pre-computed metriky pro kategorii (pokud byla přiřazena)
+    if kategorie_id:
+        categories_db.update_category_metrics(db_path, kategorie_id)
 
 def delete_all_items(db_path, is_current):
-    """Smaže VŠECHNY položky pro daný stav z tabulky items."""
+    """
+    Smaže VŠECHNY položky pro daný stav z tabulky items.
+    Po smazání přepočítá metriky všech kategorií.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM items WHERE is_current = ?", (is_current,))
     conn.commit()
     conn.close()
+    
+    # Přepočítej metriky všech kategorií po smazání
+    update_all_metrics(db_path)
 
 def get_total_amount(db_path, is_current):
     """Vrátí součet všech částek pro daný stav."""
@@ -150,7 +196,13 @@ def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
+    # Uložíme starou kategorie_id před updatem (pro přepočet)
+    cursor.execute("SELECT kategorie_id FROM items WHERE id = ?", (item_id,))
+    old_result = cursor.fetchone()
+    old_kategorie_id = old_result[0] if old_result else None
+    
     # Najdeme kategorii podle 'co' a typu (určeného ze znaménka částky)
+    # DŮLEŽITÉ: Pouze LEAF kategorie (is_custom=0) mohou mít transakce!
     kategorie_id = None
     if co and co.strip() and castka != 0:
         if castka > 0:
@@ -161,7 +213,10 @@ def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal
             transaction_type = None
         
         if transaction_type:
-            cursor.execute("SELECT id FROM kategorie WHERE nazev = ? AND typ = ?", (co, transaction_type))
+            cursor.execute(
+                "SELECT id FROM kategorie WHERE nazev = ? AND typ = ? AND is_custom = 0", 
+                (co, transaction_type)
+            )
             existing_category = cursor.fetchone()
             if existing_category:
                 kategorie_id = existing_category[0]
@@ -178,3 +233,27 @@ def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal
     
     conn.commit()
     conn.close()
+    
+    # Přepočítej pre-computed metriky pro obě kategorie (starou i novou, pokud existují)
+    if old_kategorie_id:
+        categories_db.update_category_metrics(db_path, old_kategorie_id)
+    
+    if kategorie_id and kategorie_id != old_kategorie_id:
+        categories_db.update_category_metrics(db_path, kategorie_id)
+def update_all_metrics(db_path):
+    """
+    Přepočítá pre-computed metriky pro VŠECHNY kategorie v databázi.
+    Užitečné po hromadném importu nebo migracích.
+    """
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Získej všechny kategorie
+    cursor.execute("SELECT id FROM kategorie")
+    all_categories = cursor.fetchall()
+    conn.close()
+    
+    # Přepočítej metriky pro každou kategorii
+    for (cat_id,) in all_categories:
+        categories_db.update_category_metrics(db_path, cat_id)

@@ -86,11 +86,8 @@ class BudgetTab:
         self._iid_to_catid_expense.clear()
         self._cats_with_children.clear()
 
-        # Zjistíme aktuální rok (rozpočet je vztažen k roku)
-        year = datetime.now().year
-
     # Jediný dotaz do DB, který vrátí vše potřebné včetně agregací nad podstromy
-        overview = db.get_budget_overview(self.app.profile_path, year)
+        overview = db.get_budget_overview(self.app.profile_path)
 
         # Připravíme data pro stavbu dvou stromů (příjmy/výdaje)
         # Formát záznamu: {id, nazev, typ, parent_id, sum_past, sum_current, budget_plan}
@@ -204,9 +201,8 @@ class BudgetTab:
         editor.place(x=x, y=y, width=w, height=h)
 
         # Předvyplnit vlastní plán, ne agregát
-        year = datetime.now().year
         try:
-            current_own = db.get_own_budget(self.app.profile_path, cat_id, year)
+            current_own = db.get_own_budget(self.app.profile_path, cat_id)
         except Exception:
             current_own = 0.0
         # Editor předvyplníme kladnou hodnotou, 2 desetinná místa dle _format_number_for_edit
@@ -234,10 +230,10 @@ class BudgetTab:
             # Pokud se fakticky nic nezměnilo oproti uložené hodnotě, neukládej
             if abs(value - float(current_own)) < 1e-9:
                 return
-            db.update_or_insert_budget(self.app.profile_path, cat_id, year, float(value))
+            db.update_or_insert_budget(self.app.profile_path, cat_id, float(value))
             
             # NOVÉ: Přepočítej custom kategorie po změně podkategorie
-            db.update_custom_category_budgets(self.app.profile_path, year)
+            db.update_custom_category_budgets(self.app.profile_path)
             
             self.load_data()
 
