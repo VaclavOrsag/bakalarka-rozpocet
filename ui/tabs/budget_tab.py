@@ -48,7 +48,7 @@ class BudgetTab:
         
         # Vytvoříme rám pro Treeview a Scrollbar
         tree_frame = ttk.Frame(parent_frame)
-        tree_frame.pack(fill='both', expand=True, padx=5, pady=5)
+        tree_frame.pack(fill='both', expand=True, padx=5, pady=(5, 0))
         
         # Definujeme sloupce, které bude tabulka mít
         columns = ('plan', 'rozpocet', 'plneni')
@@ -72,6 +72,37 @@ class BudgetTab:
         
         scrollbar.pack(side="right", fill="y")
         tree.pack(side="left", fill="both", expand=True)
+        
+        # --- FOOTER PRO CELKOVÉ SOUČTY ---
+        footer_frame = ttk.Frame(parent_frame, relief='solid', borderwidth=1)
+        footer_frame.pack(fill='x', padx=5, pady=(2, 5))
+        
+        # Label pro "CELKEM:"
+        celkem_label = ttk.Label(footer_frame, text="CELKEM:", font=('TkDefaultFont', 9, 'bold'))
+        celkem_label.grid(row=0, column=0, sticky='w', padx=(5, 0))
+        
+        # Labels pro hodnoty (zarovnané se sloupci treeview)
+        sum_past_label = ttk.Label(footer_frame, text="0,00 Kč", font=('TkDefaultFont', 9, 'bold'), anchor='e')
+        sum_past_label.grid(row=0, column=1, sticky='ew', padx=5)
+        
+        sum_budget_label = ttk.Label(footer_frame, text="0,00 Kč", font=('TkDefaultFont', 9, 'bold'), anchor='e')
+        sum_budget_label.grid(row=0, column=2, sticky='ew', padx=5)
+        
+        sum_current_label = ttk.Label(footer_frame, text="0,00 Kč", font=('TkDefaultFont', 9, 'bold'), anchor='e')
+        sum_current_label.grid(row=0, column=3, sticky='ew', padx=5)
+        
+        # Konfigurace grid weights pro zarovnání
+        footer_frame.columnconfigure(0, weight=1, minsize=120)  # Kategorie sloupec
+        footer_frame.columnconfigure(1, weight=0, minsize=120)  # Minulé období
+        footer_frame.columnconfigure(2, weight=0, minsize=120)  # Rozpočet
+        footer_frame.columnconfigure(3, weight=0, minsize=120)  # Plnění
+        
+        # Uložíme reference na footer labels pro pozdější update
+        tree.footer_labels = {
+            'past': sum_past_label,
+            'budget': sum_budget_label,
+            'current': sum_current_label
+        }
         
         return tree
     
@@ -162,6 +193,10 @@ class BudgetTab:
             tree.tag_configure('custom', foreground='red')
 
         # Není třeba dopočítávat sumy v Pythonu – vše spočítala databáze.
+        
+        # --- AKTUALIZACE FOOTER SOUČTŮ ---
+        self._update_footer_totals()
+        
         return
 
     def _on_double_click_budget(self, event, tree: ttk.Treeview):
@@ -277,3 +312,61 @@ class BudgetTab:
             return float(s)
         except ValueError:
             return None
+
+    def _update_footer_totals(self):
+        """Vypočítá a zobrazí celkové součty pro oba stromy (příjmy/výdaje)."""
+        
+        def calculate_totals(tree):
+            """Sečte hodnoty všech root kategorií v daném stromu."""
+            total_past = 0.0
+            total_budget = 0.0
+            total_current = 0.0
+            
+            # Projdeme všechny root items (parent='')
+            for iid in tree.get_children(''):
+                values = tree.item(iid, 'values')
+                if values:
+                    # Formát: ('909 101,39 Kč', '570 000,00 Kč', '446 250,35 Kč')
+                    past = self._parse_money(values[0]) or 0.0
+                    budget = self._parse_money(values[1]) or 0.0
+                    current = self._parse_money(values[2]) or 0.0
+                    
+                    total_past += past
+                    total_budget += budget
+                    total_current += current
+            
+            return total_past, total_budget, total_current
+        
+        def fmt(val: float) -> str:
+            """Formátuje číslo jako 1 234 567,89 Kč"""
+            return f"{abs(val):,.2f}".replace(",", " ") + " Kč"
+        
+        def get_color(current: float, budget: float) -> str:
+            """Vrací barvu podle % plnění."""
+            if budget == 0:
+                return 'black'
+            pct = abs(current) / abs(budget) * 100
+            if pct < 50:
+                return 'green'
+            elif pct < 99:
+                return '#DAA520'  # Dark goldenrod (žlutá)
+            else:
+                return 'red'
+        
+        # Aktualizace příjmů
+        past_in, budget_in, current_in = calculate_totals(self.tree_prijmy)
+        self.tree_prijmy.footer_labels['past'].config(text=fmt(past_in))
+        self.tree_prijmy.footer_labels['budget'].config(text=fmt(budget_in))
+        self.tree_prijmy.footer_labels['current'].config(
+            text=fmt(current_in),
+            foreground=get_color(current_in, budget_in)
+        )
+        
+        # Aktualizace výdajů
+        past_out, budget_out, current_out = calculate_totals(self.tree_vydaje)
+        self.tree_vydaje.footer_labels['past'].config(text=fmt(past_out))
+        self.tree_vydaje.footer_labels['budget'].config(text=fmt(budget_out))
+        self.tree_vydaje.footer_labels['current'].config(
+            text=fmt(current_out),
+            foreground=get_color(current_out, budget_out)
+        )
