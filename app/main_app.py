@@ -96,7 +96,6 @@ class App:
         if file_importer.import_from_excel(filepath, self.profile_path, is_current):
             # Obnovíme všechny relevantní záložky
             self.sources_ui.load_items()
-            self.sources_ui.update_total()
             if hasattr(self, 'accounting_ui'):
                 self.accounting_ui.refresh_data()
             if hasattr(self, 'budget_ui'):
