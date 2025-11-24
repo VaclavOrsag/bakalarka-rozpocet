@@ -33,13 +33,49 @@ class SourcesTab:
         self.delete_button = ttk.Button(top_frame, text="Smazat", command=self.delete_selected_item)
         self.delete_button.pack(side='left')
 
+        # --- Panel s filtry ---
+        filter_frame = ttk.LabelFrame(self.tab_frame, text="Filtry", padding=8)
+        filter_frame.pack(fill='x', padx=10, pady=(0, 5))
+        
+        # Row 1: Částky a Co
+        row1 = ttk.Frame(filter_frame)
+        row1.pack(fill='x', pady=2)
+        
+        ttk.Label(row1, text="Částka ≥:").pack(side='left', padx=(0, 5))
+        self.filter_castka_min = ttk.Entry(row1, width=12)
+        self.filter_castka_min.pack(side='left', padx=(0, 15))
+        
+        ttk.Label(row1, text="Částka ≤:").pack(side='left', padx=(0, 5))
+        self.filter_castka_max = ttk.Entry(row1, width=12)
+        self.filter_castka_max.pack(side='left', padx=(0, 15))
+        
+        ttk.Label(row1, text="Co:").pack(side='left', padx=(0, 5))
+        self.filter_co_var = tk.StringVar(value='(vše)')
+        self.filter_co = ttk.Combobox(row1, textvariable=self.filter_co_var, width=20, state='readonly')
+        self.filter_co.pack(side='left')
+        
+        # Row 2: Datumy a tlačítka
+        row2 = ttk.Frame(filter_frame)
+        row2.pack(fill='x', pady=(5, 2))
+        
+        ttk.Label(row2, text="Datum od:").pack(side='left', padx=(0, 5))
+        self.filter_datum_od = ttk.Entry(row2, width=12)
+        self.filter_datum_od.pack(side='left', padx=(0, 15))
+        
+        ttk.Label(row2, text="Datum do:").pack(side='left', padx=(0, 5))
+        self.filter_datum_do = ttk.Entry(row2, width=12)
+        self.filter_datum_do.pack(side='left', padx=(0, 15))
+        
+        ttk.Button(row2, text="Filtrovat", command=self._apply_filters).pack(side='left', padx=(10, 5))
+        ttk.Button(row2, text="Resetovat", command=self._reset_filters).pack(side='left')
+
         # --- Treeview pro zobrazení dat ---
         tree_frame = ttk.Frame(self.tab_frame)
         tree_frame.pack(expand=True, fill='both', padx=10, pady=(0, 10))
         
         self.tree = self._create_treeview(tree_frame)
 
-        self.tab_frame.bind("<Visibility>", lambda e: self.load_items())
+        self.tab_frame.bind("<Visibility>", lambda e: self._on_tab_visible())
 
     def _create_treeview(self, parent):
         # Přidáváme 'id' jako skrytý sloupec a 'co' sloupec
@@ -69,6 +105,32 @@ class SourcesTab:
         
         return tree
 
+    def _on_tab_visible(self):
+        """Volá se když se tab stane viditelným"""
+        self._populate_co_dropdown()
+        self.load_items()
+    
+    def _populate_co_dropdown(self):
+        """Načte všechny unikátní hodnoty 'Co' z transakcí"""
+        items = db.get_items(self.app.profile_path, self.current_view)
+        co_values = sorted(set(item[11] for item in items if item[11] and str(item[11]).strip()))
+        self.filter_co['values'] = ['(vše)'] + co_values
+        if self.filter_co_var.get() not in self.filter_co['values']:
+            self.filter_co_var.set('(vše)')
+    
+    def _apply_filters(self):
+        """Aplikuje filtry na transakce"""
+        self.load_items()
+    
+    def _reset_filters(self):
+        """Resetuje všechny filtry"""
+        self.filter_castka_min.delete(0, 'end')
+        self.filter_castka_max.delete(0, 'end')
+        self.filter_co_var.set('(vše)')
+        self.filter_datum_od.delete(0, 'end')
+        self.filter_datum_do.delete(0, 'end')
+        self.load_items()
+
     def toggle_view(self):
         """Přepíná mezi historickým (0) a aktuálním (1) pohledem."""
         self.current_view = 1 - self.current_view
@@ -76,17 +138,65 @@ class SourcesTab:
             self.toggle_button.config(text="Přepnout na Aktuální transakce")
         else:
             self.toggle_button.config(text="Přepnout na Historické transakce")
+        self._populate_co_dropdown()  # Refresh "Co" options
         self.load_items()
 
     def load_items(self):
-        """Načte položky do Treeview podle aktuálně zvoleného pohledu."""
+        """Načte položky do Treeview podle aktuálně zvoleného pohledu a aplikuje filtry."""
         for i in self.tree.get_children():
             self.tree.delete(i)
         
         items = db.get_items(self.app.profile_path, self.current_view)
+        
+        # === APLIKACE FILTRŮ ===
+        filtered_items = []
+        
         for item in items:
             # Struktura: (id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, kategorie_id)
             
+            # Filter: Částka min
+            castka_min_str = self.filter_castka_min.get().strip()
+            if castka_min_str:
+                try:
+                    castka_min = float(castka_min_str.replace(',', '.').replace(' ', ''))
+                    if item[8] < castka_min:
+                        continue
+                except ValueError:
+                    pass  # Ignoruj špatný formát
+            
+            # Filter: Částka max
+            castka_max_str = self.filter_castka_max.get().strip()
+            if castka_max_str:
+                try:
+                    castka_max = float(castka_max_str.replace(',', '.').replace(' ', ''))
+                    if item[8] > castka_max:
+                        continue
+                except ValueError:
+                    pass
+            
+            # Filter: Co
+            co_value = self.filter_co_var.get()
+            if co_value and co_value != '(vše)':
+                if item[11] != co_value:
+                    continue
+            
+            # Filter: Datum od
+            datum_od_str = self.filter_datum_od.get().strip()
+            if datum_od_str:
+                if not item[1] or item[1] < datum_od_str:
+                    continue
+            
+            # Filter: Datum do
+            datum_do_str = self.filter_datum_do.get().strip()
+            if datum_do_str:
+                if not item[1] or item[1] > datum_do_str:
+                    continue
+            
+            # Transakce prošla všemi filtry
+            filtered_items.append(item)
+        
+        # === ZOBRAZENÍ FILTROVANÝCH DAT ===
+        for item in filtered_items:
             # Formátování částky - zobrazujeme se znaménkem (výdaje záporné, příjmy kladné)
             castka_formatted = format_money(item[8], use_abs=False) if item[8] != 0 else "0,00 Kč"
             
