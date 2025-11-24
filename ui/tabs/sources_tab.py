@@ -249,6 +249,10 @@ class SourcesTab:
                 # Obnovíme zobrazení
                 self.load_items()
                 
+                # Refresh Accounting Structure Tab (pokud byla smazána poslední transakce daného typu)
+                if hasattr(self.app, 'accounting_ui'):
+                    self.app.accounting_ui.refresh_data()
+                
                 # Invalidace cache pro dashboard
                 if hasattr(self.app, 'dashboard_ui'):
                     self.app.dashboard_ui.invalidate_cache()
