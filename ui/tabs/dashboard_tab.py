@@ -92,7 +92,7 @@ class DashboardTab:
         
         # Centrální box se zprávou
         center_frame = ttk.Frame(self.locked_frame)
-        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+        center_frame.pack(expand=True)
         
         # Ikona a nadpis
         ttk.Label(center_frame, 

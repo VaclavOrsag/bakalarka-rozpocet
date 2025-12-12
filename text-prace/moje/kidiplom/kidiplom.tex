@@ -1,0 +1,167 @@
+\documentclass[
+program=itk,
+%printversion,
+biblatex,
+language=czech,
+font=sans,
+figures=false,
+tables=false,
+theorems,
+sourcecodes,
+glossaries,
+index
+]{kidiplom}
+
+\title{Nástroj pro tvorbu rozpočtu}
+\title[english]{A Budget Creation Tool}
+
+\author{Václav Orság}
+
+\supervisor{Mgr. Jiří Zacpal, Ph.D.}
+
+\yearofsubmit{\the\year}
+
+\annotation{Cílem této bakalářské práce je vytvořit desktopovou aplikaci pro tvorbu a sledování rozpočtu. Aplikace bude zahrnovat nástroje pro vytváření a modifikaci rozpočtů, umožní uživatelům definovat vlastní účetní osnovu, a poskytne funkce pro import a export dat ve formátu CSV. Součástí aplikace budou také interaktivní grafy a reporty, které umožní sledovat plnění rozpočtu v reálném čase. Aplikace bude napsána v jazyce Python a bude navržena tak, aby byla uživatelsky přívětivá a flexibilní, což umožní široké využití v různých finančních scénářích.}
+
+\annotation[english]{The aim of this bachelor's thesis is to develop a desktop application for budget creation and monitoring. The application will include tools for creating and modifying budgets, allow users to define their own accounting framework, and provide features for importing and exporting data in CSV format. The application will also feature interactive charts and reports to enable real-time budget tracking. It will be developed in Python and designed to be user-friendly and flexible, making it suitable for a variety of financial scenarios.}
+
+%% Klíčová slova práce, včetně anglických. Oddělená (obvykle) středníkem.
+\keywords{tvorba rozpočtu; sledování rozpočtu; desktopová aplikace; účetní osnova; import/export dat; Python}
+\keywords[english]{budget creation; budget monitoring; desktop application; accounting framework; data import/export; Python}
+
+\thanks{Děkuji, děkuji, děkuji.}
+
+\bibliography{bibliografie.bib}
+
+%% Další dodatečné styly (balíky) potřebné pro sazbu vlastního textu
+%% práce.
+\usepackage{lipsum}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+
+\begin{document}
+%% Sazba úvodních stran -- titulní, s bibliografickými údaji, s
+%% anotací a klíčovými slovy, s poděkováním a prohlášením, s obsahem a
+%% se seznamy obrázků, tabulek, vět a zdrojových kódů (pokud jejich
+%% sazba není vypnutá).
+\maketitle
+
+%% Vlastní text závěrečné práce. Pro povinné závěry, před přílohami,
+%% použijte prostředí kiconclusions. Povinná je i příloha s obsahem
+%% elektronických dat.
+
+%% -------------------------------------------------------------------
+
+\newcommand{\BibLaTeX}{\textsc{Bib}\LaTeX}
+
+\section{Specifikace řešení}
+
+\subsection{Správa rozpočtu}
+Aplikace bude obsahovat komplexní nástroje pro správu rozpočtu. Uživatelé budou moci vytvářet a modifikovat rozpočty pomocí intuitivního uživatelského rozhraní. Funkce budou zahrnovat:
+\begin{itemize}
+  \item Vytváření nových rozpočtů s možností nastavení různých kategorií a podkategorií.
+  \item Modifikace stávajících rozpočtů, včetně přidávání, úprav a odstraňování položek.
+  \item Přidávání poznámek a tagů k jednotlivým položkám rozpočtu.
+\end{itemize}
+
+\subsection{Účetní osnova}
+Aplikace umožní uživatelům vytvořit a spravovat vlastní účetní osnovu, která bude plně konfigurovatelná. Hlavní funkce zahrnují:
+\begin{itemize}
+  \item Vytváření nových účetních osnov s možností přidávání kategorií a podkategorií.
+  \item Úprava stávajících účetních osnov, včetně možnosti měnit strukturu a hierarchii.
+  \item Přidávání popisů a tagů k jednotlivým položkám v účetní osnově pro lepší přehlednost a organizaci.
+\end{itemize}
+
+\subsection{Import a export dat}
+Aplikace bude podporovat import a export dat ve formátu CSV, což umožní snadný přenos dat mezi různými zařízeními a aplikacemi. Funkce budou zahrnovat:
+\begin{itemize}
+  \item Import dat z CSV souborů, což umožní uživatelům rychle načíst data do aplikace a zároveň bude dopomáhat k automatickému vytvoření předběžného rozpočtu. 
+  \item Export dat do CSV souborů, což umožní uživatelům snadno zálohovat a sdílet svá data.
+\end{itemize}
+
+\subsection{Sledování plnění rozpočtu}
+Aplikace nabídne nástroje pro interaktivní sledování plnění rozpočtu. Uživatelé budou moci sledovat své finanční cíle a analyzovat data pomocí grafů a reportů. Hlavní funkce budou zahrnovat:
+\begin{itemize}
+  \item Grafické zobrazení plnění rozpočtu v reálném čase.
+  \item Tvorbu reportů, které poskytují detailní přehled o příjmech a výdajích.
+  \item Možnost nastavení finančních cílů a sledování jejich plnění.
+  \item Analýza trendů a vzorců ve financích uživatele pomocí interaktivních nástrojů.
+\end{itemize}
+
+\subsection{Návrh vhodných technologií}
+
+\subsubsection{Programovací jazyk a framework}
+Pro vývoj desktopové aplikace je ideální volbou programovací jazyk Python v kombinaci s GUI toolkitem Tkinter. Python je známý svou jednoduchostí a čitelností, což usnadňuje vývoj a údržbu aplikace. Tkinter je základní GUI toolkit pro Python, který umožňuje vytvářet plně funkční desktopové aplikace.
+
+\subsubsection{Databáze}
+Pro ukládání dat je vhodná databáze SQLite. SQLite je lehká databáze, která nevyžaduje samostatný server a umožňuje ukládání dat přímo do souboru. To je ideální pro desktopové aplikace, kde je potřeba jednoduché a efektivní řešení pro správu dat.
+
+\subsubsection{Import a export dat}
+Pro import a export dat z textových souborů je vhodné použít modul CSV v Pythonu nebo knihovnu Pandas pro pokročilejší manipulaci s daty. Modul CSV umožňuje snadný import a export dat z textových souborů, zatímco Pandas nabízí výkonné nástroje pro analýzu a zpracování dat.
+
+\subsubsection{Grafy a reporty}
+Pro vizualizaci dat a tvorbu grafů je vhodné použít knihovnu Matplotlib. Matplotlib nabízí širokou škálu možností pro tvorbu grafů a je dobře integrovatelný s Pythonem a Tkinterem.
+
+\section{Průzkum existujících řešení}
+\subsection{EveryDollar Budgeting App}
+EveryDollar je aplikace pro správu osobního rozpočtu, která uživatelům umožňuje sledovat příjmy a výdaje, nastavovat finanční cíle a plánovat úspory. Hlavním aspektem, který mne na této aplikaci zaujal, je její jednoduchost. Následující obrázky \ref{fig:planned}, \ref{fig:spent}, \ref{fig:remaining} tuto jednoduchost ilustrují. 
+
+Na obrázku \ref{fig:planned} jsou přehledně zobrazeny všechny plánované výdaje spolu s procentuálním vyjádřením jejich podílu na celkových výdajích. Nad plánovanými výdaji se nachází graf zobrazující plánovaný příjem. Domnívám se, že by bylo užitečné, kdyby aplikace umožňovala sečíst plánované výdaje a porovnat je s grafem příjmů. V tomto případě plánované výdaje dosahují 122 \% příjmů, což výrazně překračuje náš rozpočet, avšak aplikace na tuto skutečnost neupozorňuje.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.5\textwidth]{kidiplom/planned_income.png}}
+    \caption{}
+    \label{fig:planned}
+\end{figure}
+Obrázek \ref{fig:spent} zobrazuje skutečně vynaložené výdaje ve srovnání s plánovanými výdaji. V případě překročení plánovaného limitu se daný výdaj označí červeně, což usnadňuje identifikaci překročení rozpočtu.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.5\textwidth]{kidiplom/planned_income2.png}}
+    \caption{}
+    \label{fig:spent}
+\end{figure}
+Obrázek \ref{fig:remaining} je podle mého názoru nejvíce intuitivní. Zobrazuje zbývající část plánovaných výdajů spolu s grafickým znázorněním, což poskytuje uživatelům jasný přehled o zbývajících finančních prostředcích. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = 0.5\textwidth]{kidiplom/planned_income3.png}}
+    \caption{}
+    \label{fig:remaining}
+\end{figure}
+Jak jsem již zmínil při průzkumu EveryDollar Budgetting App mne zaujalo zejména grafické zpracování, které umožňuje rychlé a efektivní porozumění finanční situaci. Na základě těchto poznatků zvažuji přidání funkcionality, která by umožňovala proklik z grafu přímo na konkrétní výdaj. Tato funkcionalita by mohla dále zvýšit intuitivnost a efektivitu aplikace, což by uživatelům poskytlo rychlý přístup k detailním informacím o jejich výdajích.
+\subsection{QuickBooks Accounting App}
+QuickBooks je komplexní účetní a finanční aplikace, která uživatelům umožňuje efektivně spravovat jejich finanční prostředky, včetně sledování příjmů a výdajů, vystavování faktur, správy mzdových nákladů a generování finančních reportů. Co mě na této aplikaci zaujalo nejvíce, je její robustní grafické zpracování a uživatelsky přívětivé rozhraní, které poskytuje jasný a přehledný pohled na finanční situaci uživatele.
+
+Díky intuitivnímu a vizuálně přitažlivému uspořádání dat QuickBooks umožňuje uživatelům snadno monitorovat a analyzovat jejich finanční toky. Přehledné grafy a tabulky usnadňují porozumění komplexním finančním informacím, což je klíčové pro efektivní rozhodování. 
+
+Inspirací pro můj projekt je zejména možnost přizpůsobení hlavní stránky aplikace pomocí modifikovatelných widgetů. Zvažuji přidání podobné funkcionality, která by uživatelům umožnila personalizovat své hlavní rozhraní podle jejich specifických potřeb a preferencí.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = \textwidth]{kidiplom/widget.png}}
+    \caption{Uspořádání widgetů před změnou}
+    \label{fig:widget}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = \textwidth]{kidiplom/widget2.png}}
+    \caption{Uspořádání widgetů po změně}
+    \label{fig:widget_changed}
+\end{figure}
+Obrázky \ref{fig:widget}, \ref{fig:widget_changed} demonstrují zmiňovanou funkcionalitu drag-and-drop. 
+\subsection{Wallet by BudgetBakers}
+Wallet by BudgetBakers je pokročilá aplikace pro správu osobních financí, která uživatelům poskytuje širokou škálu funkcí pro efektivní sledování a plánování jejich finančních prostředků. Umožňuje spravovat příjmy a výdaje, nastavovat finanční cíle, sledovat úspory a generovat detailní finanční reporty. Jednou z hlavních výhod Wallet je její schopnost synchronizovat data s bankovními účty uživatelů, což zajišťuje aktuálnost a přesnost finančních informací. I když tuto funkcionalitu ve své aplikaci pravděpodobně nevyužiji, slouží jako výborný nástroj pro následující demonstraci \ref{fig:report}.
+
+Jednou z klíčových funkcí Wallet je predikce budoucích finančních toků na základě historických dat. Tato funkce umožňuje uživatelům předvídat budoucí příjmy a výdaje, což je nezbytné pro efektivní finanční plánování. Do své aplikace bych rád implementoval podobný systém reportů, který by uživatelům umožnil například srovnávat aktuální finanční situaci se stejným obdobím v minulém roce a podobně.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = \textwidth]{kidiplom/report.png}}
+    \caption{}
+    \label{fig:report}
+\end{figure}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

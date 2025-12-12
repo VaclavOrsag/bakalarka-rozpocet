@@ -1,0 +1,731 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{t00}{online}{}{}
+      \name{editor}{1}{}{%
+        {{hash=bae9ca4d8904691e0f18578bfd05842b}{%
+           family={Bratková},
+           familyi={B\bibinitperiod},
+           given={Eva},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Odborná komise pro otázky elektronického zpřístupňování vysokoškolských kvalifikačních prací, Asociace knihoven vysokých škol ČR}%
+      }
+      \strng{namehash}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{fullhash}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{fullhashraw}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{bibnamehash}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{editorbibnamehash}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{editornamehash}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{editorfullhash}{bae9ca4d8904691e0f18578bfd05842b}
+      \strng{editorfullhashraw}{bae9ca4d8904691e0f18578bfd05842b}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{editor}
+      \field{labeltitlesource}{title}
+      \field{day}{22}
+      \field{edition}{Verze 2.0, aktualiz. a rozšíř.}
+      \field{editortype}{compiler}
+      \field{langid}{czech}
+      \field{month}{12}
+      \field{pagetotal}{60}
+      \field{subtitle}{metodický materiál pro autory vysokoškolských kvalifikačních prací}
+      \field{title}{Metody citování literatury a strukturování bibliografických záznamů podle mezinárodních norem ISO 690 a ISO 690-2}
+      \field{urlday}{2}
+      \field{urlmonth}{2}
+      \field{urlyear}{2011}
+      \field{year}{2008}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb http://www.evskp.cz/SD/4c.pdf
+      \endverb
+      \verb{url}
+      \verb http://www.evskp.cz/SD/4c.pdf
+      \endverb
+    \endentry
+    \entry{t01}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=d9e1f063e39d8db526569d948e82c594}{%
+           family={Borgman},
+           familyi={B\bibinitperiod},
+           given={Christine\bibnamedelima L.},
+           giveni={C\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cambridge (Mass)}%
+      }
+      \list{publisher}{1}{%
+        {The MIT Press}%
+      }
+      \strng{namehash}{d9e1f063e39d8db526569d948e82c594}
+      \strng{fullhash}{d9e1f063e39d8db526569d948e82c594}
+      \strng{fullhashraw}{d9e1f063e39d8db526569d948e82c594}
+      \strng{bibnamehash}{d9e1f063e39d8db526569d948e82c594}
+      \strng{authorbibnamehash}{d9e1f063e39d8db526569d948e82c594}
+      \strng{authornamehash}{d9e1f063e39d8db526569d948e82c594}
+      \strng{authorfullhash}{d9e1f063e39d8db526569d948e82c594}
+      \strng{authorfullhashraw}{d9e1f063e39d8db526569d948e82c594}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{first}
+      \field{isbn}{0-262-52345-0}
+      \field{langid}{english}
+      \field{pagetotal}{xviii, 324}
+      \field{subtitle}{access to information in the networked world}
+      \field{title}{From Gutenberg to the global information infrastructure}
+      \field{year}{2003}
+      \true{nocite}
+    \endentry
+    \entry{t02}{incollection}{}{}
+      \name{author}{1}{}{%
+        {{hash=c4edcbc9098cbc42d6f4f092859463df}{%
+           family={Greenberg},
+           familyi={G\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=8b82a9f2c16ca6285689a8803c0813e7}{%
+           family={Hawkins},
+           familyi={H\bibinitperiod},
+           given={B.L},
+           giveni={B\bibinitperiod}}}%
+        {{hash=51bf9218a426d21c857baf89489013a4}{%
+           family={Battin},
+           familyi={B\bibinitperiod},
+           given={P},
+           giveni={P\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Washington (D.C.)}%
+      }
+      \list{publisher}{2}{%
+        {Council on Library}%
+        {Information Resources; Association of American Universities}%
+      }
+      \strng{namehash}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{fullhash}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{fullhashraw}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{bibnamehash}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{authorbibnamehash}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{authornamehash}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{authorfullhash}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{authorfullhashraw}{c4edcbc9098cbc42d6f4f092859463df}
+      \strng{editorbibnamehash}{21ead82686115609922787fd43c38950}
+      \strng{editornamehash}{21ead82686115609922787fd43c38950}
+      \strng{editorfullhash}{21ead82686115609922787fd43c38950}
+      \strng{editorfullhashraw}{21ead82686115609922787fd43c38950}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booksubtitle}{reconfiguring academic information resources for the 21st century}
+      \field{booktitle}{The mirage of continuity}
+      \field{langid}{english}
+      \field{subtitle}{quality control in the digital research library}
+      \field{title}{Camel drivers and gatecrashers}
+      \field{year}{1998}
+      \true{nocite}
+      \field{pages}{105\bibrangedash 116}
+      \range{pages}{12}
+    \endentry
+    \entry{t03}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=893b6578ccff8391498e2dfb8c1fbd86}{%
+           family={LYNCH},
+           familyi={L\bibinitperiod},
+           given={C.},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{fullhash}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{fullhashraw}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{bibnamehash}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{authorbibnamehash}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{authornamehash}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{authorfullhash}{893b6578ccff8391498e2dfb8c1fbd86}
+      \strng{authorfullhashraw}{893b6578ccff8391498e2dfb8c1fbd86}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1082-9873}
+      \field{journaltitle}{DLib Magazine}
+      \field{langid}{english}
+      \field{number}{7/8}
+      \field{subtitle}{the next decade for digital libraries}
+      \field{title}{Where do we go from here?}
+      \field{urlday}{15}
+      \field{urlmonth}{8}
+      \field{urlyear}{2005}
+      \field{volume}{11}
+      \field{year}{2005}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb http://www.dlib.org/dlib/july05/lynch/07lynch.html
+      \endverb
+      \verb{url}
+      \verb http://www.dlib.org/dlib/july05/lynch/07lynch.html
+      \endverb
+    \endentry
+    \entry{cr}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=f619eccbc6d251d291b392758a57ede8}{%
+           family={{Národní knihovna}},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{f619eccbc6d251d291b392758a57ede8}
+      \strng{fullhash}{f619eccbc6d251d291b392758a57ede8}
+      \strng{fullhashraw}{f619eccbc6d251d291b392758a57ede8}
+      \strng{bibnamehash}{f619eccbc6d251d291b392758a57ede8}
+      \strng{authorbibnamehash}{f619eccbc6d251d291b392758a57ede8}
+      \strng{authornamehash}{f619eccbc6d251d291b392758a57ede8}
+      \strng{authorfullhash}{f619eccbc6d251d291b392758a57ede8}
+      \strng{authorfullhashraw}{f619eccbc6d251d291b392758a57ede8}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2232-332X}
+      \field{journaltitle}{The journal of big papers}
+      \field{langid}{english}
+      \field{number}{3}
+      \field{title}{A big paper}
+      \field{volume}{12}
+      \field{year}{1991}
+      \true{nocite}
+    \endentry
+    \entry{kniha}{book}{}{}
+      \name{author}{2}{}{%
+        {{hash=f35edfb191090cf1bf759def7e3f4f95}{%
+           family={Děťa},
+           familyi={D\bibinitperiod},
+           given={Hugh},
+           giveni={H\bibinitperiod}}}%
+        {{hash=df27e3129412e14986f6c54b6c1d506a}{%
+           family={Rychlík},
+           familyi={R\bibinitperiod},
+           given={Tomáš},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Academia}%
+      }
+      \strng{namehash}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{fullhash}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{fullhashraw}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{bibnamehash}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{authorbibnamehash}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{authornamehash}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{authorfullhash}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \strng{authorfullhashraw}{1dfaf4e6abcc6038fe15eb32af03f190}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{2}
+      \field{isbn}{978-44-55-X}
+      \field{langid}{czech}
+      \field{pagetotal}{550}
+      \field{series}{Pokusná edice}
+      \field{subtitle}{Podtitul}
+      \field{title}{A big paper}
+      \field{urlday}{12}
+      \field{urlmonth}{1}
+      \field{urlyear}{2011}
+      \field{year}{1991}
+      \field{urldateera}{ce}
+      \true{nocite}
+      \verb{urlraw}
+      \verb http://pokus.cz
+      \endverb
+      \verb{url}
+      \verb http://pokus.cz
+      \endverb
+    \endentry
+    \entry{kniha2}{book}{}{}
+      \name{author}{7}{}{%
+        {{hash=f35edfb191090cf1bf759def7e3f4f95}{%
+           family={Děťa},
+           familyi={D\bibinitperiod},
+           given={Hugh},
+           giveni={H\bibinitperiod}}}%
+        {{hash=df27e3129412e14986f6c54b6c1d506a}{%
+           family={Rychlík},
+           familyi={R\bibinitperiod},
+           given={Tomáš},
+           giveni={T\bibinitperiod}}}%
+        {{hash=a8d7c50880b252097e257f7d49cdd27c}{%
+           family={Další},
+           familyi={D\bibinitperiod},
+           given={Pepa},
+           giveni={P\bibinitperiod}}}%
+        {{hash=6371f05327859b1ab6293d2eec1b03c7}{%
+           family={Spousta},
+           familyi={S\bibinitperiod},
+           given={Pepa},
+           giveni={P\bibinitperiod}}}%
+        {{hash=eb4cf152a2eaee1ade3545b0fb41f6c3}{%
+           family={Skoro},
+           familyi={S\bibinitperiod},
+           given={Moc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=75edad3a5c332b728969d381a69af8a8}{%
+           family={Ale},
+           familyi={A\bibinitperiod},
+           given={Nestačí},
+           giveni={N\bibinitperiod}}}%
+        {{hash=918cd2a356bc047ad7bde4b0687bd189}{%
+           family={Hodně},
+           familyi={H\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \strng{namehash}{582ebd6a458864173bed1418468100d5}
+      \strng{fullhash}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \strng{fullhashraw}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \strng{bibnamehash}{582ebd6a458864173bed1418468100d5}
+      \strng{authorbibnamehash}{582ebd6a458864173bed1418468100d5}
+      \strng{authornamehash}{582ebd6a458864173bed1418468100d5}
+      \strng{authorfullhash}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \strng{authorfullhashraw}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \field{extraname}{1}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{langid}{czech}
+      \field{title}{Úplně úžasná knížka}
+      \field{year}{1991}
+      \true{nocite}
+    \endentry
+    \entry{kniha3}{book}{}{}
+      \name{author}{7}{}{%
+        {{hash=f35edfb191090cf1bf759def7e3f4f95}{%
+           family={Děťa},
+           familyi={D\bibinitperiod},
+           given={Hugh},
+           giveni={H\bibinitperiod}}}%
+        {{hash=df27e3129412e14986f6c54b6c1d506a}{%
+           family={Rychlík},
+           familyi={R\bibinitperiod},
+           given={Tomáš},
+           giveni={T\bibinitperiod}}}%
+        {{hash=a8d7c50880b252097e257f7d49cdd27c}{%
+           family={Další},
+           familyi={D\bibinitperiod},
+           given={Pepa},
+           giveni={P\bibinitperiod}}}%
+        {{hash=6371f05327859b1ab6293d2eec1b03c7}{%
+           family={Spousta},
+           familyi={S\bibinitperiod},
+           given={Pepa},
+           giveni={P\bibinitperiod}}}%
+        {{hash=eb4cf152a2eaee1ade3545b0fb41f6c3}{%
+           family={Skoro},
+           familyi={S\bibinitperiod},
+           given={Moc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=75edad3a5c332b728969d381a69af8a8}{%
+           family={Ale},
+           familyi={A\bibinitperiod},
+           given={Nestačí},
+           giveni={N\bibinitperiod}}}%
+        {{hash=918cd2a356bc047ad7bde4b0687bd189}{%
+           family={Hodně},
+           familyi={H\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {MIT Press}%
+      }
+      \strng{namehash}{582ebd6a458864173bed1418468100d5}
+      \strng{fullhash}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \strng{fullhashraw}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \strng{bibnamehash}{582ebd6a458864173bed1418468100d5}
+      \strng{authorbibnamehash}{582ebd6a458864173bed1418468100d5}
+      \strng{authornamehash}{582ebd6a458864173bed1418468100d5}
+      \strng{authorfullhash}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \strng{authorfullhashraw}{9d141ad24f29d1a91eb40ed34ea711b0}
+      \field{extraname}{2}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{langid}{english}
+      \field{pagetotal}{332}
+      \field{title}{Úplně úžasná knížka}
+      \field{year}{1991}
+      \true{nocite}
+    \endentry
+    \entry{small}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=b4f5ec8275fdcd9038b0b634e1d4f5c7}{%
+           family={Freely},
+           familyi={F\bibinitperiod},
+           given={I.P.},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{fullhash}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{fullhashraw}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{bibnamehash}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{authorbibnamehash}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{authornamehash}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{authorfullhash}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \strng{authorfullhashraw}{b4f5ec8275fdcd9038b0b634e1d4f5c7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The journal of small papers}
+      \field{langid}{czech}
+      \field{note}{to appear}
+      \field{number}{3}
+      \field{subtitle}{Podtitulek}
+      \field{title}{A small paper}
+      \field{volume}{1}
+      \field{year}{1997}
+      \true{nocite}
+      \field{pages}{2\bibrangedash 5}
+      \range{pages}{4}
+    \endentry
+    \entry{big}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=4989c42af5801e5d5604be6bf7f11ade}{%
+           family={Jass},
+           familyi={J\bibinitperiod},
+           given={Hugh},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{fullhash}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{fullhashraw}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{bibnamehash}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{authorbibnamehash}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{authornamehash}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{authorfullhash}{4989c42af5801e5d5604be6bf7f11ade}
+      \strng{authorfullhashraw}{4989c42af5801e5d5604be6bf7f11ade}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The journal of big papers}
+      \field{title}{A big paper}
+      \field{volume}{23}
+      \field{year}{1991}
+      \true{nocite}
+    \endentry
+    \entry{cs}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=2ba6ef8d1465624dff2bf042394ca177}{%
+           family={Černý},
+           familyi={Č\bibinitperiod},
+           given={Hugh},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{fullhash}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{fullhashraw}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{bibnamehash}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{authorbibnamehash}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{authornamehash}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{authorfullhash}{2ba6ef8d1465624dff2bf042394ca177}
+      \strng{authorfullhashraw}{2ba6ef8d1465624dff2bf042394ca177}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The journal of big papers}
+      \field{number}{2}
+      \field{title}{Titulek}
+      \field{volume}{12}
+      \field{year}{1991}
+      \true{nocite}
+      \field{pages}{22\bibrangedash 44}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.112.22/jkn
+      \endverb
+    \endentry
+    \entry{koll}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=32167a6d03db223ffb15f7f05f6aae40}{%
+           family={Kollmannová},
+           familyi={K\bibinitperiod},
+           given={Ludmila},
+           giveni={L\bibinitperiod}}}%
+        {{hash=5c43e13704dc84c85e31eaafa1b467e9}{%
+           family={Bubeniková},
+           familyi={B\bibinitperiod},
+           given={Libuše},
+           giveni={L\bibinitperiod}}}%
+        {{hash=323044bc45dfb0d0937fcd1f67ceb765}{%
+           family={Kopecká},
+           familyi={K\bibinitperiod},
+           given={Alena},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Státní pedagogické nakladatelství}%
+      }
+      \strng{namehash}{19a289810dba971feb883837c00c2a24}
+      \strng{fullhash}{19a289810dba971feb883837c00c2a24}
+      \strng{fullhashraw}{19a289810dba971feb883837c00c2a24}
+      \strng{bibnamehash}{19a289810dba971feb883837c00c2a24}
+      \strng{authorbibnamehash}{19a289810dba971feb883837c00c2a24}
+      \strng{authornamehash}{19a289810dba971feb883837c00c2a24}
+      \strng{authorfullhash}{19a289810dba971feb883837c00c2a24}
+      \strng{authorfullhashraw}{19a289810dba971feb883837c00c2a24}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{5}
+      \field{isbn}{80-04-25663-5}
+      \field{pagetotal}{525}
+      \field{series}{Učebnice pro samouky}
+      \field{title}{Angličtina pro samouky}
+      \field{year}{1977}
+      \true{nocite}
+    \endentry
+    \entry{kap}{inbook}{}{}
+      \name{author}{1}{}{%
+        {{hash=59eb658c804ca23bc986b26d199d7d5d}{%
+           family={Novotná},
+           familyi={N\bibinitperiod},
+           given={Pepina},
+           giveni={P\bibinitperiod}}}%
+      }
+      \name{bookauthor}{3}{}{%
+        {{hash=32167a6d03db223ffb15f7f05f6aae40}{%
+           family={Kollmannová},
+           familyi={K\bibinitperiod},
+           given={Ludmila},
+           giveni={L\bibinitperiod}}}%
+        {{hash=5c43e13704dc84c85e31eaafa1b467e9}{%
+           family={Bubeniková},
+           familyi={B\bibinitperiod},
+           given={Libuše},
+           giveni={L\bibinitperiod}}}%
+        {{hash=323044bc45dfb0d0937fcd1f67ceb765}{%
+           family={Kopecká},
+           familyi={K\bibinitperiod},
+           given={Alena},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Státní pedagogické nakladatelství}%
+      }
+      \strng{namehash}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{fullhash}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{fullhashraw}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{bibnamehash}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{authorbibnamehash}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{authornamehash}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{authorfullhash}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{authorfullhashraw}{59eb658c804ca23bc986b26d199d7d5d}
+      \strng{bookauthorbibnamehash}{19a289810dba971feb883837c00c2a24}
+      \strng{bookauthornamehash}{19a289810dba971feb883837c00c2a24}
+      \strng{bookauthorfullhash}{19a289810dba971feb883837c00c2a24}
+      \strng{bookauthorfullhashraw}{19a289810dba971feb883837c00c2a24}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Angličtina pro samouky}
+      \field{chapter}{2.}
+      \strng{crossref}{koll}
+      \field{edition}{5}
+      \field{isbn}{80-04-25663-5}
+      \field{pagetotal}{525}
+      \field{series}{Učebnice pro samouky}
+      \field{title}{Podkapitola}
+      \field{year}{1977}
+      \true{nocite}
+      \field{pages}{22\bibrangedash 29}
+      \range{pages}{8}
+    \endentry
+    \entry{tug}{periodical}{}{}
+      \list{publisher}{1}{%
+        {TUG}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{issn}{1222-3333}
+      \field{journaltitle}{TUGBoat}
+      \field{langid}{english}
+      \field{year}{1980-}
+      \true{nocite}
+      \verb{urlraw}
+      \verb http://tugboat.tug.org/
+      \endverb
+      \verb{url}
+      \verb http://tugboat.tug.org/
+      \endverb
+    \endentry
+    \entry{knuth}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=1dd533466eb3313074d496394d319407}{%
+           family={Knuth},
+           familyi={K\bibinitperiod},
+           given={Donald},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {TUG}%
+      }
+      \strng{namehash}{1dd533466eb3313074d496394d319407}
+      \strng{fullhash}{1dd533466eb3313074d496394d319407}
+      \strng{fullhashraw}{1dd533466eb3313074d496394d319407}
+      \strng{bibnamehash}{1dd533466eb3313074d496394d319407}
+      \strng{authorbibnamehash}{1dd533466eb3313074d496394d319407}
+      \strng{authornamehash}{1dd533466eb3313074d496394d319407}
+      \strng{authorfullhash}{1dd533466eb3313074d496394d319407}
+      \strng{authorfullhashraw}{1dd533466eb3313074d496394d319407}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \strng{crossref}{tug}
+      \field{issn}{1222-3333}
+      \field{journaltitle}{TUGBoat}
+      \field{langid}{english}
+      \field{number}{3}
+      \field{title}{Journeys of \TeX}
+      \field{volume}{17}
+      \field{year}{2003}
+      \true{nocite}
+      \field{pages}{12\bibrangedash 22}
+      \range{pages}{11}
+      \verb{urlraw}
+      \verb http://tugboat.tug.org/kkk.pdf
+      \endverb
+      \verb{url}
+      \verb http://tugboat.tug.org/kkk.pdf
+      \endverb
+    \endentry
+    \entry{sbornik}{collection}{}{}
+      \name{editor}{1}{}{%
+        {{hash=6de2de2a589c93e0a88a5af19751472b}{%
+           family={Geniální},
+           familyi={G\bibinitperiod},
+           given={Jiří},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Academia}%
+      }
+      \strng{namehash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{fullhash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{fullhashraw}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{bibnamehash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editorbibnamehash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editornamehash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editorfullhash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editorfullhashraw}{6de2de2a589c93e0a88a5af19751472b}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{editor}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-222-626-222-2}
+      \field{langid}{czech}
+      \field{title}{Mimořádně užitečný sborník}
+      \field{year}{2007}
+      \true{nocite}
+    \endentry
+    \entry{prispevek1}{incollection}{}{}
+      \name{author}{1}{}{%
+        {{hash=2843c87bdffddfb033cf9008b93dab36}{%
+           family={Vlaštovka},
+           familyi={V\bibinitperiod},
+           given={Josef},
+           giveni={J\bibinitperiod}}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=6de2de2a589c93e0a88a5af19751472b}{%
+           family={Geniální},
+           familyi={G\bibinitperiod},
+           given={Jiří},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Academia}%
+      }
+      \strng{namehash}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{fullhash}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{fullhashraw}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{bibnamehash}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{authorbibnamehash}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{authornamehash}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{authorfullhash}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{authorfullhashraw}{2843c87bdffddfb033cf9008b93dab36}
+      \strng{editorbibnamehash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editornamehash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editorfullhash}{6de2de2a589c93e0a88a5af19751472b}
+      \strng{editorfullhashraw}{6de2de2a589c93e0a88a5af19751472b}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Mimořádně užitečný sborník}
+      \strng{crossref}{sbornik}
+      \field{isbn}{978-222-626-222-2}
+      \field{langid}{czech}
+      \field{title}{Velmi zajímavý článek}
+      \field{year}{2007}
+      \true{nocite}
+      \field{pages}{22\bibrangedash 45}
+      \range{pages}{24}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
