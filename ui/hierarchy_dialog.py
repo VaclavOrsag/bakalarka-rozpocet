@@ -14,8 +14,10 @@ def open_hierarchy_dialog(parent, available_dims, current_dims, on_result):
     left.pack(side='left', fill='both', expand=True)
     ttk.Label(left, text="Dostupné pole").pack()
     avail_lb = tk.Listbox(left, height=8, exportselection=False)
+    # Zobraz jen ty, co nejsou vybrané
     for it in available_dims:
-        avail_lb.insert('end', it)
+        if it not in current_dims:
+            avail_lb.insert('end', it)
     avail_lb.pack(fill='both', expand=True, padx=4, pady=4)
 
     mid = ttk.Frame(dlg, padding=6)
@@ -33,16 +35,29 @@ def open_hierarchy_dialog(parent, available_dims, current_dims, on_result):
         sel = avail_lb.curselection()
         if not sel:
             return
-        val = avail_lb.get(sel[0])
-        if val in selected_lb.get(0, 'end'):
-            return
+        idx = sel[0]
+        val = avail_lb.get(idx)
+        # Přesun zleva doprava
         selected_lb.insert('end', val)
+        avail_lb.delete(idx)
 
     def remove_one():
         sel = selected_lb.curselection()
         if not sel:
             return
-        selected_lb.delete(sel[0])
+        idx = sel[0]
+        val = selected_lb.get(idx)
+        # Přesun zprava doleva
+        selected_lb.delete(idx)
+        
+        # Vrátit do levého seznamu a seřadit podle původního pořadí
+        items = list(avail_lb.get(0, 'end'))
+        items.append(val)
+        items.sort(key=lambda x: available_dims.index(x) if x in available_dims else 999)
+        
+        avail_lb.delete(0, 'end')
+        for item in items:
+            avail_lb.insert('end', item)
 
     def move(up):
         sel = selected_lb.curselection()

@@ -396,7 +396,54 @@ Zároveň se aktualizuje záložka \textbf{Home}, ze které se teď stává tzv.
   
 
 \subsection{Analýza transakcí}
+Záložka \textbf{Analýza} nám umožňuje dynamicky seskupovat transakce pomocí hierarchického pohledu (tzv. pivot table) a sledovat součty na jednotlivých úrovních. Můžeme přepínat mezi jednotlivými presety, 
+zobrazovat historické nebo aktuální transakce a filtrovat, jestli chceme zobrazit pouze výdaje, příjmy nebo obojí.
+
+Celou analýzu ovládáme pomocí panelu nástrojů v horní části záložky (viz Obrázek \ref{fig:analysis_toolbar}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{analysis_toolbar.png}
+    \caption{Panel nástrojů v záložce Analýza}
+    \label{fig:analysis_toolbar}
+\end{figure}
+Funkce \textbf{řádky} je ve výchozím nastavení zašedlá a nelze na ni kliknout, protože hierarchie je nastavena podle výchozího presetu. O změně hierarchie se dozvíme v sekci Presety.
+\subsubsection{Hierarchický pohled}
+V záložce \textbf{Analýza} vidíme hierarchický pohled na naše transakce (viz Obrázek \ref{fig:analysis_tab}). Ve výchozím nastavení je hierarchie nastavena podle presetu \textbf{Analýza středisek}, 
+ale uživatel může tuto hierarchii měnit podle svých potřeb (viz sekce Presety).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{analysis_tab.png}
+    \caption{Tab Analýza}
+    \label{fig:analysis_tab}
+\end{figure}
+Na obrázku \ref{fig:analysis_tab} vidíme 2 hlavní sloupce - \textbf{řádek} a \textbf{Celkem}, kde řádek zobrazuje naši nastavenou hierarchii a celkem zobrazuje součet všech transakcí odpovídající danému řádku. 
+Hierarchii můžeme rozbalovat a sbalovat kliknutím na ikony + a - vlevo od řádku (viz Obrázek \ref{fig:analysis_expand}). Můžeme tak docílit detailního pohledu na naše transakce.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{analysis_expand.png}
+    \caption{Rozbalení a sbalení hierarchie}
+    \label{fig:analysis_expand}
+\end{figure}
 \subsubsection{Presety}
+Presety nám umožňují rychle měnit hierarchii zobrazenou v záložce \textbf{Analýza}. Kliknutím na rolovací menu \textbf{Preset} se zobrazí nabídka dostupných presetů (viz Obrázek \ref{fig:presets_menu}). Lze volit mezi 
+předdefinovanými presety nebo vytvořit vlastní preset kliknutím na \textbf{Vlastní}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{presets_menu.png}
+    \caption{Nabídka presetů}
+    \label{fig:presets_menu}
+\end{figure}
+Po výběru presetu se hierarchie v záložce \textbf{Analýza} automaticky aktualizuje podle zvoleného presetu. Pokud zvolíme \textbf{Vlastní}, funkce \textbf{řádky} se odemkne a po kliknutí nám 
+umožní ručně nastavovat hierarchii. Pomocí šipek nahoru a dolů můžeme měnit pořadí řádků, čímž měníme hierarchii zobrazenou v záložce \textbf{Analýza}. Pomocí šipek vlevo a vpravo můžeme volit, 
+které řádky chceme zahrnout do hierarchie. (viz Obrázek \ref{fig:custom_rows}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{custom_rows.png}
+    \caption{Nastavení vlastních řádků pro hierarchii}
+    \label{fig:custom_rows}
+\end{figure}
+
+
 
 
 
@@ -418,26 +465,147 @@ Pro odemčení dashboardu je potřeba nastavit rozpočet pro každou kategorii n
 V dashboardu máme 2 hlavní sekce: \textbf{Výdaje} a \textbf{Příjmy} lze mezi nimi přepínat pomocí tlačítek v levé horní části (viz Obrázek \ref{fig:complete_dashboard}). 
 
 Pod těmito tlačítky se nachází
-jednotlivé měsíce, které zobrazujeme jako tlačítka pro rychlý přístup k datům daného měsíce. Jednotlivé tlačítka měsíců jsou barevně odlišena podle toho, zda překračují očekávané plnění rozpočtu ((měsíc/12)*100) nebo ne.: 
-Pokud je měsíc v limitu má \textbf{zelenou barvu}, pokud překračuje limit, ale je v rozmezí 5\% má \textbf{žlutou barvu} pokud překračuje více má \textbf{červenou barvu}.
+jednotlivé měsíce, které zobrazujeme jako tlačítka pro rychlý přístup k datům daného měsíce. Na těchto tlačítkách vidíme \textbf{procentuální plnění rozpočtu YTD} (Year-To-Date, od začátku roku) pro daný měsíc a \textbf{Limit} ( očekávané plnění rozpočtu ((měsíc/12)*100)).
+
+Jednotlivé tlačítka měsíců jsou barevně odlišena podle toho, zda YTD plnění rozpočtu je v limitu nebo jej překračuje:
+\begin{itemize}
+    \item \textbf{zelená barva} – YTD plnění rozpočtu je v limitu
+    \item \textbf{žlutá barva} – YTD plnění rozpočtu překračuje limit, ale je v rozmezí 5\%
+    \item \textbf{červená barva} – YTD plnění rozpočtu překračuje více než 5\%
+\end{itemize}
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{complete_dashboard.png}
     \caption{Kompletní dashboard}
     \label{fig:complete_dashboard}
 \end{figure}
-\subsubsection{Měsíční analýza}
 
+Díky této logice můžeme vidět jak jsme na tom s plněním rozpočtu v jednotlivých měsících a můžeme se rychle dostat k detailní analýze daného měsíce kliknutím na tlačítko měsíce. Můžeme např. vidět, že v měsíci 
+\textbf{Leden} máme plnění 14.4\% což je výrazně nad limitem 8.33\% a tlačítko je červené, proto můžeme kliknout na tlačítko \textbf{Leden} a podívat se na detailní analýzu tohoto měsíce 
+(viz Obrázek \ref{fig:month_analysis}). 
+
+\subsubsection{Měsíční analýza}
+Po kliknutí na tlačítko měsíce se nám zobrazí podrobnější analýza daného měsíce (viz Obrázek \ref{fig:month_analysis}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{month_analysis.png}
+    \caption{Měsíční analýza}
+    \label{fig:month_analysis}
+\end{figure}
+Na obrázku \ref{fig:month_analysis} vidíme opět naši hierarchii kategorií z účetní osnovy, ale tentokrát s podrobnějšími informacemi o daném měsíci.
+Zobrazení hierarchie je stejné jako v záložce \textbf{Rozpočet}, ale máme zde nové sloupce:
+\begin{itemize}
+    \item \textbf{Min. transakce} – součet všech minulých transakcí v dané kategorii za vybraný měsíc.
+    \item \textbf{Akt. transakce} – součet všech aktuálních transakcí v dané kategorii za vybraný měsíc.
+    \item \textbf{\%(M->M)} – procentuální změna mezi minulými a aktuálními transakcemi za vybraný měsíc.
+    \item \textbf{Rozpočet} – plánovaný rozpočet pro danou kategorii.
+    \item \textbf{Plnění R.} – aktuální plnění rozpočtu pro danou kategorii YTD (Year-To-Date, od začátku roku).
+    \item \textbf{\%(R)} – procentuální plnění rozpočtu pro danou kategorii YTD.
+\end{itemize}
+Zároveň dole vlevo vidíme hodnotu \textbf{Celkem}, tato hodnota zobrazuje plnění celkového rozpočtu YTD. Tuto hodnotu v \% můžeme vidět i na tlačítku měsíce v dashboardu (viz Obrázek \ref{fig:complete_dashboard}). 
+V dashboardu se nám díky hodnotě \textbf{14.4\%} zobrazuje tlačítko červeně. Zde, ale vidíme, celkové plnění rozpočtu YTD a můžeme tak vyvodit, že i přes to, že jsme tento měsíc utratili více než je náš fixní limit, 
+tak celkově jsme stále pod limitem v rámci rozpočtu a detailně vidíme přesnou částku. 
+
+Je normální, že v některých měsících utratíme více a v jiných méně, důležité je sledovat celkové plnění rozpočtu v rámci roku. Díky této barevné logice můžeme identifikovat, které měsíce jsou více příjmové/výdajové 
+a které méně.
 
 
 
 \subsection{Záložka transakce}
+Na obrázku \ref{fig:transactions_tab} vidíme záložku \textbf{Transakce}, která slouží k práci s aktuálními a historickými transakcemi. Zde můžeme vidět všechny transakce, které jsme importovali z excelu, případně 
+přidali ručně. Mezi historické a aktuální transakce můžeme přepínat pomocí tlačítka textu \textbf{Přepnout na Historické/Aktuální transakce} v sekci pro akce s transakcemi (viz Obrázek \ref{fig:functions}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{transactions_tab.png}
+    \caption{Záložka transakce}
+    \label{fig:transactions_tab}
+\end{figure}
 \subsubsection{Vizualizace transakcí}
-\subsubsection{Filtrování transakcí}
-\subsubsection{Mazání transakcí}
-\subsubsection{Import transakcí}
-\subsubsection{Editace transakcí}
+Jako první si můžeme na obrázku \ref{fig:transactions_tab} všimnout, že některé transakce jsou červené. To značí, že těmto transakcím chybí povinná položka buď text \textbf{Co} nebo \textbf{Částka}. Obě tyto 
+položky jsou klíčové pro automatické určení kategorie a typu transakce. Pokud některá z těchto položek chybí, aplikace s touto transakcí nepracuje a je nutné ji opravit ručně (viz sekce Editace transakcí).
 
+Při bližším pohledu si můžeme všimnout jednotlivých sloupců: \textbf{Datum}, \textbf{Doklad}, \textbf{Firma}, \textbf{Text}, \textbf{Co}, \textbf{Částka}.
+Zobrazujeme pouze tyto sloupce z důvodu přehlednosti, ale aplikace interně uchovává všechny informace z excelu (případně z manuálně přidaných transakcí).Pokud chceme zobrazit více informací o dané transakci, 
+můžeme na ni kliknout a poté kliknout na tlačítko \textbf{Upravit}, tím se nám zobrazí okno s kompletními informacemi o dané transakci (viz Obrázek \ref{fig:edit_transaction_window}).Tohle tlačítko slouží i 
+pro editaci transakce (viz sekce Editace transakcí).
+\subsubsection{Filtrování transakcí}
+Aplikace umožňuje filtrovat transakce (viz Obrázek \ref{fig:filters}) podle částky (\textbf{částka >=} a \textbf{částka <=}), podle data (\textbf{Datum od} a \textbf{Datum do}) a podle kategorie (\textbf{Co} lze vybrat z rolldown menu
+viz obrázek \ref{fig:rolldown}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{filters.png}
+    \caption{Filtrování transakcí}
+    \label{fig:filters}
+\end{figure} 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{rolldown.png}
+    \caption{Rolldown menu pro výběr kategorie}
+    \label{fig:rolldown}
+\end{figure}
+Tímto způsobem můžeme rychle najít konkrétní transakce, které nás zajímají. Po zadání požadovaných hodnot do filtrů je potřeba kliknout na tlačítko \textbf{Filtrovat}, tím se aktualizuje seznam transakcí podle 
+zadaných kritérií. Filtry lze kombinovat a tím dosáhnout přesnějšího vyhledávání.
+
+Pro resetování filtrů a zobrazení všech transakcí je potřeba kliknout na tlačítko \textbf{Resetovat}.
+\subsubsection{Import transakcí}
+Pro import nových transakcí můžeme využít tlačítko \textbf{Importovat z Excelu} nebo tlačítko \textbf{Přidat záznam}, které se nachází v sekci pro akce s transakcemi (viz Obrázek \ref{fig:functions}). 
+Před importem/přidáním nových transakcí je potřeba zvolit, zda chceme pracovat s aktuálními nebo historickými transakcemi, podle toho se nám pak nové transakce zařadí. (viz sekce Založka transakce).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{functions.png}
+    \caption{Sekce pro akce s transakcemi}
+    \label{fig:functions}
+\end{figure}
+Při kliknutí na tlačítko \textbf{Importovat z Excelu} se zobrazí dialogové okno pro výběr souboru (viz Obrázek \ref{fig:choose_window}). Pro import je potřeba mít připravený excelový soubor, který obsahuje list s názvem \textbf{Zdroj}.
+Tento list musí obsahovat sloupce: \textbf{Datum, Doklad, Zdroj, Firma, Text, MD, D, částka, Cin, číslo, Co, Kdo, Středisko}. Po výběru souboru se nás ještě aplikace dotáže, zda chceme přidat nové transakce k
+existujícím nebo je nahradit (viz Obrázek \ref{fig:import_options}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{import_options.png}
+    \caption{Možnosti importu transakcí}
+    \label{fig:import_options}
+\end{figure}
+Po potvrzení importu se nám zobrazí potvrzení importu a data se zařadí.
+
+Při kliknutí na tlačítko \textbf{Přidat záznam} se zobrazí okno pro manuální přidání nové transakce (viz Obrázek \ref{fig:add_transaction_window}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{add_transaction_window.png}
+    \caption{Okno pro přidání nové transakce}
+    \label{fig:add_transaction_window}
+\end{figure}
+Uživatel vyplní požadované informace o transakci a klikne na tlačítko \textbf{Uložit}, tím se nová transakce přidá do seznamu. Nutné položky \textbf{Datum}, \textbf{Co} a \textbf{Částka} jsou označeny hvězdičkou (*). O MD/D 
+se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
+
+Aplikace po přidání nové transakce automaticky určí kategorii a typ transakce na základě hodnot v poli \textbf{Co} a \textbf{Částka}. Pokud kategorie neexistuje v účetní osnově, transakce zůstane nezařazená 
+a je potřeba ji zařadit ručně (viz sekce Tvorba osnovy).
+
+\subsubsection{Editace transakcí}
+Pro editaci existující transakce je potřeba ji nejdříve vybrat v seznamu a poté kliknout na tlačítko \textbf{Upravit} (viz Obrázek \ref{fig:functions}). Tím se nám zobrazí okno pro úpravu transakce 
+(viz Obrázek \ref{fig:edit_transaction_window}).
+Uživatel může upravit požadované
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{edit_transaction_window.png}
+    \caption{Okno pro úpravu transakce}
+    \label{fig:edit_transaction_window}
+\end{figure}
+Editování transakcí je obdobné jako přidávání nových transakcí, uživatel může změnit jakékoliv pole a poté kliknout na tlačítko \textbf{Uložit} pro uložení změn. Nutné položky \textbf{Datum}, \textbf{Co} 
+a \textbf{Částka} jsou označeny hvězdičkou (*). O MD/D se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
+
+Aplikace po uložení změn automaticky aktualizuje kategorii a typ transakce na základě nových hodnot v poli \textbf{Co} a \textbf{Částka}. účetní osnova a rozpočet se tímto nijak neovlivní, pouze se změní zařazení dané 
+transakce.
+\subsubsection{Mazání transakcí}
+Pro smazání transakce je potřeba ji nejdříve vybrat v seznamu a poté kliknout na tlačítko \textbf{Smazat} (viz Obrázek \ref{fig:functions}). Aplikace se nás ještě zeptá na potvrzení smazání 
+(viz Obrázek \ref{fig:delete_confirm}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{delete_confirm.png}
+    \caption{Potvrzení smazání transakce}
+    \label{fig:delete_confirm}
+\end{figure}
+Po potvrzení se vybraná transakce smaže ze seznamu. Mazání transakcí nám neovlivňuje účetní osnovu ani rozpočet, pouze se odstraní z historie transakcí (ovlivní tedy pouze dashboard, 
+pokud je daná transakce součástí účetní osnovy).
 
 %% Povinné závěry
 \begin{kiconclusions}

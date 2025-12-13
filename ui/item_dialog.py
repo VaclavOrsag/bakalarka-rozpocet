@@ -26,29 +26,36 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
     win.grab_set()
 
     # Helper funkce pro řádky
-    def add_row(label, width=16):
+    def add_row(label, width=16, required=False):
         frm = ttk.Frame(win)
         frm.pack(fill='x', padx=10, pady=4)
-        ttk.Label(frm, text=label, width=18, anchor='w').pack(side='left')
+        
+        text = label + (" *" if required else "")
+        # Zvětšíme width labelu z 18 na 22, aby se vešlo i nejdelší datum s hvězdičkou a zarovnání zůstalo
+        ttk.Label(frm, text=text, width=22, anchor='w').pack(side='left')
+        
         var = tk.StringVar()
         ent = ttk.Entry(frm, textvariable=var, width=width)
         ent.pack(side='left', fill='x', expand=True)
         return ent
 
     # Vytvoření polí
-    v_datum = add_row("Datum (YYYY-MM-DD)")
+    v_datum = add_row("Datum (YYYY-MM-DD)", required=True)
     v_doklad = add_row("Doklad")
     v_zdroj = add_row("Zdroj")
     v_firma = add_row("Firma")
     v_text = add_row("Text", width=40)
-    v_castka = add_row("Částka (+/-)")
+    v_castka = add_row("Částka (+/-)", required=True)
     v_cin = add_row("Čin")
     v_cislo = add_row("Číslo")
-    v_co = add_row("Co")
+    v_co = add_row("Co", required=True)
     v_kdo = add_row("Kdo")
     v_stred = add_row("Středisko")
 
     # Info label
+    info_req = ttk.Label(win, text="Položky označené * jsou povinné.", foreground="#555", font=("Arial", 8, "italic"))
+    info_req.pack(fill='x', padx=10, pady=(2,0))
+
     info = ttk.Label(win, text="Má dáti / Dal se nastaví automaticky podle znaménka částky.", foreground="#555")
     info.pack(fill='x', padx=10, pady=(2,6))
 
