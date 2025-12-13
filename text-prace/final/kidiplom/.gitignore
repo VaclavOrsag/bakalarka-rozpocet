@@ -1,0 +1,11 @@
+# LaTeX dočasné soubory
+*.aux
+*.bcf
+*.ist
+*.run.xml
+*.toc
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk

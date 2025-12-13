@@ -204,9 +204,8 @@ class DashboardTab:
                 
                 if not budget_summary:
                     # Žádný rozpočet nastaven
-                    type_name = "Výdaje" if self.current_type == "výdej" else "Příjmy"
                     btn.config(
-                        text=f"{month_names[month-1]}\n\n—\n({type_name})",
+                        text=f"{month_names[month-1]}\n\n—",
                         bg="#e0e0e0",  # Šedá
                         activebackground="#e0e0e0"
                     )
@@ -229,9 +228,8 @@ class DashboardTab:
                 btn.config(bg=color, activebackground=color)
                 
                 # Text tlačítka: YTD a očekávané procento
-                type_name = "Výdaje" if self.current_type == "výdej" else "Příjmy"
                 btn.config(
-                    text=f"{month_names[month-1]}\n\nYTD: {ytd_percentage:.1f}%\nLimit: {expected_percentage:.1f}%\n({type_name})"
+                    text=f"{month_names[month-1]}\n\nYTD: {ytd_percentage:.1f}%\nLimit: {expected_percentage:.1f}%"
                 )
         
         except Exception as e:
@@ -243,8 +241,7 @@ class DashboardTab:
             for month in range(1, 13):
                 btn = self.monthly_buttons.get(month)
                 if btn:
-                    type_name = "Výdaje" if self.current_type == "výdej" else "Příjmy"
-                    btn.config(text=f"{month_names[month-1]}\n\n— Kč\n({type_name})", 
+                    btn.config(text=f"{month_names[month-1]}\n\n— Kč", 
                              bg="SystemButtonFace")
     
     def invalidate_cache(self):
