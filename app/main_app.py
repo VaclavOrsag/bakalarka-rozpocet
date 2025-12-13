@@ -80,17 +80,18 @@ class App:
         if not filepath:
             return
 
-        # Zeptáme se na přepsání pouze pokud importujeme historická data A NĚJAKÁ UŽ EXISTUJÍ.
-        if is_current == 0 and db.has_transactions(self.profile_path, is_current=0):
+        # Zeptáme se na přepsání pokud importujeme data A NĚJAKÁ UŽ EXISTUJÍ.
+        if db.has_transactions(self.profile_path, is_current=is_current):
+            data_type_str = "aktuálních" if is_current == 1 else "historických"
             choice = messagebox.askyesnocancel(
-                "Možnosti importu historických dat", 
-                "Přidat data k existujícím (Ano),\nnebo přepsat všechna historická data (Ne)?"
+                f"Možnosti importu {data_type_str} dat", 
+                "Přidat data k existujícím (Ano),\nnebo přepsat všechna data (Ne)?"
             )
             if choice is None: return # Storno
             if choice is False: # Přepsat
-                if not messagebox.askyesno("Potvrdit přepsání", "Opravdu chcete smazat VŠECHNY existující historické transakce?"):
+                if not messagebox.askyesno("Potvrdit přepsání", f"Opravdu chcete smazat VŠECHNY existující {data_type_str} transakce?"):
                     return
-                db.delete_all_items(self.profile_path, is_current=0)
+                db.delete_all_items(self.profile_path, is_current=is_current)
         
         # Samotný import
         if file_importer.import_from_excel(filepath, self.profile_path, is_current):
