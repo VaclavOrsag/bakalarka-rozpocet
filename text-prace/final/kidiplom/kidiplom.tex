@@ -51,9 +51,26 @@ index
 %% Vlastní text závěrečné práce.
 
 \section{Úvod}
-Cílem této práce je navrhnout a implementovat desktopovou aplikaci pro správu osobních i firemních rozpočtů. V dnešní době je efektivní správa financí klíčová...
+V dnešní době je efektivní správa financí klíčová pro stabilitu osobních i firemních rozpočtů. Mnoho uživatelů, včetně odborníků, však stále spoléhá na tabulkové procesory, jako je Microsoft Excel. Ačkoliv jsou tyto nástroje flexibilní, při opakovaném zpracování velkého množství transakcí a tvorbě komplexních rozpočtů narážejí na své limity – proces je často zdlouhavý, manuální a náchylný k chybám.
+
+Impulsem pro vznik této práce byla reálná potřeba zefektivnit proces tvorby rozpočtu, který doposud probíhal právě touto manuální cestou. Vedoucí této práce, Mgr. Jiří Zacpal, Ph.D., využíval pro tvorbu rozpočtu systém založený na exportu transakcí z účetního programu a jejich následném zpracování v Excelu. Tento proces zahrnoval ruční analýzu nákladových středisek, manuální tvorbu účetní osnovy a pracné párování jednotlivých transakcí s rozpočtem.
+
+Hlavním cílem této bakalářské práce je vytvořit desktopovou aplikaci „na míru“, která tento proces plně automatizuje a co nejvíce zjednoduší. Aplikace je navržena tak, aby převzala surová data, automaticky je roztřídila do kategorií a umožnila sestavit hierarchii rozpočtu bez nutnosti složitých manuálních zásahů. Důraz je kladen nejen na automatizaci, ale také na uživatelský komfort a vizualizaci. Namísto nepřehledných tabulek aplikace nabídne dashboard s jasnými vizuálními indikátory, které uživateli umožní pohodlně sledovat plnění rozpočtu v reálném čase a okamžitě identifikovat problémové oblasti.
 
 \section{Průzkum existujících řešení}
+
+\subsection{Microsoft Excel}
+Microsoft Excel (a obecně tabulkové procesory) představuje jeden z nejrozšířenějších nástrojů pro správu osobních i firemních financí. Jeho hlavní výhodou je obrovská flexibilita – uživatel není vázán logikou aplikace a může si vytvořit strukturu přesně podle svých potřeb.
+
+Právě řešení postavené na Microsoft Excel sloužilo jako přímá inspirace pro tuto bakalářskou práci. Původní systém využíval listy pro import dat ("Zdroj"), kontingenční tabulky pro analýzu a složité vzorce pro výpočty rozpočtů. Ačkoliv je toto řešení funkční, naráží na několik limitů, které má nová aplikace řešit:
+\begin{itemize}
+    \item \textbf{Absence automatizace:} Toto je nejzásadnější nedostatek původního řešení. V Excelu musel uživatel ručně nastavovat kategorie, hlídat konzistenci dat a manuálně aktualizovat výpočty. Aplikace tento proces plně automatizuje – data se sama zařazují do kategorií, určují se jejich typy a automaticky se přeskupují podle aktuální konfigurace účetní osnovy.
+    \item \textbf{Křehkost dat:} Při nesprávném zásahu do buňky se vzorcem může dojít k rozbití celého výpočtu.
+    \item \textbf{Náročná údržba:} Přidávání nových kategorií nebo změna struktury vyžaduje manuální úpravu mnoha listů a vzorců.
+    \item \textbf{Absence validace:} Excel (ve výchozím stavu) nekontroluje, zda uživatel zadal všechna povinná data, což vede k chybám v analýze.
+\end{itemize}
+
+Cílem mé aplikace je zachovat flexibilitu Excelu (např. možnost vlastní hierarchie), ale odstranit jeho nedostatky pomocí pevné databázové struktury a validovaného uživatelského vstupu.
 
 \subsection{EveryDollar Budgeting App}
 EveryDollar je aplikace pro správu osobního rozpočtu, která uživatelům umožňuje sledovat příjmy a výdaje, nastavovat finanční cíle a plánovat úspory. Hlavním aspektem, který mne na této aplikaci zaujal, je její jednoduchost. Následující obrázky \ref{fig:planned}, \ref{fig:spent}, \ref{fig:remaining} tuto jednoduchost ilustrují. 
@@ -123,50 +140,79 @@ Jednou z klíčových funkcí Wallet je predikce budoucích finančních toků n
 \end{figure}
 
 \section{Specifikace řešení}
+Na základě průzkumu existujících řešení a stanovených cílů byly definovány následující funkční požadavky na aplikaci.
 
-\subsection{Správa rozpočtu}
-Aplikace bude obsahovat komplexní nástroje pro správu rozpočtu. Uživatelé budou moci vytvářet a modifikovat rozpočty pomocí intuitivního uživatelského rozhraní. Funkce budou zahrnovat:
+\subsection{Správa profilů a dat}
+Aplikace musí podporovat práci s více uživatelskými profily, aby mohla být využívána více osobami na jednom zařízení nebo pro lepší oddělení rozpočtových let.
 \begin{itemize}
-  \item Vytváření nových rozpočtů s možností nastavení různých kategorií a podkategorií.
-  \item Modifikace stávajících rozpočtů, včetně přidávání, úprav a odstraňování položek.
-  \item Přidávání poznámek a tagů k jednotlivým položkám rozpočtu.
-\end{itemize}
-
-\subsection{Účetní osnova}
-Aplikace umožní uživatelům vytvořit a spravovat vlastní účetní osnovu, která bude plně konfigurovatelná. Hlavní funkce zahrnují:
-\begin{itemize}
-  \item Vytváření nových účetních osnov s možností přidávání kategorií a podkategorií.
-  \item Úprava stávajících účetních osnov, včetně možnosti měnit strukturu a hierarchii.
-  \item Přidávání popisů a tagů k jednotlivým položkám v účetní osnově pro lepší přehlednost a organizaci.
+    \item \textbf{Izolace dat:} Každý profil musí mít svou vlastní oddělenou databázi (SQLite), aby nedocházelo k míchání dat.
+    \item \textbf{Správa:} Uživatel musí mít možnost vytvářet nové profily a načítat existující při spuštění aplikace.
 \end{itemize}
 
 \subsection{Import a export dat}
-Aplikace bude podporovat import a export dat ve formátu CSV, což umožní snadný přenos dat mezi různými zařízeními a aplikacemi. Funkce budou zahrnovat:
+Klíčovou funkcí je schopnost zpracovat externí data z bankovních výpisů nebo jiných zdrojů.
 \begin{itemize}
-  \item Import dat z CSV souborů, což umožní uživatelům rychle načíst data do aplikace a zároveň bude dopomáhat k automatickému vytvoření předběžného rozpočtu. 
-  \item Export dat do CSV souborů, což umožní uživatelům snadno zálohovat a sdílet svá data.
-  \item Pro import a export dat z textových souborů je vhodné použít modul CSV v Pythonu nebo knihovnu Pandas pro pokročilejší manipulaci s daty. Modul CSV umožňuje snadný import a export dat z textových souborů, zatímco Pandas nabízí výkonné nástroje pro analýzu a zpracování dat.
+    \item \textbf{Import z Excelu:} Aplikace bude podporovat import transakcí ve formátu .xlsx. Importní modul musí být schopen načíst specifické sloupce (Datum, Doklad, Zdroj, Firma, Text, MD, D, částka, Cin, číslo, Co, Kdo, Středisko) a správně je mapovat na interní strukturu dat.
+    \item \textbf{Rozlišení dat:} Systém musí rozlišovat mezi \textit{historickými} a \textit{aktuálními daty}. To bude sloužit k analýze trendů a sledování plnění rozpočtu v reálném čase.
+    \item \textbf{Export dat:} Aplikace umožní exportovat rozpočtový plán do formátu CSV pro další zpracování nebo zálohování.
 \end{itemize}
 
-\subsection{Sledování plnění rozpočtu}
-Aplikace nabídne nástroje pro interaktivní sledování plnění rozpočtu. Uživatelé budou moci sledovat své finanční cíle a analyzovat data pomocí grafů a reportů. Hlavní funkce budou zahrnovat:
+\subsection{Účetní osnova a kategorizace}
+Aplikace musí poskytovat flexibilní systém pro kategorizaci transakcí, který kombinuje automatizaci s uživatelským přizpůsobením.
 \begin{itemize}
-  \item Grafické zobrazení plnění rozpočtu v reálném čase.
-  \item Tvorbu reportů, které poskytují detailní přehled o příjmech a výdajích.
-  \item Možnost nastavení finančních cílů a sledování jejich plnění.
-  \item Analýza trendů a vzorců ve financích uživatele pomocí interaktivních nástrojů.
+    \item \textbf{Hierarchická struktura:} Uživatel musí mít možnost vytvářet stromovou strukturu kategorií (hlavní kategorie a podkategorie).
+    \item \textbf{Typy kategorií:} Systém bude rozlišovat mezi \textit{transakčními kategoriemi} (automaticky vznikají z importovaných dat na základě klíče "Co") a \textit{custom kategoriemi} (uživatelsky definované skupiny pro lepší organizaci).
+    \item \textbf{Automatizace:} Aplikace bude automaticky přiřazovat transakce do kategorií a určovat jejich typ (Příjem/Výdej) na základě znaménka částky a metadat z importu.
 \end{itemize}
 
-\subsection{Grafy a reporty}
-Pro vizualizaci dat a tvorbu grafů je vhodné použít knihovnu Matplotlib. Matplotlib nabízí širokou škálu možností pro tvorbu grafů a je dobře integrovatelný s Pythonem a Tkinterem.
+\subsection{Rozpočtování}
+Jádrem aplikace je možnost nastavit finanční limity pro jednotlivé kategorie.
+\begin{itemize}
+    \item \textbf{Plánování:} Uživatel může nastavit měsíční rozpočet pro každou kategorii v účetní osnově.
+    \item \textbf{Sledování historie:} Při tvorbě rozpočtu aplikace zobrazí historické výdaje v dané kategorii, aby uživateli pomohla nastavit realistický limit.
+    \item \textbf{Sledování plnění:} Bude možné sledovat aktuální plnění rozpočtu na základě importovaných aktuálních dat.
+\end{itemize}
+
+\subsection{Dashboard a vizualizace}
+Dashboard slouží jako hlavní přehledový panel pro rychlou kontrolu finančního zdraví.
+\begin{itemize}
+    \item \textbf{YTD Metrika:} Aplikace bude sledovat plnění rozpočtu metodou Year-To-Date (od začátku roku do současnosti), což eliminuje sezónní výkyvy v jednotlivých měsících.
+    \item \textbf{Barevná indikace:} Stav plnění bude vizualizován pomocí "semaforu":
+    \begin{itemize}
+        \item \textit{Zelená:} Plnění je v limitu.
+        \item \textit{Žlutá:} Mírné překročení limitu (do 5 \%).
+        \item \textit{Červená:} Výrazné překročení limitu.
+    \end{itemize}
+    \item \textbf{Detail měsíce:} Z dashboardu musí být možný přístup do detailu konkrétního měsíce, kde uživatel uvidí rozpad výdajů dle kategorií.
+\end{itemize}
+
+\subsection{Analytické nástroje}
+Pro hlubší pochopení finančních toků aplikace nabídne pokročilou analýzu.
+\begin{itemize}
+    \item \textbf{Pivot Table:} Implementace dynamické kontingenční tabulky, která umožní seskupovat transakce podle různých dimenzí.
+    \item \textbf{Presety:} Možnost načítat předdefinované pohledy na data (které vycházejí z excelových šablon).
+    \item \textbf{Filtrování:} Možnost filtrovat data podle typu (Příjem/Výdej) a zdroje dat (Historické/Aktuální).
+\end{itemize}
+
+\subsection{Správa transakcí}
+Uživatel musí mít plnou kontrolu nad jednotlivými záznamy.
+\begin{itemize}
+    \item \textbf{CRUD operace:} Možnost přidávat, číst, upravovat a mazat jednotlivé transakce.
+    \item \textbf{Validace:} Systém bude vizuálně upozorňovat na neúplné transakce (chybějící kategorie, datum nebo částka).
+    \item \textbf{Pokročilé filtrování:} Vyhledávání transakcí podle data, částky a kategorie.
+\end{itemize}
 
 \section{Použité technologie}
 
 \subsection{Programovací jazyk a framework}
-Pro vývoj desktopové aplikace je ideální volbou programovací jazyk Python v kombinaci s GUI toolkitem Tkinter. Python je známý svou jednoduchostí a čitelností, což usnadňuje vývoj a údržbu aplikace. Tkinter je základní GUI toolkit pro Python, který umožňuje vytvářet plně funkční desktopové aplikace.
+Pro vývoj aplikace byl zvolen jazyk \textbf{Python} verze 3.x. Jeho hlavní výhodou je rozsáhlá standardní knihovna a silná podpora pro práci s daty.
+Pro tvorbu grafického uživatelského rozhraní (GUI) je využit framework \textbf{Tkinter}. Jedná se o standardní GUI toolkit pro Python, který je multiplatformní a poskytuje dostatečnou sadu ovládacích prvků (widgetů) pro desktopovou aplikaci tohoto typu, včetně pokročilých prvků jako \texttt{Treeview} pro hierarchická data.
 
-\subsection{Databáze}
-Pro ukládání dat je vhodná databáze SQLite. SQLite je lehká databáze, která nevyžaduje samostatný server a umožňuje ukládání dat přímo do souboru. To je ideální pro desktopové aplikace, kde je potřeba jednoduché a efektivní řešení pro správu dat.
+\subsection{Databáze a zpracování dat}
+\begin{itemize}
+    \item \textbf{SQLite:} Pro ukládání dat je využita relační databáze SQLite. Její bezserverová architektura (data uložena v souboru) je ideální pro lokální desktopovou aplikaci, protože nevyžaduje složitou instalaci a konfiguraci na straně uživatele.
+    \item \textbf{Pandas:} Pro import a zpracování dat z Excelu je využita knihovna Pandas. Ta umožňuje efektivní načítání souborů .xlsx, čištění dat a jejich transformaci do formátu vhodného pro databázi.
+\end{itemize}
 
 \section{Programátorská příručka}
 Tato kapitola bude popisovat samotný vývoj aplikace, strukturu kódu a řešení klíčových problémů...
@@ -434,8 +480,8 @@ předdefinovanými presety nebo vytvořit vlastní preset kliknutím na \textbf{
     \label{fig:presets_menu}
 \end{figure}
 Po výběru presetu se hierarchie v záložce \textbf{Analýza} automaticky aktualizuje podle zvoleného presetu. Pokud zvolíme \textbf{Vlastní}, funkce \textbf{řádky} se odemkne a po kliknutí nám 
-umožní ručně nastavovat hierarchii. Pomocí šipek nahoru a dolů můžeme měnit pořadí řádků, čímž měníme hierarchii zobrazenou v záložce \textbf{Analýza}. Pomocí šipek vlevo a vpravo můžeme volit, 
-které řádky chceme zahrnout do hierarchie. (viz Obrázek \ref{fig:custom_rows}).
+umožní ručně nastavovat hierarchii. Pomocí šipek nahoru a dolů můžeme měnit pořadí polí, čímž měníme hierarchii zobrazenou v záložce \textbf{Analýza}. Pomocí šipek vlevo a vpravo můžeme volit, 
+které řádky chceme zahrnout do hierarchie. Na pole, se kterým chceme pracovat, musíme nejprve kliknout poté můžeme použít šipky pro úpravu hierarchie (viz Obrázek \ref{fig:custom_rows}).
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{custom_rows.png}
@@ -609,7 +655,17 @@ pokud je daná transakce součástí účetní osnovy).
 
 %% Povinné závěry
 \begin{kiconclusions}
-V této bakalářské práci byla navržena a implementována aplikace pro tvorbu a správu rozpočtů. Aplikace splňuje všechny stanovené požadavky...
+Cílem této bakalářské práce bylo navrhnout a implementovat desktopovou aplikaci pro tvorbu a správu rozpočtu, která by nahradila stávající manuální proces založený na tabulkovém procesoru Microsoft Excel. 
+
+V rámci práce byla provedena analýza existujících řešení, která potvrdila, že ačkoliv jsou nástroje jako Excel vysoce flexibilní, postrádají potřebnou automatizaci a validaci dat. Na základě těchto zjištění byla navržena aplikace v jazyce Python s využitím knihovny Tkinter pro grafické rozhraní a databáze SQLite pro ukládání dat.
+
+Výsledná aplikace úspěšně naplňuje stanovené cíle. Umožňuje importovat transakce z externích zdrojů, automaticky je kategorizovat a na základě toho tvořit účetní osnovu, která zjednoduší sestavení rozpočtu. Největší výzvou při návrhu bylo nalezení rovnováhy mezi automatizací a flexibilitou. Podařilo se vytvořit systém, který většinu rutinních úkonů provádí automaticky (např. detekce typu transakce, párování kategorií), ale zároveň umožňuje uživateli kdykoliv zasáhnout, upravit strukturu osnovy nebo manuálně přeřadit položky.
+
+Zvolená technologie Tkinter se ukázala jako vhodná pro rychlý vývoj desktopové aplikace, nicméně při implementaci složitějších vizualizací a moderních UI prvků narážela na své limity. Pro budoucí rozvoj aplikace by bylo vhodné zvážit přechod na modernější framework nebo webové rozhraní, které by umožnilo snadnější přístup z více zařízení a modernější design uživatelského rozhraní.
+
+Do budoucna se nabízí také rozšíření analytických funkcí. Aplikaci by bylo vhodné obohatit grafy pro lepší vizualizaci dat a implementovat detailnější možnosti filtrování pro hlubší analýzu transakcí. Významným krokem vpřed by byla také podpora vytváření vlastních profilů s možností definovat odlišnou strukturu databáze, což by výrazně zvýšilo univerzalitu nástroje. 
+
+Vytvořená aplikace však již v současné podobě představuje funkční a efektivní nástroj, který výrazně zrychluje a zpřehledňuje proces rozpočtování.
 \end{kiconclusions}
 
 %% Přílohy

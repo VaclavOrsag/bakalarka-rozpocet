@@ -1,40 +1,43 @@
 \babel@toc {czech}{}\relax 
 \contentsline {section}{\numberline {1}Úvod}{8}{section.1}%
 \contentsline {section}{\numberline {2}Průzkum existujících řešení}{8}{section.2}%
-\contentsline {subsection}{\numberline {2.1}EveryDollar Budgeting App}{8}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}QuickBooks Accounting App}{10}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Wallet by BudgetBakers}{11}{subsection.2.3}%
-\contentsline {section}{\numberline {3}Specifikace řešení}{12}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Správa rozpočtu}{12}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Účetní osnova}{12}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Import a export dat}{13}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Sledování plnění rozpočtu}{13}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}Grafy a reporty}{13}{subsection.3.5}%
-\contentsline {section}{\numberline {4}Použité technologie}{13}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Programovací jazyk a framework}{13}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Databáze}{14}{subsection.4.2}%
-\contentsline {section}{\numberline {5}Programátorská příručka}{14}{section.5}%
-\contentsline {section}{\numberline {6}Uživatelská příručka}{14}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Spuštění aplikace}{14}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Importování transakcí z excelu}{17}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Tvorba osnovy}{18}{subsection.6.3}%
-\contentsline {subsubsection}{\numberline {6.3.1}Přidání hlavních kategorií}{19}{subsubsection.6.3.1}%
-\contentsline {subsubsection}{\numberline {6.3.2}Přidání podkategorií}{21}{subsubsection.6.3.2}%
-\contentsline {subsection}{\numberline {6.4}Tvorba rozpočtu}{22}{subsection.6.4}%
-\contentsline {subsubsection}{\numberline {6.4.1}Nastavení rozpočtu}{24}{subsubsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.5}Analýza transakcí}{27}{subsection.6.5}%
-\contentsline {subsubsection}{\numberline {6.5.1}Hierarchický pohled}{27}{subsubsection.6.5.1}%
-\contentsline {subsubsection}{\numberline {6.5.2}Presety}{28}{subsubsection.6.5.2}%
-\contentsline {subsection}{\numberline {6.6}Dashboard}{29}{subsection.6.6}%
-\contentsline {subsubsection}{\numberline {6.6.1}Hlavní přehled}{30}{subsubsection.6.6.1}%
-\contentsline {subsubsection}{\numberline {6.6.2}Měsíční analýza}{31}{subsubsection.6.6.2}%
-\contentsline {subsection}{\numberline {6.7}Záložka transakce}{33}{subsection.6.7}%
-\contentsline {subsubsection}{\numberline {6.7.1}Vizualizace transakcí}{33}{subsubsection.6.7.1}%
-\contentsline {subsubsection}{\numberline {6.7.2}Filtrování transakcí}{34}{subsubsection.6.7.2}%
-\contentsline {subsubsection}{\numberline {6.7.3}Import transakcí}{34}{subsubsection.6.7.3}%
-\contentsline {subsubsection}{\numberline {6.7.4}Editace transakcí}{36}{subsubsection.6.7.4}%
-\contentsline {subsubsection}{\numberline {6.7.5}Mazání transakcí}{37}{subsubsection.6.7.5}%
-\contentsline {section}{Z\'av\v er}{39}{section*.49}%
+\contentsline {subsection}{\numberline {2.1}Microsoft Excel}{8}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}EveryDollar Budgeting App}{9}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}QuickBooks Accounting App}{11}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Wallet by BudgetBakers}{12}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Specifikace řešení}{13}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Správa profilů a dat}{13}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Import a export dat}{13}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Účetní osnova a kategorizace}{14}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Rozpočtování}{14}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Dashboard a vizualizace}{14}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Analytické nástroje}{15}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Správa transakcí}{15}{subsection.3.7}%
+\contentsline {section}{\numberline {4}Použité technologie}{15}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Programovací jazyk a framework}{15}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Databáze a zpracování dat}{15}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Programátorská příručka}{16}{section.5}%
+\contentsline {section}{\numberline {6}Uživatelská příručka}{16}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Spuštění aplikace}{16}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Importování transakcí z excelu}{19}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Tvorba osnovy}{20}{subsection.6.3}%
+\contentsline {subsubsection}{\numberline {6.3.1}Přidání hlavních kategorií}{21}{subsubsection.6.3.1}%
+\contentsline {subsubsection}{\numberline {6.3.2}Přidání podkategorií}{23}{subsubsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.4}Tvorba rozpočtu}{24}{subsection.6.4}%
+\contentsline {subsubsection}{\numberline {6.4.1}Nastavení rozpočtu}{26}{subsubsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.5}Analýza transakcí}{29}{subsection.6.5}%
+\contentsline {subsubsection}{\numberline {6.5.1}Hierarchický pohled}{29}{subsubsection.6.5.1}%
+\contentsline {subsubsection}{\numberline {6.5.2}Presety}{30}{subsubsection.6.5.2}%
+\contentsline {subsection}{\numberline {6.6}Dashboard}{31}{subsection.6.6}%
+\contentsline {subsubsection}{\numberline {6.6.1}Hlavní přehled}{32}{subsubsection.6.6.1}%
+\contentsline {subsubsection}{\numberline {6.6.2}Měsíční analýza}{33}{subsubsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.7}Záložka transakce}{35}{subsection.6.7}%
+\contentsline {subsubsection}{\numberline {6.7.1}Vizualizace transakcí}{35}{subsubsection.6.7.1}%
+\contentsline {subsubsection}{\numberline {6.7.2}Filtrování transakcí}{36}{subsubsection.6.7.2}%
+\contentsline {subsubsection}{\numberline {6.7.3}Import transakcí}{36}{subsubsection.6.7.3}%
+\contentsline {subsubsection}{\numberline {6.7.4}Editace transakcí}{38}{subsubsection.6.7.4}%
+\contentsline {subsubsection}{\numberline {6.7.5}Mazání transakcí}{39}{subsubsection.6.7.5}%
+\contentsline {section}{Z\'av\v er}{41}{section*.49}%
 \babel@toc {czech}{}\relax 
 \babel@toc {czech}{}\relax 
-\contentsline {section}{\numberline {A}Obsah přiloženého média}{40}{appendix.A}%
+\contentsline {section}{\numberline {A}Obsah přiloženého média}{42}{appendix.A}%
