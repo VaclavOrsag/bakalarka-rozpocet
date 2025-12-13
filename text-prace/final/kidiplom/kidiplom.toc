@@ -25,7 +25,7 @@
 \contentsline {subsection}{\numberline {6.5}Analýza transakcí}{26}{subsection.6.5}%
 \contentsline {subsubsection}{\numberline {6.5.1}Presety}{26}{subsubsection.6.5.1}%
 \contentsline {subsection}{\numberline {6.6}Dashboard}{26}{subsection.6.6}%
-\contentsline {subsubsection}{\numberline {6.6.1}Hlavní přehled}{27}{subsubsection.6.6.1}%
+\contentsline {subsubsection}{\numberline {6.6.1}Hlavní přehled}{26}{subsubsection.6.6.1}%
 \contentsline {subsubsection}{\numberline {6.6.2}Měsíční analýza}{27}{subsubsection.6.6.2}%
 \contentsline {subsection}{\numberline {6.7}Záložka transakce}{27}{subsection.6.7}%
 \contentsline {subsubsection}{\numberline {6.7.1}Vizualizace transakcí}{27}{subsubsection.6.7.1}%

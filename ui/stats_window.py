@@ -218,7 +218,12 @@ class StatsWindow:
                 mm_percentage = (current_month / historical_month) * 100
                 mm_text = f"{mm_percentage:.1f}%"
                 mm_color = self._get_mm_color_tag(mm_percentage)
+            elif current_month > 0:
+                # Žádná historie, ale máme aktuální útratu -> Červená
+                mm_text = "—"
+                mm_color = 'r_red'
             else:
+                # Žádná historie ani aktuální útrata -> Šedá
                 mm_text = "—"
                 mm_color = 'gray'
             
@@ -232,7 +237,7 @@ class StatsWindow:
                 r_color = 'gray'
             
             # Určení hlavní barvy řádku
-            row_color = r_color if r_color != 'gray' else mm_color
+            row_color = mm_color
             
             # Vložení řádku do Treeview
             item_id = self.tree.insert(
@@ -253,20 +258,16 @@ class StatsWindow:
 
     def _get_mm_color_tag(self, percentage: float) -> str:
         """
-        Určí barevný tag pro %(M→M) - světlé barvy (informativní).
-        
-        Args:
-            percentage: Procentuální hodnota
-            
-        Returns:
-            'mm_green', 'mm_yellow', 'mm_red', nebo 'mm_blue'
+        Určí barevný tag pro %(M→M).
+        Logika: <= 100% Zelená, <= 105% Žlutá, > 105% Červená.
+        Používá sytější barvy (r_*) pro shodu s dashboardem.
         """
-        if percentage <= 80:
-            return 'mm_green'
-        elif percentage <= 100:
-            return 'mm_yellow'
+        if percentage <= 100:
+            return 'r_green'
+        elif percentage <= 105:
+            return 'r_yellow'
         else:
-            return 'mm_red'
+            return 'r_red'
     
     def _get_r_color_tag(self, percentage: float) -> str:
         """
