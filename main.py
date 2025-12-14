@@ -1,5 +1,5 @@
 import tkinter as tk
-from app.main_app import App
+from app.controller import App
 from ui.welcome_window import WelcomeWindow
 import app.database as db
 

@@ -273,7 +273,7 @@ class BudgetTab:
             has_any_now = db.has_any_budget(self.app.profile_path)
             # uložení prvního rozpočtu odemkne záložku analýzy + nabídne import aktuálních dat
             if not had_any_before and has_any_now:
-                # přepočet viditelnosti záložek (odemkne Analýzu dle logiky v main_app)
+                # přepočet viditelnosti záložek (odemkne Analýzu dle logiky v controlleru)
                 self.app.update_tabs_visibility()
                 if messagebox.askyesno(
                     "Rozpočet vytvořen",
