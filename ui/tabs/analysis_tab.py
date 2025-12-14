@@ -1,19 +1,26 @@
-# ...existing code...
+"""
+Záložka Analýza - Kontingenční tabulka pro analýzu dat.
+"""
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+from typing import Any, List, Optional, Tuple, Dict
+
 from app import database as db
 from app.utils import format_money
-
 from ui.dialogs.hierarchy_dialog import open_hierarchy_dialog
 
 
 class AnalysisTab:
-    """Analysis tab UI scaffold.
-
-    Provides filter controls and a Treeview for hierarchical pivot-like output.
-    Data loading is left as a placeholder; later we'll hook it to a DB helper.
     """
-    def __init__(self, tab_frame, app_controller):
+    Třída reprezentující záložku 'Analýza'.
+    Poskytuje filtrování a hierarchický pohled (Treeview) na agregovaná data
+    (pivot table) podle zvolených dimenzí (kategorie, středisko, atd.).
+    """
+
+    def __init__(self, tab_frame: ttk.Frame, app_controller: Any) -> None:
+        """
+        Inicializuje UI záložky Analýza.
+        """
         self.app = app_controller
         self.parent = tab_frame
 
@@ -22,14 +29,14 @@ class AnalysisTab:
 
         # --- Controls (top) ---
         ctrl = ttk.Frame(container)
-        ctrl.pack(fill='x', pady=(0,6))
+        ctrl.pack(fill='x', pady=(0, 6))
 
         ttk.Label(ctrl, text="Preset:").pack(side='left')
         self.preset_var = tk.StringVar(value='Analýza středisek')
         self.preset_cb = ttk.Combobox(
             ctrl,
             textvariable=self.preset_var,
-            values=['Analýza středisek', 'Analýza rozpočtu','Analýza rozpočtu 2', 'Vlastní'],
+            values=['Analýza středisek', 'Analýza rozpočtu', 'Analýza rozpočtu 2', 'Vlastní'],
             state='readonly',
             width=20
         )
@@ -37,20 +44,20 @@ class AnalysisTab:
         # bind to handler that sets defaults and enables/disables hierarchy editing
         self.preset_cb.bind('<<ComboboxSelected>>', self._on_preset_change)
 
-        ttk.Label(ctrl, text="Řádky:").pack(side='left', padx=(12,0))
+        ttk.Label(ctrl, text="Řádky:").pack(side='left', padx=(12, 0))
         # hierarchy selection via dialog (UI labels). 'kategorie' je uživatelský název pro kategorie_id
-        self.available_dims = ['kategorie','stredisko','text','kdo','firma']
+        self.available_dims = ['kategorie', 'stredisko', 'text', 'kdo', 'firma']
         self.row_dims = ['stredisko']  # default selection
         self.hierarchy_btn = ttk.Button(ctrl, text="Upravit hierarchii...", command=self._open_hierarchy_dialog)
         self.hierarchy_btn.pack(side='left', padx=6)
 
-        ttk.Label(ctrl, text="Zobrazení:").pack(side='left', padx=(12,0))
+        ttk.Label(ctrl, text="Zobrazení:").pack(side='left', padx=(12, 0))
         self.current_var = tk.StringVar(value='Aktuální')
         # only two options: Aktuální / Historické
         self.current_cb = ttk.Combobox(
             ctrl,
             textvariable=self.current_var,
-            values=['Aktuální','Historické'],
+            values=['Aktuální', 'Historické'],
             state='readonly',
             width=12
         )
@@ -59,7 +66,7 @@ class AnalysisTab:
 
         # Filtr typu (Příjmy/Výdaje) dvěma checkboxy
         types_frame = ttk.Frame(ctrl)
-        types_frame.pack(side='left', padx=(18,0))
+        types_frame.pack(side='left', padx=(18, 0))
         ttk.Label(types_frame, text="Typ:").pack(side='left')
         self.include_income_var = tk.BooleanVar(value=True)
         self.include_expense_var = tk.BooleanVar(value=True)
@@ -89,12 +96,13 @@ class AnalysisTab:
         # Načtení aktuálních změn (učetní osnova...) při zviditelnění tabu
         self.parent.bind("<Visibility>", lambda e: self.load())
 
-    def _show_placeholder(self):
+    def _show_placeholder(self) -> None:
+        """Vyčistí strom a zobrazí zprávu o chybějících datech."""
         for i in self.tree.get_children():
             self.tree.delete(i)
         self.tree.insert('', 'end', text='Nejsou načtena data', values=('',))
 
-    def load(self):
+    def load(self) -> None:
         """Načte agregovaná data dle self.row_dims a zobrazení a vykreslí strom."""
         # Vyčistit strom
         for i in self.tree.get_children():
@@ -173,8 +181,8 @@ class AnalysisTab:
                 nodes[path] = iid
                 added.add(path)
 
-    def _on_preset_change(self, event=None):
-        """Apply preset defaults and enable hierarchy editing only for 'Vlastní'."""
+    def _on_preset_change(self, event: Optional[tk.Event] = None) -> None:
+        """Aplikuje výchozí nastavení presetu a povolí editaci hierarchie jen pro 'Vlastní'."""
         preset = self.preset_var.get()
         if preset == 'Analýza středisek':
             # fixed preset: rows = stredisko
@@ -199,8 +207,9 @@ class AnalysisTab:
         # load view for new preset
         self.load()
 
-    def _open_hierarchy_dialog(self):
-        def _apply(new_dims):
+    def _open_hierarchy_dialog(self) -> None:
+        """Otevře dialog pro výběr hierarchie řádků."""
+        def _apply(new_dims: List[str]) -> None:
             self.row_dims = [d for d in new_dims if d in self.available_dims]
             self.load()
         open_hierarchy_dialog(self.parent, self.available_dims, self.row_dims, _apply)
