@@ -1,25 +1,34 @@
+"""
+Záložka Domů - Průvodce nastavením a Dashboard.
+"""
 import tkinter as tk
 from tkinter import ttk
-from tkinter import filedialog     
-import tkinter.messagebox as messagebox 
-from datetime import datetime
+from typing import Any, Optional
 
 from app import database as db
-from app import file_importer 
+
 
 class HomeTab:
-    def __init__(self, tab_frame, app_controller):
+    """
+    Třída reprezentující domovskou záložku.
+    Slouží jako průvodce pro nové profily (import -> osnova -> rozpočet)
+    nebo zobrazuje Dashboard pro hotové profily.
+    """
+    
+    def __init__(self, tab_frame: ttk.Frame, app_controller: Any) -> None:
         self.app = app_controller
         self.tab_frame = tab_frame
+        self.dashboard_instance = None
         
         # Při prvním zobrazení záložky zkontrolujeme stav
         self.tab_frame.bind("<Visibility>", self.check_profile_state)
 
-    def clear_tab(self):
+    def clear_tab(self) -> None:
+        """Vyčistí obsah záložky."""
         for widget in self.tab_frame.winfo_children():
             widget.destroy()
 
-    def check_profile_state(self, event=None):
+    def check_profile_state(self, event: Optional[tk.Event] = None) -> None:
         """
         Zkontroluje stav AKTUÁLNÍHO profilu a zobrazí další logický krok.
         """
@@ -48,7 +57,7 @@ class HomeTab:
         # Vše je hotovo, zobrazíme hlavní dashboard
         self._show_dashboard()
 
-    def _show_step_import_data(self):
+    def _show_step_import_data(self) -> None:
         """Průvodce pro úplně první import dat."""
         ttk.Label(self.tab_frame, text="Vítejte!", font=("Arial", 18, "bold")).pack(pady=(20, 10))
         ttk.Label(self.tab_frame, 
@@ -61,7 +70,7 @@ class HomeTab:
                    command=self.import_historical
         ).pack(pady=20)
 
-    def _show_step_create_structure(self):
+    def _show_step_create_structure(self) -> None:
         """Průvodce pro vytvoření účetní osnovy."""
         ttk.Label(self.tab_frame, text="Krok 2: Tvorba účetní osnovy", font=("Arial", 18, "bold")).pack(pady=(20, 10))
         ttk.Label(self.tab_frame, 
@@ -73,7 +82,7 @@ class HomeTab:
                    command=lambda: self.app.switch_to_tab('Účetní osnova') 
         ).pack(pady=20)
 
-    def _show_step_create_budget(self):
+    def _show_step_create_budget(self) -> None:
         """Průvodce pro vytvoření rozpočtu."""
         ttk.Label(self.tab_frame, text="Krok 3/3: Tvorba rozpočtu", font=("Arial", 18, "bold")).pack(pady=(20, 10))
         
@@ -90,7 +99,8 @@ class HomeTab:
             command=lambda: self.app.switch_to_tab('Rozpočet')
         ).pack(pady=20)
 
-    def _show_step_import_current(self):
+    def _show_step_import_current(self) -> None:
+        """Průvodce pro import aktuálních dat."""
         ttk.Label(self.tab_frame, text="Krok 4/4: Import aktuálních dat", font=("Arial", 18, "bold")).pack(pady=(20,10))
 
         ttk.Label(self.tab_frame,
@@ -101,12 +111,12 @@ class HomeTab:
                    command=self.import_current
         ).pack(pady=20)
 
-    def import_current(self):
+    def import_current(self) -> None:
+        """Importuje aktuální data."""
         self.app.import_excel(is_current=1)
         self.check_profile_state()
 
-
-    def _show_dashboard(self):
+    def _show_dashboard(self) -> None:
         """Vloží dashboard obsah přímo do home tabu."""
         try:
             # Import dashboard komponenty
@@ -118,7 +128,6 @@ class HomeTab:
             # Uložíme referenci do app pro invalidaci cache
             self.app.dashboard_ui = self.dashboard_instance
             
-            
         except Exception as e:
             # Fallback při chybě načítání dashboardu
             ttk.Label(self.tab_frame, text="🏠 Dashboard", 
@@ -129,8 +138,7 @@ class HomeTab:
                     foreground="gray", font=("Arial", 9)).pack(pady=5)
             print(f"Dashboard embedding error: {e}")
 
-
-    def import_historical(self):
+    def import_historical(self) -> None:
         """Zpracovává PRVNÍ import transakcí z Excelu do nového profilu."""
         # Zavoláme centrální importní funkci s parametrem is_current=0
         self.app.import_excel(is_current=0)

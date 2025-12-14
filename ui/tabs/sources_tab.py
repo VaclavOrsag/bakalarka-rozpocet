@@ -1,14 +1,24 @@
+"""
+Záložka Transakce (Sources) - Správa transakcí.
+"""
 import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
+from typing import Any, Optional, Tuple
 
 from ui.dialogs.item_dialog import open_item_dialog
 
 from app import database as db
 from app.utils import format_money
 
+
 class SourcesTab:
-    def __init__(self, tab_frame, app_controller):
+    """
+    Třída reprezentující záložku pro správu transakcí (historických i aktuálních).
+    Umožňuje filtrování, přidávání, editaci a mazání transakcí.
+    """
+    
+    def __init__(self, tab_frame: ttk.Frame, app_controller: Any) -> None:
         self.app = app_controller
         self.tab_frame = tab_frame
         self.current_view = 0  # 0 pro historické, 1 pro aktuální
@@ -77,7 +87,8 @@ class SourcesTab:
 
         self.tab_frame.bind("<Visibility>", lambda e: self._on_tab_visible())
 
-    def _create_treeview(self, parent):
+    def _create_treeview(self, parent: ttk.Frame) -> ttk.Treeview:
+        """Vytvoří a nakonfiguruje Treeview pro zobrazení transakcí."""
         # Přidáváme 'id' jako skrytý sloupec a 'co' sloupec
         columns = ('id', 'datum', 'doklad', 'firma', 'text', 'co', 'castka')
         tree = ttk.Treeview(parent, columns=columns, show='headings', displaycolumns=('datum', 'doklad', 'firma', 'text', 'co', 'castka'))
@@ -105,12 +116,12 @@ class SourcesTab:
         
         return tree
 
-    def _on_tab_visible(self):
+    def _on_tab_visible(self) -> None:
         """Volá se když se tab stane viditelným"""
         self._populate_co_dropdown()
         self.load_items()
     
-    def _populate_co_dropdown(self):
+    def _populate_co_dropdown(self) -> None:
         """Načte všechny unikátní hodnoty 'Co' z transakcí"""
         items = db.get_items(self.app.profile_path, self.current_view)
         co_values = sorted(set(item[11] for item in items if item[11] and str(item[11]).strip()))
@@ -118,11 +129,11 @@ class SourcesTab:
         if self.filter_co_var.get() not in self.filter_co['values']:
             self.filter_co_var.set('(vše)')
     
-    def _apply_filters(self):
+    def _apply_filters(self) -> None:
         """Aplikuje filtry na transakce"""
         self.load_items()
     
-    def _reset_filters(self):
+    def _reset_filters(self) -> None:
         """Resetuje všechny filtry"""
         self.filter_castka_min.delete(0, 'end')
         self.filter_castka_max.delete(0, 'end')
@@ -131,7 +142,7 @@ class SourcesTab:
         self.filter_datum_do.delete(0, 'end')
         self.load_items()
 
-    def toggle_view(self):
+    def toggle_view(self) -> None:
         """Přepíná mezi historickým (0) a aktuálním (1) pohledem."""
         self.current_view = 1 - self.current_view
         if self.current_view == 0:
@@ -141,7 +152,7 @@ class SourcesTab:
         self._populate_co_dropdown()  # Refresh "Co" options
         self.load_items()
 
-    def load_items(self):
+    def load_items(self) -> None:
         """Načte položky do Treeview podle aktuálně zvoleného pohledu a aplikuje filtry."""
         for i in self.tree.get_children():
             self.tree.delete(i)
@@ -222,7 +233,7 @@ class SourcesTab:
             tag = "incomplete" if is_incomplete else ""
             self.tree.insert('', 'end', values=display_values, tags=(tag,) if tag else ())
 
-    def delete_selected_item(self):
+    def delete_selected_item(self) -> None:
         """Smaže vybranou transakci po potvrzení."""
         selection = self.tree.selection()
         if not selection:
@@ -261,16 +272,16 @@ class SourcesTab:
             except Exception as e:
                 messagebox.showerror("Chyba", f"Při mazání transakce došlo k chybě:\n{str(e)}")
 
-    def start_import(self):
+    def start_import(self) -> None:
         """Zahájí proces importu na základě aktuálního zobrazení."""
         self.app.import_excel(is_current=self.current_view)
 
 
-    def open_add_dialog(self):
+    def open_add_dialog(self) -> None:
         """Otevře dialog pro přidání nové transakce."""
         open_item_dialog(self, mode="add")
         
-    def open_edit_dialog(self):
+    def open_edit_dialog(self) -> None:
         """Otevře dialog pro editaci vybrané transakce."""
         # Zkontroluj výběr
         selection = self.tree.selection()
