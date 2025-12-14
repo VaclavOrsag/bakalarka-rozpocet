@@ -1,10 +1,36 @@
+"""
+Modul pro dialogové okno se statistikami.
+
+Zobrazuje detailní statistiky pro vybraný měsíc a typ transakce,
+včetně porovnání s minulým měsícem z historických transakcí a plnění rozpočtu.
+"""
 import tkinter as tk
 from tkinter import ttk
 from app.database import dashboard_db
 from app.utils import format_money
 
 class StatsDialog:
-    def __init__(self, parent, app, month: int, transaction_type: str):
+    """
+    Dialogové okno zobrazující detailní statistiky.
+    
+    Umožňuje zobrazit hierarchický přehled kategorií s metrikami:
+    - Minulé transakce
+    - Aktuální transakce
+    - Meziměsíční porovnání
+    - Rozpočet
+    - Plnění rozpočtu
+    """
+    
+    def __init__(self, parent: tk.Widget, app, month: int, transaction_type: str) -> None:
+        """
+        Inicializuje dialog statistik.
+        
+        Args:
+            parent: Rodičovské okno
+            app: Instance hlavní aplikace
+            month: Číslo měsíce (1-12)
+            transaction_type: Typ transakce ("výdej" nebo "příjem")
+        """
         self.parent = parent
         self.app = app
         self.month = month
@@ -19,13 +45,14 @@ class StatsDialog:
         self._create_layout()
         self._load_data()
 
-    def _get_title(self):
+    def _get_title(self) -> str:
+        """Vrátí titulek okna podle vybraného měsíce a typu transakce."""
         month_names = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
                        "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"]
         type_name = "Výdaje" if self.transaction_type == "výdej" else "Příjmy"
         return f"Detail měsíce – {month_names[self.month-1]} – {type_name}"
 
-    def _create_layout(self):
+    def _create_layout(self) -> None:
         """Vytvoří layout okna s tabulkou kategorií."""
         # Header
         header = ttk.Frame(self.window, padding=(12, 12))
@@ -91,7 +118,7 @@ class StatsDialog:
         
         ttk.Button(self.footer_frame, text="Zavřít", command=self.window.destroy).pack(side="right")
 
-    def _load_data(self):
+    def _load_data(self) -> None:
         """Načte data z databáze a zobrazí v hierarchické tabulce s barvami."""
         
         # Vyčistí existující data
@@ -164,7 +191,7 @@ class StatsDialog:
             self.tree.insert("", "end", text="Chyba při načítání", values=(str(e), "—", "—", "—", "—", "—"), tags=('gray',))
             self._update_footer(0, 0, 0)
     
-    def _display_hierarchy(self, data: dict, parent_item: str, parent_cat_id=None):
+    def _display_hierarchy(self, data: dict, parent_item: str, parent_cat_id: int | None = None) -> None:
         """
         Rekurzivně zobrazí hierarchii kategorií v Treeview.
         
@@ -259,8 +286,15 @@ class StatsDialog:
     def _get_mm_color_tag(self, percentage: float) -> str:
         """
         Určí barevný tag pro %(M→M).
+        
         Logika: <= 100% Zelená, <= 105% Žlutá, > 105% Červená.
         Používá sytější barvy (r_*) pro shodu s dashboardem.
+        
+        Args:
+            percentage: Procentuální hodnota
+            
+        Returns:
+            Název tagu pro barvu
         """
         if percentage <= 100:
             return 'r_green'
@@ -286,7 +320,7 @@ class StatsDialog:
         else:
             return 'r_red'
     
-    def _update_footer(self, total_budget: float, total_ytd: float, total_percentage: float):
+    def _update_footer(self, total_budget: float, total_ytd: float, total_percentage: float) -> None:
         """
         Aktualizuje footer s celkovým přehledem rozpočtu.
         
