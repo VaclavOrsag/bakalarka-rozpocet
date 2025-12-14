@@ -1,33 +1,91 @@
 """
-Unified dialog pro přidání/editaci transakcí.
+Modul pro dialogové okno přidání nebo editace transakce.
 """
 import tkinter as tk
 from tkinter import ttk, messagebox
+from typing import Optional, Tuple, Any
+import re
+import datetime
 from app import database as db
 
-
-def open_item_dialog(parent_tab, mode="add", item_data=None):
+class ItemDialog:
     """
-    Otevře unified dialog pro transakce.
-    
-    Args:
-        parent_tab: Sources tab instance
-        mode: "add" nebo "edit" 
-        item_data: Pro edit - tuple z databáze (id, datum, doklad, ...)
+    Dialogové okno pro přidání nebo úpravu transakce.
     """
-    
-    # Vytvoření okna
-    win = tk.Toplevel(parent_tab.tab_frame)
-    if mode == "edit":
-        win.title("Upravit transakci")
-    else:
-        win.title("Přidat transakci")
-    win.transient(parent_tab.tab_frame)
-    win.grab_set()
 
-    # Helper funkce pro řádky
-    def add_row(label, width=16, required=False):
-        frm = ttk.Frame(win)
+    def __init__(self, parent_tab: Any, mode: str = "add", item_data: Optional[Tuple] = None) -> None:
+        """
+        Inicializuje dialog.
+
+        Args:
+            parent_tab: Instance záložky (SourcesTab), která dialog volá.
+            mode: Režim dialogu ("add" nebo "edit").
+            item_data: Data transakce pro editaci (tuple z databáze).
+        """
+        self.parent_tab = parent_tab
+        self.mode = mode
+        self.item_data = item_data
+        
+        # Vytvoření okna
+        self.window = tk.Toplevel(parent_tab.tab_frame)
+        if mode == "edit":
+            self.window.title("Upravit transakci")
+        else:
+            self.window.title("Přidat transakci")
+        self.window.transient(parent_tab.tab_frame)
+        self.window.grab_set()
+
+        self._create_layout()
+        
+        # Předvyplnění dat
+        if mode == "edit" and item_data:
+            self._fill_data(item_data)
+
+    def _create_layout(self) -> None:
+        """Vytvoří rozložení formuláře."""
+        # Vytvoření polí
+        self.v_datum = self._add_row("Datum (YYYY-MM-DD)", required=True)
+        self.v_doklad = self._add_row("Doklad")
+        self.v_zdroj = self._add_row("Zdroj")
+        self.v_firma = self._add_row("Firma")
+        self.v_text = self._add_row("Text", width=40)
+        self.v_castka = self._add_row("Částka (+/-)", required=True)
+        self.v_cin = self._add_row("Čin")
+        self.v_cislo = self._add_row("Číslo")
+        self.v_co = self._add_row("Co", required=True)
+        self.v_kdo = self._add_row("Kdo")
+        self.v_stred = self._add_row("Středisko")
+
+        # Info labely
+        info_req = ttk.Label(self.window, text="Položky označené * jsou povinné.", foreground="#555", font=("Arial", 8, "italic"))
+        info_req.pack(fill='x', padx=10, pady=(2,0))
+
+        info = ttk.Label(self.window, text="Má dáti / Dal se nastaví automaticky podle znaménka částky.", foreground="#555")
+        info.pack(fill='x', padx=10, pady=(2,6))
+
+        # Tlačítka
+        btns = ttk.Frame(self.window)
+        btns.pack(fill='x', padx=10, pady=(0,10))
+
+        ttk.Button(btns, text="Uložit", command=self._save).pack(side='right')
+        ttk.Button(btns, text="Zrušit", command=self._cancel).pack(side='right', padx=(6,0))
+        
+        # Focus na první pole
+        self.v_datum.focus_set()
+
+    def _add_row(self, label: str, width: int = 16, required: bool = False) -> ttk.Entry:
+        """
+        Přidá řádek s popiskem a vstupním polem.
+        
+        Args:
+            label: Text popisku.
+            width: Šířka vstupního pole.
+            required: Zda je pole povinné (přidá hvězdičku).
+            
+        Returns:
+            Vytvořený widget Entry.
+        """
+        frm = ttk.Frame(self.window)
         frm.pack(fill='x', padx=10, pady=4)
         
         text = label + (" *" if required else "")
@@ -39,50 +97,28 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
         ent.pack(side='left', fill='x', expand=True)
         return ent
 
-    # Vytvoření polí
-    v_datum = add_row("Datum (YYYY-MM-DD)", required=True)
-    v_doklad = add_row("Doklad")
-    v_zdroj = add_row("Zdroj")
-    v_firma = add_row("Firma")
-    v_text = add_row("Text", width=40)
-    v_castka = add_row("Částka (+/-)", required=True)
-    v_cin = add_row("Čin")
-    v_cislo = add_row("Číslo")
-    v_co = add_row("Co", required=True)
-    v_kdo = add_row("Kdo")
-    v_stred = add_row("Středisko")
-
-    # Info label
-    info_req = ttk.Label(win, text="Položky označené * jsou povinné.", foreground="#555", font=("Arial", 8, "italic"))
-    info_req.pack(fill='x', padx=10, pady=(2,0))
-
-    info = ttk.Label(win, text="Má dáti / Dal se nastaví automaticky podle znaménka částky.", foreground="#555")
-    info.pack(fill='x', padx=10, pady=(2,6))
-
-    # NOVÉ: Předvyplnění pro edit mode
-    if mode == "edit" and item_data:
-        # item_data je tuple: (id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, kategorie_id, is_current)
-        v_datum.insert(0, str(item_data[1]) if item_data[1] else "")
-        v_doklad.insert(0, str(item_data[2]) if item_data[2] else "")
-        v_zdroj.insert(0, str(item_data[3]) if item_data[3] else "")
-        v_firma.insert(0, str(item_data[4]) if item_data[4] else "")
-        v_text.insert(0, str(item_data[5]) if item_data[5] else "")
-        v_castka.insert(0, str(item_data[8]) if item_data[8] else "")  # castka
-        v_cin.insert(0, str(item_data[9]) if item_data[9] else "")    # cin
-        v_cislo.insert(0, str(item_data[10]) if item_data[10] else "") # cislo
-        v_co.insert(0, str(item_data[11]) if item_data[11] else "")   # co
-        v_kdo.insert(0, str(item_data[12]) if item_data[12] else "")  # kdo
-        v_stred.insert(0, str(item_data[13]) if item_data[13] else "") # stredisko
-
-    # Tlačítka
-    btns = ttk.Frame(win)
-    btns.pack(fill='x', padx=10, pady=(0,10))
-
-    # Helper funkce
-    def _valid_date(s: str) -> bool:
-        import re
-        import datetime
+    def _fill_data(self, item_data: Tuple) -> None:
+        """
+        Vyplní formulář daty pro editaci.
         
+        Args:
+            item_data: Tuple s daty transakce.
+        """
+        # item_data je tuple: (id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, kategorie_id, is_current)
+        self.v_datum.insert(0, str(item_data[1]) if item_data[1] else "")
+        self.v_doklad.insert(0, str(item_data[2]) if item_data[2] else "")
+        self.v_zdroj.insert(0, str(item_data[3]) if item_data[3] else "")
+        self.v_firma.insert(0, str(item_data[4]) if item_data[4] else "")
+        self.v_text.insert(0, str(item_data[5]) if item_data[5] else "")
+        self.v_castka.insert(0, str(item_data[8]) if item_data[8] else "")  # castka
+        self.v_cin.insert(0, str(item_data[9]) if item_data[9] else "")    # cin
+        self.v_cislo.insert(0, str(item_data[10]) if item_data[10] else "") # cislo
+        self.v_co.insert(0, str(item_data[11]) if item_data[11] else "")   # co
+        self.v_kdo.insert(0, str(item_data[12]) if item_data[12] else "")  # kdo
+        self.v_stred.insert(0, str(item_data[13]) if item_data[13] else "") # stredisko
+
+    def _valid_date(self, s: str) -> bool:
+        """Ověří formát data YYYY-MM-DD."""
         if not s.strip():
             return True  # Prázdné datum je OK
         
@@ -95,7 +131,8 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
                 return False
         return False
 
-    def _parse_float(s: str):
+    def _parse_float(self, s: str) -> Optional[float]:
+        """Převede řetězec na float."""
         if s is None: return None
         s = s.strip().replace('Kč','').replace(' ','').replace(',','.')
         if not s: return None
@@ -104,7 +141,8 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
         except ValueError:
             return None
 
-    def _parse_int(s: str):
+    def _parse_int(self, s: str) -> Optional[int]:
+        """Převede řetězec na int."""
         if s is None: return None
         s = s.strip()
         if not s: return None
@@ -113,18 +151,18 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
         except ValueError:
             return None
 
-    # Hlavní save funkce
-    def save():
+    def _save(self) -> None:
+        """Uloží transakci do databáze."""
         # Validace datumu
-        raw_datum = v_datum.get().strip()
-        if raw_datum and not _valid_date(raw_datum):
+        raw_datum = self.v_datum.get().strip()
+        if raw_datum and not self._valid_date(raw_datum):
             messagebox.showerror("Chybný formát", "Datum musí být ve formátu YYYY-MM-DD (např. 2024-03-15).")
             return
         
         datum = raw_datum
         
         # Validace částky
-        amt = _parse_float(v_castka.get())
+        amt = self._parse_float(self.v_castka.get())
         if amt is None:
             messagebox.showerror("Chybná částka", "Zadejte platnou číselnou hodnotu.")
             return
@@ -139,67 +177,75 @@ def open_item_dialog(parent_tab, mode="add", item_data=None):
             madati = dal = 0.0
             
         # Parsování polí
-        cin = _parse_int(v_cin.get())
-        cislo = _parse_int(v_cislo.get())
-        doklad = v_doklad.get().strip()
-        zdroj = v_zdroj.get().strip()
-        firma = v_firma.get().strip()
-        text = v_text.get().strip()
-        co = v_co.get().strip()
-        kdo = v_kdo.get().strip()
-        stredisko = v_stred.get().strip()
+        cin = self._parse_int(self.v_cin.get())
+        cislo = self._parse_int(self.v_cislo.get())
+        doklad = self.v_doklad.get().strip()
+        zdroj = self.v_zdroj.get().strip()
+        firma = self.v_firma.get().strip()
+        text = self.v_text.get().strip()
+        co = self.v_co.get().strip()
+        kdo = self.v_kdo.get().strip()
+        stredisko = self.v_stred.get().strip()
         
         # Validace Co
         if co:
-            custom_categories = db.get_custom_category_names(parent_tab.app.profile_path)
+            custom_categories = db.get_custom_category_names(self.parent_tab.app.profile_path)
             if co in custom_categories:
                 messagebox.showerror("Chybné pole Co", f"'{co}' je název custom kategorie (kontejneru). Použijte prosím jinou hodnotu.")
                 return
         
         try:
-            if mode == "add":
+            if self.mode == "add":
                 # Přidání nové transakce
                 db.add_item(
-                    parent_tab.app.profile_path,
+                    self.parent_tab.app.profile_path,
                     datum, doklad, zdroj, firma, text,
                     madati, dal, amt, cin, cislo, co, kdo, stredisko,
-                    parent_tab.current_view
+                    self.parent_tab.current_view
                 )
             else:
-                # NOVÉ: Editace existující transakce
-                item_id = item_data[0]  # První prvek je ID
-                db.update_item(
-                    parent_tab.app.profile_path,
-                    item_id, datum, doklad, zdroj, firma, text,
-                    madati, dal, amt, cin, cislo, co, kdo, stredisko
-                )
+                # Editace existující transakce
+                if self.item_data:
+                    item_id = self.item_data[0]  # První prvek je ID
+                    db.update_item(
+                        self.parent_tab.app.profile_path,
+                        item_id, datum, doklad, zdroj, firma, text,
+                        madati, dal, amt, cin, cislo, co, kdo, stredisko
+                    )
                 
         except Exception as e:
             messagebox.showerror("Chyba", f"Transakci se nepodařilo uložit:\n{e}")
             return
             
         # Zavření a refresh
-        win.destroy()
-        parent_tab.load_items()
+        self.window.destroy()
+        self.parent_tab.load_items()
 
         # Po operaci refresh
-        parent_tab.app.update_tabs_visibility()
-        if hasattr(parent_tab.app, 'accounting_ui'):
-            parent_tab.app.accounting_ui.refresh_data()
-        if hasattr(parent_tab.app, 'budget_ui'):
-            parent_tab.app.budget_ui.load_data()
-        if hasattr(parent_tab.app, 'analysis_tab'):
-            parent_tab.app.analysis_tab.load()
+        self.parent_tab.app.update_tabs_visibility()
+        if hasattr(self.parent_tab.app, 'accounting_ui'):
+            self.parent_tab.app.accounting_ui.refresh_data()
+        if hasattr(self.parent_tab.app, 'budget_ui'):
+            self.parent_tab.app.budget_ui.load_data()
+        if hasattr(self.parent_tab.app, 'analysis_tab'):
+            self.parent_tab.app.analysis_tab.load()
         
         # Invalidace cache pro dashboard a stats_window
-        if hasattr(parent_tab.app, 'dashboard_ui'):
-            parent_tab.app.dashboard_ui.invalidate_cache()
+        if hasattr(self.parent_tab.app, 'dashboard_ui'):
+            self.parent_tab.app.dashboard_ui.invalidate_cache()
 
-    def cancel():
-        win.destroy()
+    def _cancel(self) -> None:
+        """Zruší akci a zavře okno."""
+        self.window.destroy()
 
-    # Tlačítka
-    ttk.Button(btns, text="Uložit", command=save).pack(side='right')
-    ttk.Button(btns, text="Zrušit", command=cancel).pack(side='right', padx=(6,0))
-
-    v_datum.focus_set()
+def open_item_dialog(parent_tab: Any, mode: str = "add", item_data: Optional[Tuple] = None) -> None:
+    """
+    Otevře unified dialog pro transakce.
+    
+    Args:
+        parent_tab: Instance záložky (SourcesTab).
+        mode: "add" nebo "edit".
+        item_data: Pro edit - tuple z databáze (id, datum, doklad, ...).
+    """
+    dialog = ItemDialog(parent_tab, mode, item_data)
+    dialog.window.wait_window()
