@@ -3,10 +3,10 @@ from typing import List, Dict, Any, Optional, Set
 
 # Povolené dimenze (sloupce) – bezpečnost proti SQL injection
 # Sloupce tabulky 'items', se kterými má smysl dělat pivot
-_WHITELIST: Set[str] = {"co", "stredisko", "text", "kdo", "firma", "kategorie_id"}
+_WHITELIST = {"co", "stredisko", "text", "kdo", "firma", "kategorie_id"}
 
 # Normalizované platné typy kategorií pro filtrování
-VALID_TYPES: Set[str] = {"příjem", "výdej"}
+VALID_TYPES = {"příjem", "výdej"}
 
 
 def get_pivot_rows(
@@ -47,7 +47,7 @@ def get_pivot_rows(
     try:
         # Sestavení WHERE klauzule
         where_clauses = ["i.is_current = ?"]
-        params: List[Any] = [is_current]
+        params = [is_current]
         
         if allowed_types:
             filtered = [t for t in allowed_types if t in VALID_TYPES]
@@ -70,9 +70,9 @@ def get_pivot_rows(
             return [{"keys": [], "total": total}]
 
         # Sestavení dynamických částí SQL dotazu
-        select_parts: List[str] = []
-        order_parts: List[str] = []
-        group_parts: List[str] = []
+        select_parts = []
+        order_parts = []
+        group_parts = []
         
         for d in dims:
             if d == "kategorie_id":
@@ -100,7 +100,7 @@ def get_pivot_rows(
         rows = cursor.fetchall()
 
         # Formátování výstupu do slovníků
-        out: List[Dict[str, Any]] = []
+        out = []
         for r in rows:
             # Všechny sloupce kromě posledního jsou klíče (dimenze)
             key_vals = [("" if v is None else str(v)) for v in r[:-1]]

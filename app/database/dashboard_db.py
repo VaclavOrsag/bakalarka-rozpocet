@@ -1,29 +1,26 @@
 import sqlite3
+from typing import Dict, List, Optional, Any
 from . import budgets_db, categories_db
 
 
-# ============================================================================
-# DASHBOARD & STATS WINDOW - ROZPOČTOVÉ PLNĚNÍ
-# ============================================================================
-
-def get_month_total_budget_summary(db_path: str, transaction_type: str, month: int) -> dict:
+def get_month_total_budget_summary(db_path: str, transaction_type: str, month: int) -> Optional[Dict[str, float]]:
     """
     Vypočítá celkový rozpočet a YTD plnění pro Dashboard tlačítko.
     
     OPTIMALIZOVÁNO: Používá funkci get_ytd_for_category() pro YTD do daného měsíce.
     
     Args:
-        db_path: Cesta k databázi
-        transaction_type: 'výdej' nebo 'príjem'
-        month: Číslo měsíce (1-12) - YTD se počítá od ledna do tohoto měsíce
+        db_path (str): Cesta k databázi.
+        transaction_type (str): 'výdej' nebo 'příjem'.
+        month (int): Číslo měsíce (1-12) - YTD se počítá od ledna do tohoto měsíce.
         
     Returns:
-        {
+        Optional[Dict[str, float]]: {
             'total_budget': float,      # Celkový roční rozpočet (non-custom kategorie)
             'ytd_spending': float,      # YTD utrácení od ledna do měsíce (jen z kategorií s rozpočtem)
             'ytd_percentage': float     # (ytd_spending / total_budget) * 100
         }
-        nebo None pokud žádný rozpočet neexistuje
+        nebo None pokud žádný rozpočet neexistuje.
     """
     # Použij funkci z budgets_db která správně počítá jen non-custom kategorie
     total_budget = budgets_db.get_total_budget_for_type(db_path, transaction_type)
@@ -58,7 +55,7 @@ def get_month_total_budget_summary(db_path: str, transaction_type: str, month: i
         ytd_spending += abs(ytd)  # ABS pro výdaje
     
     # Výpočet %
-    ytd_percentage = (ytd_spending / total_budget) * 100 if total_budget > 0 else 0
+    ytd_percentage = (ytd_spending / total_budget) * 100 if total_budget > 0 else 0.0
     
     return {
         'total_budget': total_budget,
@@ -67,11 +64,7 @@ def get_month_total_budget_summary(db_path: str, transaction_type: str, month: i
     }
 
 
-# ============================================================================
-# NOVÉ FUNKCE PRO PRE-COMPUTED SYSTÉM
-# ============================================================================
-
-def get_stats_data(db_path: str, transaction_type: str) -> dict:
+def get_stats_data(db_path: str, transaction_type: str) -> Dict[int, Dict[str, Any]]:
     """
     Načte VŠECHNA data pro stats_window jedním prostým SELECTem.
     
@@ -82,11 +75,11 @@ def get_stats_data(db_path: str, transaction_type: str) -> dict:
     - CUSTOM kategorie: budou mít 0 hodnoty (počítají se za běhu v calculate_custom_values)
     
     Args:
-        db_path: Cesta k databázi
-        transaction_type: 'výdej' nebo 'příjem'
+        db_path (str): Cesta k databázi.
+        transaction_type (str): 'výdej' nebo 'příjem'.
         
     Returns:
-        Dict[category_id, {
+        Dict[int, Dict[str, Any]]: Slovník {category_id: {
             'id': int,
             'nazev': str,
             'parent_id': int|None,
@@ -95,7 +88,7 @@ def get_stats_data(db_path: str, transaction_type: str) -> dict:
             'sum_current': float,   # Součet current transakcí
             'budget_plan': float,   # Roční rozpočet (user input)
             'children': List[int]   # ID přímých dětí (naplní se po načtení)
-        }]
+        }}
     """
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -138,7 +131,7 @@ def get_stats_data(db_path: str, transaction_type: str) -> dict:
 
 # Note: calculate_custom_values() byla přesunuta do categories_db.py
 # Pro zpětnou kompatibilitu vytvořím alias:
-def calculate_custom_values(data: dict, cat_id: int) -> dict:
+def calculate_custom_values(data: Dict[int, Any], cat_id: int) -> Dict[str, float]:
     """
     Alias pro categories_db.calculate_custom_values().
     Funkce byla přesunuta do categories_db.py (logičtější umístění).
@@ -146,7 +139,7 @@ def calculate_custom_values(data: dict, cat_id: int) -> dict:
     return categories_db.calculate_custom_values(data, cat_id)
 
 
-def get_month_data_for_category(db_path: str, category_id: int, month: int, is_current: bool, data: dict = None) -> float:
+def get_month_data_for_category(db_path: str, category_id: int, month: int, is_current: bool, data: Optional[Dict[int, Any]] = None) -> float:
     """
     Načte součet transakcí pro danou kategorii a měsíc.
     
@@ -154,14 +147,14 @@ def get_month_data_for_category(db_path: str, category_id: int, month: int, is_c
     Pro CUSTOM kategorie: Rekurzivně sečte hodnoty všech dětí
     
     Args:
-        db_path: Cesta k databázi
-        category_id: ID kategorie
-        month: Číslo měsíce (1-12)
-        is_current: True = aktuální rok (is_current=1), False = historické roky (is_current=0)
-        data: Dict z get_stats_data() (pro rekurzivní sčítání CUSTOM kategorií)
+        db_path (str): Cesta k databázi.
+        category_id (int): ID kategorie.
+        month (int): Číslo měsíce (1-12).
+        is_current (bool): True = aktuální rok (is_current=1), False = historické roky (is_current=0).
+        data (Optional[Dict[int, Any]]): Dict z get_stats_data() (pro rekurzivní sčítání CUSTOM kategorií).
         
     Returns:
-        Součet částek (absolutní hodnota) pro daný měsíc
+        float: Součet částek (absolutní hodnota) pro daný měsíc.
     """
     # Pokud máme data dict, zkontroluj zda je to CUSTOM kategorie
     if data and category_id in data:
@@ -189,13 +182,14 @@ def get_month_data_for_category(db_path: str, category_id: int, month: int, is_c
           AND castka != 0
     """, (category_id, is_current_flag, month))
     
-    result = cursor.fetchone()[0]
+    result = cursor.fetchone()
+    val = result[0] if result else 0.0
     conn.close()
     
-    return result
+    return float(val)
 
 
-def get_ytd_for_category(db_path: str, category_id: int, up_to_month: int, data: dict = None) -> float:
+def get_ytd_for_category(db_path: str, category_id: int, up_to_month: int, data: Optional[Dict[int, Any]] = None) -> float:
     """
     Načte YTD (Year-To-Date) součet transakcí od ledna do zadaného měsíce (včetně).
     
@@ -203,13 +197,13 @@ def get_ytd_for_category(db_path: str, category_id: int, up_to_month: int, data:
     Pro CUSTOM kategorie: Rekurzivně sečte hodnoty všech dětí
     
     Args:
-        db_path: Cesta k databázi
-        category_id: ID kategorie
-        up_to_month: Měsíc do kterého počítat (1-12), např. 6 = leden až červen
-        data: Dict z get_stats_data() (pro rekurzivní sčítání CUSTOM kategorií)
+        db_path (str): Cesta k databázi.
+        category_id (int): ID kategorie.
+        up_to_month (int): Měsíc do kterého počítat (1-12), např. 6 = leden až červen.
+        data (Optional[Dict[int, Any]]): Dict z get_stats_data() (pro rekurzivní sčítání CUSTOM kategorií).
         
     Returns:
-        Součet částek (absolutní hodnota) od ledna do up_to_month (včetně)
+        float: Součet částek (absolutní hodnota) od ledna do up_to_month (včetně).
     """
     # Pokud máme data dict, zkontroluj zda je to CUSTOM kategorie
     if data and category_id in data:
@@ -235,7 +229,8 @@ def get_ytd_for_category(db_path: str, category_id: int, up_to_month: int, data:
           AND castka != 0
     """, (category_id, up_to_month))
     
-    result = cursor.fetchone()[0]
+    result = cursor.fetchone()
+    val = result[0] if result else 0.0
     conn.close()
     
-    return result
+    return float(val)

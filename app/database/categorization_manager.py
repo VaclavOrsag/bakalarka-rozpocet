@@ -29,7 +29,7 @@ def get_unassigned_categories_by_type(db_path: str) -> Dict[str, List[str]]:
     unassigned_items = [item[0] for item in cursor.fetchall()]
 
     # Připravíme si slovník pro výsledky
-    result: Dict[str, List[str]] = {'příjem': [], 'výdej': []}
+    result = {'příjem': [], 'výdej': []}
 
     for item_name in unassigned_items:
         # Zkontrolujeme typ transakcí pro tento název
