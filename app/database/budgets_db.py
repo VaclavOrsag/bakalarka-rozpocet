@@ -1,8 +1,11 @@
 import sqlite3
+from typing import Dict, List, Any, Optional
 
-def create_budgets_table(cursor):
+def create_budgets_table(cursor: sqlite3.Cursor) -> None:
     """
     Vytvoří tabulku 'rozpocty' s pre-computed metrikami.
+    
+    Tabulka slouží jako cache pro rychlé načítání dashboardu a rozpočtů.
     
     SLOUPCE:
     - budget_plan: roční rozpočet (zadává uživatel pro LEAF kategorie)
@@ -14,6 +17,9 @@ def create_budgets_table(cursor):
     
     DŮLEŽITÉ: Každá kategorie má JEN JEDEN rozpočet (není potřeba rok).
     YTD (Year-To-Date) se počítá dynamicky podle měsíce pomocí get_ytd_for_category().
+    
+    Args:
+        cursor (sqlite3.Cursor): Databázový kurzor.
     """
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS rozpocty (
@@ -28,10 +34,15 @@ def create_budgets_table(cursor):
     # Index pro rychlé dotazy (kategorie_id je už PRIMARY KEY, tak nepotřebujeme extra index)
 
 
-def update_or_insert_budget(db_path, category_id: int, budget_value: float) -> None:
+def update_or_insert_budget(db_path: str, category_id: int, budget_value: float) -> None:
     """
     Uloží (nebo aktualizuje) plánovanou částku rozpočtu pro danou kategorii.
     Používá UPSERT na unikátní kategorie_id.
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        category_id (int): ID kategorie.
+        budget_value (float): Nová hodnota rozpočtu.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -49,16 +60,16 @@ def update_or_insert_budget(db_path, category_id: int, budget_value: float) -> N
     conn.close()
 
 
-def check_budget_completeness(db_path: str, transaction_type: str) -> dict:
+def check_budget_completeness(db_path: str, transaction_type: str) -> Dict[str, Any]:
     """
     Zkontroluje jestli všechny transakční kategorie mají přiřazený rozpočet.
     
     Args:
-        db_path: Cesta k databázi
-        transaction_type: 'výdej' nebo 'příjem'
+        db_path (str): Cesta k databázi.
+        transaction_type (str): 'výdej' nebo 'příjem'.
         
     Returns:
-        {
+        Dict[str, Any]: {
             'is_complete': bool,           # True = všechny kategorie mají rozpočet
             'total_categories': int,       # Počet transakčních kategorií
             'categories_with_budget': int, # Kolik má rozpočet
@@ -119,11 +130,11 @@ def get_total_budget_for_type(db_path: str, transaction_type: str) -> float:
     Používá ABS() protože výdaje jsou uloženy jako záporné hodnoty.
     
     Args:
-        db_path: Cesta k databázi
-        transaction_type: 'výdej' nebo 'příjem'
+        db_path (str): Cesta k databázi.
+        transaction_type (str): 'výdej' nebo 'příjem'.
         
     Returns:
-        Celkový roční rozpočet (suma absolutních hodnot planovanych_castek pro non-custom kategorie)
+        float: Celkový roční rozpočet (suma absolutních hodnot planovanych_castek pro non-custom kategorie).
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -136,12 +147,13 @@ def get_total_budget_for_type(db_path: str, transaction_type: str) -> float:
           AND k.is_custom = 0
     """, (transaction_type,))
     
-    total_budget = cursor.fetchone()[0]
+    result = cursor.fetchone()
+    total_budget = result[0] if result else 0.0
     conn.close()
     
     return float(total_budget)
 
-def get_budget_overview(db_path: str):
+def get_budget_overview(db_path: str) -> List[Dict[str, Any]]:
     """
     Vrátí kompletní přehled pro záložku Rozpočet pomocí pre-computed metrik.
     
@@ -151,7 +163,11 @@ def get_budget_overview(db_path: str):
     Pro CUSTOM kategorie (is_custom=1):
       - Prázdné hodnoty se nahradí runtime součtem dětí pomocí rekurzivní agregace
       
-    Výsledek: list dictů se sloupci: id, nazev, typ, parent_id, is_custom, sum_past, sum_current, budget_plan
+    Args:
+        db_path (str): Cesta k databázi.
+        
+    Returns:
+        List[Dict[str, Any]]: Seznam dictů se sloupci: id, nazev, typ, parent_id, is_custom, sum_past, sum_current, budget_plan.
     """
     from . import categories_db
     
@@ -206,10 +222,16 @@ def get_budget_overview(db_path: str):
     
     return result
 
-def has_any_budget(db_path) -> bool:
+def has_any_budget(db_path: str) -> bool:
     """
     Vrátí True pokud tabulka 'rozpocty' obsahuje alespoň jeden záznam s budget_plan != 0.
     Záznamy s budget_plan = 0 se NEPOČÍTAJÍ (automaticky vytvořené, ale nevyplněné).
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        
+    Returns:
+        bool: True pokud existuje alespoň jeden nenulový rozpočet.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -219,7 +241,16 @@ def has_any_budget(db_path) -> bool:
     return result is not None
 
 def get_own_budget(db_path: str, category_id: int) -> float:
-    """Vrátí vlastní plánovanou částku pro danou kategorii (bez potomků)."""
+    """
+    Vrátí vlastní plánovanou částku pro danou kategorii (bez potomků).
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        category_id (int): ID kategorie.
+        
+    Returns:
+        float: Plánovaná částka.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute(
@@ -230,8 +261,13 @@ def get_own_budget(db_path: str, category_id: int) -> float:
     conn.close()
     return float(row[0]) if row is not None else 0.0
 
-def update_custom_category_budgets(db_path):
-    """Automaticky aktualizuje rozpočty custom kategorií jako součet jejich podkategorií."""
+def update_custom_category_budgets(db_path: str) -> None:
+    """
+    Automaticky aktualizuje rozpočty custom kategorií jako součet jejich podkategorií.
+    
+    Args:
+        db_path (str): Cesta k databázi.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -248,7 +284,8 @@ def update_custom_category_budgets(db_path):
             WHERE k.parent_id = ?
         """, (custom_id,))
         
-        total_budget = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        total_budget = result[0] if result else 0.0
         
         # Aktualizuj nebo vlož rozpočet custom kategorie
         cursor.execute("""
