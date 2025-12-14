@@ -1,11 +1,25 @@
+"""
+Záložka Dashboard - Přehled plnění rozpočtu po měsících.
+"""
 import tkinter as tk
 from tkinter import ttk
+from typing import Any, List, Optional
+
 from ..dialogs.stats_dialog import StatsDialog
 from app.database import dashboard_db, budgets_db
 
 
 class DashboardTab:
-    def __init__(self, tab_frame, app_controller):
+    """
+    Třída reprezentující záložku 'Dashboard'.
+    Zobrazuje mřížku měsíců s barevným indikátorem plnění rozpočtu (YTD vs. očekávání).
+    Pokud není rozpočet kompletní, zobrazí varování a seznam chybějících kategorií.
+    """
+
+    def __init__(self, tab_frame: ttk.Frame, app_controller: Any) -> None:
+        """
+        Inicializuje UI záložky Dashboard.
+        """
         self.tab_frame = tab_frame
         self.app = app_controller
         
@@ -16,11 +30,12 @@ class DashboardTab:
         self.monthly_buttons = {}
         self.months_frame = None  # Reference na frame s měsíčními tlačítky
         self.locked_frame = None  # Reference na frame se zamčeným stavem
+        self.missing_categories_frame = None
         
         self._create_dashboard_layout()
         self._refresh_dashboard()
     
-    def _create_dashboard_layout(self):
+    def _create_dashboard_layout(self) -> None:
         """Vytvoří kompletní layout dashboardu s měsíčními tlačítky."""
         # Hlavní nadpis
         title_frame = ttk.Frame(self.tab_frame)
@@ -54,7 +69,7 @@ class DashboardTab:
         self._create_months_view()
         self._create_locked_view()
 
-    def _create_months_view(self):
+    def _create_months_view(self) -> None:
         """Vytvoří view s měsíčními tlačítky."""
         # Mřížka měsíčních tlačítek (4x3)
         self.months_frame = ttk.Frame(self.content_container)
@@ -86,7 +101,7 @@ class DashboardTab:
             
             self.monthly_buttons[i + 1] = month_button
     
-    def _create_locked_view(self):
+    def _create_locked_view(self) -> None:
         """Vytvoří view pro zamčený stav (když nejsou kompletní rozpočty)."""
         self.locked_frame = ttk.Frame(self.content_container)
         
@@ -115,7 +130,7 @@ class DashboardTab:
                    text="Otevřít záložku Rozpočet",
                    command=self._open_budget_tab).pack()
 
-    def _open_budget_tab(self):
+    def _open_budget_tab(self) -> None:
         """Přepne na záložku Rozpočet."""
         # Najdi index záložky Rozpočet a aktivuj ji
         # Předpokládám, že app má referenci na notebook
@@ -124,42 +139,43 @@ class DashboardTab:
             # Index záložky Rozpočet by měl být 3 (počítáno od 0)
             self.app.notebook.select(3)
 
-    def _show_months_view(self):
+    def _show_months_view(self) -> None:
         """Zobrazí view s měsíčními tlačítky."""
         if self.locked_frame:
             self.locked_frame.pack_forget()
         if self.months_frame:
             self.months_frame.pack(fill=tk.BOTH, expand=True)
     
-    def _show_locked_view(self, missing_categories: list):
+    def _show_locked_view(self, missing_categories: List[str]) -> None:
         """Zobrazí locked view s informací o chybějících kategoriích."""
         if self.months_frame:
             self.months_frame.pack_forget()
         
         # Aktualizuj seznam chybějících kategorií
-        for widget in self.missing_categories_frame.winfo_children():
-            widget.destroy()
-        
-        ttk.Label(self.missing_categories_frame,
-                  text="Kategorie bez rozpočtu:",
-                  font=("Arial", 11, "bold")).pack(anchor="w")
-        
-        for cat_name in missing_categories[:10]:  # Zobraz max 10
+        if self.missing_categories_frame:
+            for widget in self.missing_categories_frame.winfo_children():
+                widget.destroy()
+            
             ttk.Label(self.missing_categories_frame,
-                      text=f"  ❌ {cat_name}",
-                      font=("Arial", 10),
-                      foreground="#d32f2f").pack(anchor="w")
-        
-        if len(missing_categories) > 10:
-            ttk.Label(self.missing_categories_frame,
-                      text=f"  ... a {len(missing_categories) - 10} dalších",
-                      font=("Arial", 10, "italic"),
-                      foreground="#666").pack(anchor="w")
+                      text="Kategorie bez rozpočtu:",
+                      font=("Arial", 11, "bold")).pack(anchor="w")
+            
+            for cat_name in missing_categories[:10]:  # Zobraz max 10
+                ttk.Label(self.missing_categories_frame,
+                          text=f"  ❌ {cat_name}",
+                          font=("Arial", 10),
+                          foreground="#d32f2f").pack(anchor="w")
+            
+            if len(missing_categories) > 10:
+                ttk.Label(self.missing_categories_frame,
+                          text=f"  ... a {len(missing_categories) - 10} dalších",
+                          font=("Arial", 10, "italic"),
+                          foreground="#666").pack(anchor="w")
         
         if self.locked_frame:
             self.locked_frame.pack(fill=tk.BOTH, expand=True)
 
-    def _refresh_dashboard(self):
+    def _refresh_dashboard(self) -> None:
         """Aktualizuje dashboard - buď zobrazí měsíční tlačítka nebo locked stav."""
         
         try:
@@ -183,7 +199,7 @@ class DashboardTab:
             import traceback
             traceback.print_exc()
     
-    def _update_month_buttons(self):
+    def _update_month_buttons(self) -> None:
         """Aktualizuje měsíční tlačítka s daty."""
         month_names = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
                        "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"]
@@ -244,18 +260,18 @@ class DashboardTab:
                     btn.config(text=f"{month_names[month-1]}\n\n— Kč", 
                              bg="SystemButtonFace")
     
-    def invalidate_cache(self):
+    def invalidate_cache(self) -> None:
         """
         Obnoví dashboard.
         Volá se když uživatel přidá/upraví/smaže transakci.
         """
         self._refresh_dashboard()
     
-    def _on_type_change(self):
+    def _on_type_change(self) -> None:
         """Callback při změně typu - aktualizuje tlačítka."""
         self.current_type = self.type_var.get()
         self._refresh_dashboard()
 
-    def _open_month_detail(self, month: int):
+    def _open_month_detail(self, month: int) -> None:
         """Otevře okno s detailem měsíce pro aktuální typ."""
         StatsDialog(self.tab_frame, self.app, month, self.current_type)
