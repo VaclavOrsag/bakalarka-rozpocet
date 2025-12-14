@@ -1,17 +1,28 @@
+"""
+Dialog pro výběr nebo vytvoření profilu při spuštění aplikace.
+"""
 import os
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
 import config 
-from app import database as db
-from app import file_importer
 
 
 class WelcomeDialog:
-    def __init__(self, root):
+    """
+    Dialogové okno zobrazené při startu aplikace.
+    Umožňuje uživateli vybrat existující profil (databázi) nebo vytvořit nový.
+    """
+
+    def __init__(self, root: tk.Tk) -> None:
+        """
+        Inicializuje uvítací dialog.
+        
+        Args:
+            root: Hlavní okno aplikace (rodič).
+        """
         self.top = tk.Toplevel(root)
         self.top.title("Vítejte v Nástroji pro tvorbu rozpočtu")
 
@@ -27,21 +38,21 @@ class WelcomeDialog:
 
         self.show_initial_choice()
 
-    def clear_frame(self):
+    def clear_frame(self) -> None:
         """Smaže veškerý obsah z hlavního rámu."""
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
-    def show_initial_choice(self):
-        """Zobrazí první, úvodní otázku."""
+    def show_initial_choice(self) -> None:
+        """Zobrazí první, úvodní otázku (Existující vs. Nový profil)."""
         self.clear_frame()
         ttk.Label(self.main_frame, text="Máte již vytvořený profil?", font=("Arial", 14)).pack(pady=10)
         
         ttk.Button(self.main_frame, text="Ano, vybrat ze seznamu", command=self.show_profile_list).pack(fill="x", pady=5)
         ttk.Button(self.main_frame, text="Ne, vytvořit nový", command=self.confirm_create_empty).pack(fill="x", pady=5)
 
-    def show_profile_list(self):
-        """Zobrazí seznam existujících .db souborů."""
+    def show_profile_list(self) -> None:
+        """Zobrazí seznam existujících .db souborů v adresáři profilů."""
         self.clear_frame()
         ttk.Label(self.main_frame, text="Vyberte existující profil:").pack(pady=10)
         
@@ -68,8 +79,8 @@ class WelcomeDialog:
         ttk.Button(self.main_frame, text="Otevřít vybraný", command=self.confirm_open_profile).pack(pady=10)
         ttk.Button(self.main_frame, text="Zpět", command=self.show_initial_choice).pack()
 
-    
-    def confirm_open_profile(self):
+    def confirm_open_profile(self) -> None:
+        """Potvrdí výběr existujícího profilu a zavře dialog."""
         selection = self.profile_listbox.curselection()
         if not selection:
             messagebox.showinfo("Upozornění", "Vyberte platný profil.")
@@ -79,7 +90,8 @@ class WelcomeDialog:
         self.action = "open"
         self.top.destroy()
 
-    def confirm_create_empty(self):
+    def confirm_create_empty(self) -> None:
+        """Otevře dialog pro vytvoření nového souboru profilu."""
         filepath = filedialog.asksaveasfilename(
             initialdir=self.profiles_dir,
             title="Vytvořit nový prázdný profil",
