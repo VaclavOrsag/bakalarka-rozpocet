@@ -1,12 +1,23 @@
+"""
+Záložka Rozpočet - Zobrazení a editace plánovaných rozpočtů.
+"""
 import tkinter as tk
 from tkinter import ttk, messagebox
-from datetime import datetime
+from typing import Any, Optional, Tuple, Dict, Set
 
 from app import database as db
 from app.utils import format_money, parse_money
 
+
 class BudgetTab:
-    def __init__(self, tab_frame, app_controller):
+    """
+    Třída reprezentující záložku 'Rozpočet'.
+    Zobrazuje hierarchický přehled příjmů a výdajů s porovnáním
+    minulého období, plánovaného rozpočtu a aktuálního plnění.
+    Umožňuje editaci rozpočtu pro listové kategorie.
+    """
+
+    def __init__(self, tab_frame: ttk.Frame, app_controller: Any) -> None:
         """
         Inicializuje uživatelské rozhraní pro záložku 'Rozpočet'.
         """
@@ -44,7 +55,7 @@ class BudgetTab:
         self.tree_prijmy.bind('<Double-1>', lambda e, t=self.tree_prijmy: self._on_double_click_budget(e, t))
         self.tree_vydaje.bind('<Double-1>', lambda e, t=self.tree_vydaje: self._on_double_click_budget(e, t))
 
-    def _create_budget_treeview(self, parent_frame):
+    def _create_budget_treeview(self, parent_frame: ttk.Frame) -> ttk.Treeview:
         """Pomocná metoda pro vytvoření a konfiguraci Treeview pro rozpočet."""
         
         # Vytvoříme rám pro Treeview a Scrollbar
@@ -107,7 +118,7 @@ class BudgetTab:
         
         return tree
     
-    def load_data(self, event=None):
+    def load_data(self, event: Optional[tk.Event] = None) -> None:
         """
         Načte kompletní přehled z databáze (agregace řeší SQL) a zobrazí jej.
         """
@@ -196,7 +207,7 @@ class BudgetTab:
         
         return
 
-    def _on_double_click_budget(self, event, tree: ttk.Treeview):
+    def _on_double_click_budget(self, event: tk.Event, tree: ttk.Treeview) -> None:
         """Zahájí editaci ve sloupci Rozpočet, pokud jde o listovou kategorii."""
         # Identifikace sloupce – '#2' odpovídá 'rozpoctu' (('plan','rozpocet','plneni'))
         col = tree.identify_column(event.x)
@@ -245,7 +256,7 @@ class BudgetTab:
         self._active_editor = (editor, tree, iid)
 
 
-        def commit():
+        def commit() -> None:
             # detekce prvního rozpočtu (před uložením)
             had_any_before = db.has_any_budget(self.app.profile_path)
 
@@ -281,7 +292,7 @@ class BudgetTab:
                 ):
                     self.app.import_excel(is_current=1)
 
-        def cancel():
+        def cancel() -> None:
             editor.destroy()
             self._active_editor = None
 
@@ -296,10 +307,10 @@ class BudgetTab:
             return str(int(val))
         return f"{val:.2f}"
 
-    def _update_footer_totals(self):
+    def _update_footer_totals(self) -> None:
         """Vypočítá a zobrazí celkové součty pro oba stromy (příjmy/výdaje)."""
         
-        def calculate_totals(tree):
+        def calculate_totals(tree: ttk.Treeview) -> Tuple[float, float, float]:
             """Sečte hodnoty všech root kategorií v daném stromu."""
             total_past = 0.0
             total_budget = 0.0

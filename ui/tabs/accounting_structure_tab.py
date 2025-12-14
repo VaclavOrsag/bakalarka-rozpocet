@@ -1,12 +1,23 @@
+"""
+Záložka Účetní osnova - Správa kategorií a hierarchie.
+"""
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
+from typing import Any, Optional, Tuple, Dict, List
 
 from app import database as db
 
+
 class AccountingStructureTab:
-    def __init__(self, tab_frame, app_controller):
+    """
+    Třída reprezentující záložku pro správu účetní osnovy.
+    Umožňuje vytvářet kategorie (LEAF i CUSTOM), řadit je do hierarchie
+    a přiřazovat k nim transakce.
+    """
+    
+    def __init__(self, tab_frame: ttk.Frame, app_controller: Any) -> None:
         """
         Inicializuje obsah záložky 'Účetní Osnova' a deleguje tvorbu UI
         na specializované metody.
@@ -24,7 +35,7 @@ class AccountingStructureTab:
 
     # --- METODY PRO SESTAVENÍ UI ---
 
-    def _setup_layout(self):
+    def _setup_layout(self) -> None:
         """Vytvoří hlavní třípanelový layout."""
         main_pane = ttk.PanedWindow(self.tab_frame, orient=tk.HORIZONTAL)
         main_pane.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -38,7 +49,7 @@ class AccountingStructureTab:
         self.right_frame = ttk.LabelFrame(main_pane, text="Moje účetní osnova")
         main_pane.add(self.right_frame, weight=3)
 
-    def _setup_left_panel(self):
+    def _setup_left_panel(self) -> None:
         """Vytvoří obsah levého panelu (2 seznamy)."""
         income_lf = ttk.LabelFrame(self.left_pane, text="Příjmy")
         self.left_pane.add(income_lf, weight=1)
@@ -48,7 +59,7 @@ class AccountingStructureTab:
         self.left_pane.add(expense_lf, weight=1)
         self.list_vydaje = self._create_scrolled_listbox(expense_lf)
 
-    def _setup_controls_panel(self):
+    def _setup_controls_panel(self) -> None:
         """Vytvoří obsah středního panelu (tlačítka)."""
         # --- Tlačítka pro přesun z levého panelu ---
         ttk.Label(self.controls_frame, text="Zařadit položku:").pack(pady=(10, 2))
@@ -62,7 +73,7 @@ class AccountingStructureTab:
         ttk.Button(self.controls_frame, text="Přidat custom kategorii...", command=self.add_custom_category).pack(pady=5, padx=5, fill='x')
         ttk.Button(self.controls_frame, text="Smazat vybranou", command=self.delete_category).pack(pady=5, padx=5, fill='x')
 
-    def _setup_right_panel(self):
+    def _setup_right_panel(self) -> None:
         """Vytvoří obsah pravého panelu (2 stromy)."""
         right_pane = ttk.PanedWindow(self.right_frame, orient=tk.HORIZONTAL)
         right_pane.pack(fill=tk.BOTH, expand=True)
@@ -81,14 +92,14 @@ class AccountingStructureTab:
 
     # --- POMOCNÉ METODY PRO UI ---
     
-    def create_treeview(self, parent_frame):   
+    def create_treeview(self, parent_frame: ttk.Frame) -> ttk.Treeview:   
         tree = ttk.Treeview(parent_frame, columns=('id',), displaycolumns=(), show='tree headings')
         tree.heading('#0', text='Název kategorie')
         tree.bind("<FocusIn>", self._on_tree_focus)
         tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         return tree
         
-    def _create_scrolled_listbox(self, parent_frame, height=None):
+    def _create_scrolled_listbox(self, parent_frame: ttk.Frame, height: Optional[int] = None) -> tk.Listbox:
         list_frame = ttk.Frame(parent_frame)
         list_frame.pack(fill='both', expand=True, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(list_frame, orient="vertical")
@@ -103,27 +114,27 @@ class AccountingStructureTab:
 
     # --- METODY PRO UDÁLOSTI A NAČÍTÁNÍ DAT ---
 
-    def _on_tree_focus(self, event):
+    def _on_tree_focus(self, event: tk.Event) -> None:
         self.active_tree = event.widget
 
-    def _clear_other_tree_selection(self, event):
+    def _clear_other_tree_selection(self, event: tk.Event) -> None:
         active_widget = event.widget
         other_tree = self.tree_vydaje if active_widget == self.tree_prijmy else self.tree_prijmy
         for item in other_tree.selection():
             other_tree.selection_remove(item)
 
-    def refresh_data(self): 
+    def refresh_data(self) -> None: 
         self.load_unassigned_list()
         self.load_categories_tree()
 
-    def load_unassigned_list(self):   
+    def load_unassigned_list(self) -> None:   
         for lst in [self.list_prijmy, self.list_vydaje]:
             lst.delete(0, tk.END)
         sorted_items = db.get_unassigned_categories_by_type(self.app.profile_path)
         for item in sorted_items['příjem']: self.list_prijmy.insert(tk.END, item)
         for item in sorted_items['výdej']: self.list_vydaje.insert(tk.END, item)
 
-    def load_categories_tree(self):
+    def load_categories_tree(self) -> None:
         """
         Načte existující účetní osnovu a spolehlivě z ní sestaví
         hierarchické stromy, bez ohledu na pořadí dat.
@@ -189,7 +200,7 @@ class AccountingStructureTab:
 
     # --- METODY PRO AKCE (BUSINESS LOGIKA) ---
 
-    def _add_category_workflow(self, nazev, typ, parent_id, is_custom, assign_transactions):
+    def _add_category_workflow(self, nazev: str, typ: str, parent_id: Optional[int], is_custom: int, assign_transactions: bool) -> None:
         """
         Centrální workflow pro přidání kategorie s automatickým handlingem UI notifikací.
         
@@ -227,7 +238,7 @@ class AccountingStructureTab:
         except ValueError as e:
             messagebox.showerror("Chyba", str(e))
 
-    def get_selected_unassigned_with_type(self):        
+    def get_selected_unassigned_with_type(self) -> Tuple[Optional[str], Optional[str]]:        
         listbox_map = {'příjem': self.list_prijmy, 'výdej': self.list_vydaje}
         for typ, listbox in listbox_map.items():
             selected_indices = listbox.curselection()
@@ -236,7 +247,7 @@ class AccountingStructureTab:
                 return name, typ
         return None, None
     
-    def add_as_main_category(self):
+    def add_as_main_category(self) -> None:
         """Přidá LEAF kategorii na root úroveň s přiřazením transakcí."""
         name, typ = self.get_selected_unassigned_with_type()
         if not name:
@@ -251,7 +262,7 @@ class AccountingStructureTab:
             assign_transactions=True
         )
 
-    def add_as_subcategory(self):
+    def add_as_subcategory(self) -> None:
         """Přidá LEAF kategorii pod vybranou CUSTOM kategorii s přiřazením transakcí."""
         name, actual_type = self.get_selected_unassigned_with_type()
         if not name:
@@ -274,7 +285,7 @@ class AccountingStructureTab:
             assign_transactions=True
         )
 
-    def delete_category(self):       
+    def delete_category(self) -> None:       
         if not self.active_tree:
             messagebox.showwarning("Chyba", "Nejprve vyberte kategorii ke smazání.")
             return
@@ -292,7 +303,7 @@ class AccountingStructureTab:
             db.delete_category(self.app.profile_path, category_id)
             self.refresh_data()
 
-    def add_custom_category(self):
+    def add_custom_category(self) -> None:
         """Vytvoří CUSTOM kategorii (agregační, bez transakcí) na root nebo pod CUSTOM parent."""
         parent_id = None
         parent_type = None
