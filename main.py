@@ -1,3 +1,10 @@
+"""
+Hlavní spouštěcí skript aplikace.
+
+Tento skript inicializuje hlavní okno Tkinter, zobrazí uvítací dialog
+pro výběr profilu a následně spustí hlavní aplikaci s vybraným profilem.
+"""
+
 import tkinter as tk
 from app.controller import App
 from ui.welcome_window import WelcomeWindow

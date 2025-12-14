@@ -1,9 +1,12 @@
 import os
 
-def get_profiles_directory():
+def get_profiles_directory() -> str:
     """
-    Vrátí cestu k adresáři pro ukládání profilů.
-    Pokud adresář neexistuje, vytvoří ho.
+    Vrátí absolutní cestu k adresáři pro ukládání profilů.
+    Pokud adresář neexistuje, automaticky ho vytvoří.
+
+    Returns:
+        str: Cesta k adresáři s profily (např. C:/Users/User/.rozpocet_app_data).
     """
     # os.path.expanduser('~') vrátí cestu k domovskému adresáři uživatele (např. C:/Users/vacla)
     home_dir = os.path.expanduser('~')
