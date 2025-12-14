@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from app import database as db
 from app.utils import format_money
 
-from ui.hierarchy_dialog import open_hierarchy_dialog
+from ui.dialogs.hierarchy_dialog import open_hierarchy_dialog
 
 
 class AnalysisTab:

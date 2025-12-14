@@ -7,7 +7,7 @@ pro výběr profilu a následně spustí hlavní aplikaci s vybraným profilem.
 
 import tkinter as tk
 from app.controller import App
-from ui.welcome_window import WelcomeWindow
+from ui.dialogs.welcome_dialog import WelcomeDialog
 import app.database as db
 
 if __name__ == "__main__":
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     root.withdraw() # Skryjeme hlavní okno
 
     # Zobrazíme uvítací okno a počkáme, až ho uživatel zavře
-    welcome = WelcomeWindow(root)
+    welcome = WelcomeDialog(root)
     root.wait_window(welcome.top) # Tento příkaz pozastaví kód, dokud se okno 'welcome.top' nezavře
 
     # Získáme cestu k profilu, kterou si uživatel vybral

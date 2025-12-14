@@ -10,7 +10,7 @@ from app import database as db
 from app import file_importer
 
 
-class WelcomeWindow:
+class WelcomeDialog:
     def __init__(self, root):
         self.top = tk.Toplevel(root)
         self.top.title("Vítejte v Nástroji pro tvorbu rozpočtu")

@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from ..stats_window import StatsWindow
+from ..dialogs.stats_dialog import StatsDialog
 from app.database import dashboard_db, budgets_db
 
 
@@ -258,4 +258,4 @@ class DashboardTab:
 
     def _open_month_detail(self, month: int):
         """Otevře okno s detailem měsíce pro aktuální typ."""
-        StatsWindow(self.tab_frame, self.app, month, self.current_type)
+        StatsDialog(self.tab_frame, self.app, month, self.current_type)

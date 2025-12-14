@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox as messagebox
 
-from ui.item_dialog import open_item_dialog
+from ui.dialogs.item_dialog import open_item_dialog
 
 from app import database as db
 from app.utils import format_money

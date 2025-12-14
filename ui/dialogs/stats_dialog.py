@@ -3,7 +3,7 @@ from tkinter import ttk
 from app.database import dashboard_db
 from app.utils import format_money
 
-class StatsWindow:
+class StatsDialog:
     def __init__(self, parent, app, month: int, transaction_type: str):
         self.parent = parent
         self.app = app
