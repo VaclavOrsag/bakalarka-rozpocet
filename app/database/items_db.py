@@ -1,8 +1,17 @@
 import sqlite3
+from typing import Optional, List, Tuple, Any
 from . import categories_db
 
-def create_items_table(cursor):
-    """Vytvoří tabulku 'items', pokud neexistuje, s novým sloupcem 'is_current'."""
+def create_items_table(cursor: sqlite3.Cursor) -> None:
+    """
+    Vytvoří tabulku 'items' a potřebné indexy, pokud neexistují.
+    
+    Tabulka 'items' uchovává veškeré transakce (historické i aktuální).
+    Sloupec 'is_current' rozlišuje mezi historickými daty (0) a aktuálním rokem (1).
+    
+    Args:
+        cursor (sqlite3.Cursor): Databázový kurzor.
+    """
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY,
@@ -15,7 +24,7 @@ def create_items_table(cursor):
         )
     ''')
     
-    # ✅ NOVÉ: Indexy pro rychlejší aggregace v update_category_metrics()
+    # Indexy pro optimalizaci dotazů a agregací
     cursor.execute('''
         CREATE INDEX IF NOT EXISTS idx_items_kategorie_current 
         ON items(kategorie_id, is_current)
@@ -29,22 +38,56 @@ def create_items_table(cursor):
         ON items(kategorie_id, datum)
     ''')
 
-def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, skip_metrics_update=False):
+def add_item(
+    db_path: str, 
+    datum: str, 
+    doklad: str, 
+    zdroj: str, 
+    firma: str, 
+    text: str, 
+    madati: float, 
+    dal: float, 
+    castka: float, 
+    cin: Optional[int], 
+    cislo: Optional[int], 
+    co: str, 
+    kdo: str, 
+    stredisko: str, 
+    is_current: int, 
+    skip_metrics_update: bool = False
+) -> None:
     """
-    Přidá novou položku do databáze a pokusí se ji automaticky přiřadit k existující kategorii.
+    Přidá novou položku (transakci) do databáze.
+    
+    Funkce se pokusí automaticky přiřadit transakci k existující kategorii
+    na základě názvu (sloupec 'co') a typu transakce (příjem/výdej).
     
     Args:
-        skip_metrics_update: Pokud True, nepřepočítá metriky (užitečné při hromadném importu).
-                            Po dokončení hromadného importu je nutné zavolat update_all_metrics().
+        db_path (str): Cesta k databázovému souboru.
+        datum (str): Datum transakce.
+        doklad (str): Číslo dokladu.
+        zdroj (str): Zdroj transakce.
+        firma (str): Název firmy.
+        text (str): Popis transakce.
+        madati (float): Částka MD.
+        dal (float): Částka D.
+        castka (float): Celková částka (kladná/záporná).
+        cin (int, optional): Činnost.
+        cislo (int, optional): Číslo.
+        co (str): Název pro kategorizaci (klíčové pro automatické přiřazení).
+        kdo (str): Osoba.
+        stredisko (str): Středisko.
+        is_current (int): 1 pro aktuální data, 0 pro historická.
+        skip_metrics_update (bool): Pokud True, nepřepočítává metriky kategorie (pro hromadné importy).
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Pokusíme se najít existující kategorii pro automatické přiřazení
-    # DŮLEŽITÉ: Pouze LEAF kategorie (is_custom=0) mohou mít transakce!
+    # Pokus o automatické přiřazení kategorie
+    # Hledáme pouze v LEAF kategoriích (is_custom=0), protože CUSTOM kategorie nemohou mít transakce.
     kategorie_id = None
     if co and co.strip() and castka != 0:
-        # Určíme typ podle znaménka částky
+        # Určení typu transakce podle znaménka
         if castka > 0:
             transaction_type = 'příjem'
         elif castka < 0:
@@ -62,7 +105,7 @@ def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, ci
             if existing_category:
                 kategorie_id = existing_category[0]
     
-    # Vložíme transakci s příslušnou kategorie_id (může být None nebo nalezená)
+    # Vložení záznamu
     cursor.execute('''
         INSERT INTO items (datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko, is_current, kategorie_id) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -71,12 +114,21 @@ def add_item(db_path, datum, doklad, zdroj, firma, text, madati, dal, castka, ci
     conn.commit()
     conn.close()
     
-    # Přepočítej pre-computed metriky pro kategorii (pokud byla přiřazena a není skip)
+    # Aktualizace metrik (pokud není přeskočena)
     if kategorie_id and not skip_metrics_update:
         categories_db.update_category_metrics(db_path, kategorie_id)
 
-def get_items(db_path, is_current):
-    """Získá všechny položky z databáze pro daný stav (historické/aktuální)."""
+def get_items(db_path: str, is_current: int) -> List[Tuple]:
+    """
+    Získá všechny položky z databáze pro daný stav (historické/aktuální).
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        is_current (int): 1 pro aktuální data, 0 pro historická.
+        
+    Returns:
+        List[Tuple]: Seznam transakcí seřazený sestupně podle data.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM items WHERE is_current = ? ORDER BY datum DESC", (is_current,))
@@ -84,12 +136,18 @@ def get_items(db_path, is_current):
     conn.close()
     return items
 
-def delete_item(db_path, item_id):
-    """Smaže položku z databáze podle jejího ID."""
+def delete_item(db_path: str, item_id: int) -> None:
+    """
+    Smaže položku z databáze podle jejího ID a aktualizuje metriky.
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        item_id (int): ID transakce ke smazání.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Před smazáním uložíme kategorie_id pro přepočet metrik
+    # Zjištění kategorie před smazáním pro následný přepočet
     cursor.execute("SELECT kategorie_id FROM items WHERE id = ?", (item_id,))
     result = cursor.fetchone()
     kategorie_id = result[0] if result else None
@@ -103,10 +161,14 @@ def delete_item(db_path, item_id):
     if kategorie_id:
         categories_db.update_category_metrics(db_path, kategorie_id)
 
-def delete_all_items(db_path, is_current):
+def delete_all_items(db_path: str, is_current: int) -> None:
     """
-    Smaže VŠECHNY položky pro daný stav z tabulky items.
-    Po smazání přepočítá metriky všech kategorií.
+    Smaže VŠECHNY položky pro daný stav (historické/aktuální).
+    Po smazání provede kompletní přepočet metrik všech kategorií.
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        is_current (int): 1 pro aktuální data, 0 pro historická.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -117,8 +179,17 @@ def delete_all_items(db_path, is_current):
     # Přepočítej metriky všech kategorií po smazání
     update_all_metrics(db_path)
 
-def has_transactions(db_path, is_current):
-    """Vrátí True, pokud v databázi existuje alespoň jedna transakce pro daný stav."""
+def has_transactions(db_path: str, is_current: int) -> bool:
+    """
+    Ověří, zda v databázi existují nějaké transakce pro daný stav.
+    
+    Args:
+        db_path (str): Cesta k databázi.
+        is_current (int): 1 pro aktuální data, 0 pro historická.
+        
+    Returns:
+        bool: True pokud existují transakce, jinak False.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM items WHERE is_current = ? LIMIT 1", (is_current,))
@@ -126,22 +197,16 @@ def has_transactions(db_path, is_current):
     conn.close()
     return result is not None
 
-def get_item_by_id(db_path, item_id):
+def get_item_by_id(db_path: str, item_id: int) -> Optional[Tuple]:
     """
     Získá kompletní data jedné transakce podle jejího ID.
     
-    Tato funkce je užitečná pro načtení všech údajů transakce při editaci,
-    kde potřebujeme předvyplnit formulář s existujícími hodnotami.
-    
     Args:
-        db_path (str): Cesta k SQLite databázi
-        item_id (int): Jedinečný identifikátor transakce
+        db_path (str): Cesta k databázi.
+        item_id (int): ID transakce.
         
     Returns:
-        tuple nebo None: Kompletní záznam transakce jako tuple 
-                        (id, datum, doklad, zdroj, firma, text, madati, dal, 
-                         castka, cin, cislo, co, kdo, stredisko, kategorie_id, is_current)
-                        nebo None pokud transakce s daným ID neexistuje
+        Optional[Tuple]: Záznam transakce nebo None, pokud neexistuje.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -150,50 +215,44 @@ def get_item_by_id(db_path, item_id):
     conn.close()
     return result
 
-def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal, castka, cin, cislo, co, kdo, stredisko):
+def update_item(
+    db_path: str, 
+    item_id: int, 
+    datum: str, 
+    doklad: str, 
+    zdroj: str, 
+    firma: str, 
+    text: str, 
+    madati: float, 
+    dal: float, 
+    castka: float, 
+    cin: Optional[int], 
+    cislo: Optional[int], 
+    co: str, 
+    kdo: str, 
+    stredisko: str
+) -> None:
     """
-    Aktualizuje existující transakci v databázi s automatickým přiřazením kategorie.
+    Aktualizuje existující transakci a znovu provede automatické zařazení.
     
-    Funkce provede úplnou aktualizaci všech polí transakce a zároveň se pokusí
-    automaticky přiřadit kategorii na základě pole "co" a typu transakce (příjem/výdej).
-    Typ je určen podle znaménka částky - kladná = příjem, záporná = výdej.
-    
-    Pokud existuje kategorie se jménem shodným s polem "co" a správným typem,
-    transakce bude automaticky k této kategorii přiřazena. Pokud ne, zůstane
-    nepřiřazená (kategorie_id = None).
+    Pokud se změní klíčové údaje (částka, 'co'), může dojít k přeřazení
+    transakce do jiné kategorie. Funkce zajišťuje přepočet metrik pro
+    původní i novou kategorii.
     
     Args:
-        db_path (str): Cesta k SQLite databázi
-        item_id (int): ID transakce, která má být aktualizována
-        datum (str): Datum ve formátu YYYY-MM-DD (může být prázdné)
-        doklad (str): Číslo nebo označení dokladu
-        zdroj (str): Zdroj transakce (např. banka, hotovost)
-        firma (str): Název firmy nebo protistrany
-        text (str): Popis transakce
-        madati (float): Částka v koloně "Má dáti" (obvykle pro příjmy)
-        dal (float): Částka v koloně "Dal" (obvykle pro výdaje)
-        castka (float): Výsledná částka (+ pro příjem, - pro výdaj)
-        cin (int nebo None): Číslo činnosti (může být prázdné)
-        cislo (int nebo None): Pořadové číslo (může být prázdné)
-        co (str): Kategorie nebo účel transakce
-        kdo (str): Osoba zodpovědná za transakci
-        stredisko (str): Středisko nebo oddělení
-        
-    Note:
-        Funkce automaticky zachová původní is_current hodnotu transakce.
-        Pokud kategorie s názvem z pole "co" neexistuje, transakce zůstane
-        nepřiřazená a bude k dispozici v levých seznamech účetní osnovy.
+        db_path (str): Cesta k databázi.
+        item_id (int): ID transakce.
+        ... (ostatní parametry odpovídají sloupcům v DB)
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Uložíme starou kategorie_id před updatem (pro přepočet)
+    # Získání původní kategorie pro přepočet
     cursor.execute("SELECT kategorie_id FROM items WHERE id = ?", (item_id,))
     old_result = cursor.fetchone()
     old_kategorie_id = old_result[0] if old_result else None
     
-    # Najdeme kategorii podle 'co' a typu (určeného ze znaménka částky)
-    # DŮLEŽITÉ: Pouze LEAF kategorie (is_custom=0) mohou mít transakce!
+    # Logika pro automatické přiřazení kategorie (stejná jako v add_item)
     kategorie_id = None
     if co and co.strip() and castka != 0:
         if castka > 0:
@@ -212,7 +271,7 @@ def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal
             if existing_category:
                 kategorie_id = existing_category[0]
     
-    # Update transakce s automaticky přiřazenou nebo None kategorie_id
+    # Update záznamu
     cursor.execute("""
         UPDATE items SET 
         datum = ?, doklad = ?, zdroj = ?, firma = ?, text = ?,
@@ -225,18 +284,23 @@ def update_item(db_path, item_id, datum, doklad, zdroj, firma, text, madati, dal
     conn.commit()
     conn.close()
     
-    # Přepočítej pre-computed metriky pro obě kategorie (starou i novou, pokud existují)
+    # Přepočet metrik pro dotčené kategorie
     if old_kategorie_id:
         categories_db.update_category_metrics(db_path, old_kategorie_id)
     
     if kategorie_id and kategorie_id != old_kategorie_id:
         categories_db.update_category_metrics(db_path, kategorie_id)
-def update_all_metrics(db_path):
+
+def update_all_metrics(db_path: str) -> None:
     """
-    Přepočítá pre-computed metriky pro VŠECHNY kategorie v databázi.
-    Užitečné po hromadném importu nebo migracích.
-    """
+    Přepočítá metriky pro VŠECHNY kategorie v databázi.
     
+    Tato operace může být náročná, používat pouze při hromadných změnách
+    (např. import, smazání všech dat).
+    
+    Args:
+        db_path (str): Cesta k databázi.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
