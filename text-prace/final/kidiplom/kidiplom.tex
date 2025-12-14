@@ -215,7 +215,110 @@ Pro tvorbu grafického uživatelského rozhraní (GUI) je využit framework \tex
 \end{itemize}
 
 \section{Programátorská příručka}
-Tato kapitola bude popisovat samotný vývoj aplikace, strukturu kódu a řešení klíčových problémů...
+Tato kapitola poskytuje technický pohled na implementaci aplikace. Je určena pro vývojáře, kteří chtějí pochopit vnitřní fungování systému, provádět úpravy nebo rozšiřovat jeho funkcionalitu.
+
+\subsection{Architektura aplikace}
+Aplikace je navržena s důrazem na modularitu a oddělení odpovědností (Separation of Concerns). Ačkoliv striktně nedodržuje vzor MVC (Model-View-Controller) v jeho čisté podobě, využívá jeho principy pro organizaci kódu.
+
+\begin{itemize}
+    \item \textbf{Model (Data):} Datová vrstva je reprezentována SQLite databází a sadou modulů v adresáři \texttt{app/database/}. Tyto moduly zapouzdřují veškeré SQL dotazy a logiku pro manipulaci s daty.
+    \item \textbf{View (Prezentace):} Uživatelské rozhraní je implementováno pomocí knihovny \texttt{tkinter}. Hlavní okno aplikace je inicializováno ve vstupním bodě \texttt{main.py}. Samotná logika zobrazení je pak rozdělena do adresáře \texttt{ui/}, konkrétně do podadresářů \texttt{ui/tabs/} (hlavní funkční celky aplikace) a \texttt{ui/dialogs/} (pomocná a editační okna).
+    \item \textbf{Controller (Logika):} Hlavní řídící logiku zajišťuje třída \texttt{App}, která je definována v souboru \texttt{app/controller.py}. Tato třída slouží jako prostředník mezi UI a databází, spravuje stav aplikace a zajišťuje navigaci.
+\end{itemize}
+
+\subsection{Adresářová struktura}
+Projekt má následující strukturu adresářů a souborů:
+
+\begin{itemize}
+    \item \texttt{main.py} – Vstupní bod aplikace. Inicializuje hlavní okno a kontroler.
+    \item \texttt{config.py} – Správa konfigurace prostředí a cest k datovým souborům (např. umístění profilů uživatele).
+    \item \texttt{app/} – Jádro aplikace.
+    \begin{itemize}
+        \item \texttt{controller.py} – Hlavní kontroler aplikace.
+        \item \texttt{file\_importer.py} – Logika pro import dat z Excelu.
+        \item \texttt{utils.py} – Pomocné funkce (formátování měny, data).
+        \item \texttt{database/} – Moduly pro práci s databází.
+        \begin{itemize}
+            \item \texttt{manager.py} – Správa připojení k DB a inicializace schématu.
+            \item \texttt{budgets\_db.py} – Operace týkající se rozpočtů.
+            \item \texttt{dashboard\_db.py} – Výpočty statistik pro dashboard.
+            \item \texttt{items\_db.py} – CRUD operace pro transakce.
+            \item \texttt{categories\_db.py} – Správa kategorií a jejich hierarchie.
+            \item \texttt{categorization\_manager.py} – Logika automatického přiřazování kategorií.
+            \item \texttt{analysis\_db.py} – Agregace dat pro kontingenční tabulku (pivot table).
+        \end{itemize}
+    \end{itemize}
+    \item \texttt{ui/} – Uživatelské rozhraní.
+    \begin{itemize}
+        \item \texttt{tabs/} – Adresář obsahující moduly pro jednotlivé záložky. Každá záložka reprezentuje samostatný funkční celek aplikace (např. Dashboard, Rozpočet).
+        \begin{itemize}
+            \item \texttt{home\_tab.py} – Úvodní obrazovka záložka "Home", která provází uživatele tutoriálem. Po jeho dokončení se změní na Dashboard.
+            \item \texttt{dashboard\_tab.py} – Implementace logiky Dashboardu (přehled měsíčního plnění), který je součástí Home tabu.
+            \item \texttt{sources\_tab.py} – Záložka "Transakce". Umožňuje správu, filtrování a import historických i aktuálních transakcí.
+            \item \texttt{accounting\_structure\_tab.py} – Záložka "Účetní osnova". Slouží k tvorbě a úpravě účetní osnovy.
+            \item \texttt{budget\_tab.py} – Záložka "Rozpočet". Umožňuje nastavovat finanční limity (rozpočty) pro jednotlivé kategorie.
+            \item \texttt{analysis\_tab.py} – Záložka "Analýza". Poskytuje dynamický pohled na data formou kontingenční tabulky (pivot table).
+        \end{itemize}
+        \item \texttt{dialogs/} – Adresář s moduly pro modální dialogová okna. Ta slouží k interakci s uživatelem nad rámec hlavního okna.
+        \begin{itemize}
+            \item \texttt{welcome\_dialog.py} – Správa profilů při spuštění aplikace.
+            \item \texttt{item\_dialog.py} – Formulář pro přidání nebo editaci transakce.
+            \item \texttt{hierarchy\_dialog.py} – Nastavení zobrazených řádků v analýze.
+            \item \texttt{stats\_dialog.py} – Detailní náhled statistik konkrétního měsíce.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Datový model}
+Aplikace využívá relační databázi SQLite. Každý uživatelský profil má svůj vlastní soubor \texttt{.db}, což zajišťuje izolaci dat. Struktura databáze je navržena tak, aby podporovala hierarchickou kategorizaci a rychlé analytické dotazy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{obrazky/er_diagram.png}
+    \caption{Entitně-relační diagram (ERD) databáze}
+    \label{fig:erd_detail}
+\end{figure}
+
+Databáze se skládá ze tří hlavních tabulek, jejichž vztahy jsou znázorněny na diagramu \ref{fig:erd_detail}:
+
+\begin{itemize}
+    \item \textbf{kategorie} – Definuje stromovou strukturu účetní osnovy.
+    \begin{itemize}
+        \item Sloupec \texttt{parent\_id} realizuje hierarchii (vazba na sebe sama).
+        \item Sloupec \texttt{is\_custom} rozlišuje typ kategorie:
+        \begin{itemize}
+            \item \texttt{0 (Leaf):} Koncová kategorie, která obsahuje transakce a má definovaný rozpočet. Nemůže mít podkategorie.
+            \item \texttt{1 (Custom):} Agregační kategorie (složka), která slouží k seskupování jiných kategorií. Nemůže obsahovat transakce přímo, její hodnoty se počítají jako součet podkategorií.
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{items} – Obsahuje jednotlivé transakce
+    \begin{itemize}
+        \item Každá transakce je navázána na jednu kategorii (vazba N:1).(Po přiřazení kategorie do účetní osnovy.)
+        \item Sloupec \texttt{is\_current} rozlišuje mezi historickými (0) a aktuálními (1) daty.
+    \end{itemize}
+    
+    \item \textbf{rozpocty} – Tabulka pro definici finančních plánů a optimalizaci výkonu.
+    \begin{itemize}
+        \item Obsahuje plánovaný rozpočet (\texttt{budget\_plan}) pro danou kategorii.
+        \item Slouží také jako cache pro \textit{pre-computed metrics} (sloupce \texttt{sum\_past} a \texttt{sum\_current}). Místo opakovaného sčítání tisíců transakcí při každém zobrazení dashboardu jsou tyto hodnoty předpočítány a aktualizovány při každé změně v tabulce \texttt{items}.
+    \end{itemize}
+\end{itemize}
+
+\textit{Poznámka k diagramu:} Ačkoliv je hierarchie kategorií realizována v rámci jedné tabulky, aplikační logika striktně vynucuje pravidlo, že podkategorie mohou mít pouze kategorie typu Custom. Naopak transakce mohou obsahovat pouze kategorie typu Leaf.
+
+\subsection{Klíčové algoritmy}
+\subsubsection{Kategorizace transakcí}
+Jedním z nejdůležitějších algoritmů je automatické přiřazování transakcí do kategorií. Algoritmus pracuje na základě sloupce \textbf{Co} z importovaných dat.
+\begin{enumerate}
+    \item Při importu se zkontroluje, zda hodnota ve sloupci \textbf{Co} odpovídá existující kategorii v tabulce \texttt{categories}.
+    \item Pokud odpovídající kategorie existuje, transakce je k ní přiřazena. A zároveň se aktualizují všechny relevantní části aplikace (dashboard, rozpočet, analýza).
+    \item Pokud kategorie neexistuje, vytvoří se v záložce \textbf{Účetní osnova} nová kategorie typu \textbf{Leaf} s názvem odpovídajícím hodnotě ve sloupci \textbf{Co}. Tuto kategorii lze zařadit do účetní osnovy.
+\end{enumerate}
+
+\subsubsection{Výpočet hierarchie (Roll-up)}
+Pro zobrazení dat v záložce Analýza a Rozpočet je nutné sčítat hodnoty z podkategorií do nadřazených kategorií. Tento proces (roll-up) je implementován rekurzivně.
+Každá kategorie může být buď \textit{LEAF} (listová, obsahuje přímo transakce) nebo \textit{CUSTOM} (kontejner, obsahuje jiné kategorie). Hodnota kontejneru je vždy součtem hodnot jeho dětí. Tento výpočet probíhá v reálném čase při načítání dat pro zobrazení, aby byla zajištěna konzistence.
 
 \section{Uživatelská příručka}
 
