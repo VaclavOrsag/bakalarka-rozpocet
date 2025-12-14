@@ -1,8 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog
-import tkinter.messagebox as messagebox
+from tkinter import ttk, filedialog, messagebox
 
 from app import database as db
 from . import file_exporter
@@ -15,9 +13,21 @@ from ui.tabs.analysis_tab import AnalysisTab
 from ui.tabs.accounting_structure_tab import AccountingStructureTab
 
 class App:
-    def __init__(self, root, profile_path):
+    """
+    Hlavní třída aplikace (Controller).
+    
+    Spravuje hlavní okno, menu a přepínání mezi jednotlivými záložkami (Tabs).
+    Zajišťuje:
+    1. Inicializaci UI komponent.
+    2. Řízení viditelnosti záložek podle stavu databáze (workflow).
+    3. Koordinaci mezi UI a datovou vrstvou (import/export).
+    """
+    
+    def __init__(self, root: tk.Tk, profile_path: str) -> None:
         self.root = root
         self.profile_path = profile_path
+        
+        # Nastavení okna
         self.root.title(f"Nástroj pro tvorbu rozpočtu - {os.path.basename(profile_path)}")
         self.root.geometry("1280x800")  # Zvětšíme okno pro více sloupců
 
@@ -54,8 +64,13 @@ class App:
         # Po spuštění zkontrolujeme stav a zobrazíme správné záložky
         self.root.after(100, self.update_tabs_visibility)
     
-    def switch_to_tab(self, tab_name: str):
-        """Programově přepne na záložku se zadaným názvem."""
+    def switch_to_tab(self, tab_name: str) -> None:
+        """
+        Programově přepne na záložku se zadaným názvem.
+        
+        Args:
+            tab_name (str): Textový popisek záložky (např. 'Home', 'Rozpočet').
+        """
         # 'tabs()' vrátí seznam ID všech záložek.
         # 'tab(id, "text")' vrátí název záložky pro dané ID.
         for i, _ in enumerate(self.notebook.tabs()):
@@ -63,17 +78,24 @@ class App:
                 self.notebook.select(i) # 'select(i)' přepne na záložku s daným indexem
                 break
 
-    def export_csv(self):
-        # ... (metoda zůstává stejná)
+    def export_csv(self) -> None:
+        """
+        Spustí dialog pro export historických dat do CSV.
+        """
         filepath = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV soubory", "*.csv")])
         if filepath:
             if file_exporter.export_to_csv(filepath, self.profile_path):
-                messagebox.showinfo("Export úspěšný", f"Data byla úspěšně exportována.")
+                messagebox.showinfo("Export úspěšný", "Data byla úspěšně exportována.")
             else:
                 messagebox.showerror("Chyba exportu", "Při exportu dat nastala chyba.")
 
-    def import_excel(self, is_current):
-        """Zpracovává import transakcí z Excelu do aktuálního profilu."""
+    def import_excel(self, is_current: int) -> None:
+        """
+        Zpracovává import transakcí z Excelu do aktuálního profilu.
+        
+        Args:
+            is_current (int): 1 pro aktuální rok, 0 pro historická data.
+        """
         filepath = filedialog.askopenfilename(
             filetypes=[("Excel soubory", "*.xlsx *.xlsm")]
         )
@@ -114,9 +136,15 @@ class App:
             messagebox.showerror("Chyba importu", "Při importu dat nastala chyba.")
 
 
-    def update_tabs_visibility(self):
+    def update_tabs_visibility(self) -> None:
         """
-        Zkontroluje stav profilu a dynamicky zobrazí nebo skryje záložky.
+        Dynamicky spravuje viditelnost záložek na základě stavu databáze.
+        
+        Logika workflow:
+        1. Home je vždy viditelný.
+        2. 'Transakce' a 'Účetní osnova' se odemknou po importu historických dat.
+        3. 'Rozpočet' se odemkne, jakmile existují nějaké kategorie.
+        4. 'Analýza' se odemkne, jakmile je nastaven alespoň jeden rozpočet.
         """
         # Zapamatujeme si aktuálně vybranou záložku, abychom ji po úpravách obnovili
         try:
@@ -139,9 +167,10 @@ class App:
 
         if db.has_categories(self.profile_path):
             self.notebook.add(self.tab_budget, text='Rozpočet')
-        # a tak dále... (tuto logiku budeme postupně doplňovat)
+        
         if db.has_any_budget(self.profile_path):
             self.notebook.add(self.tab_analysis, text='Analýza')
+            
         # Obnovíme dříve vybranou záložku, pokud stále existuje
         if prev_selected_text:
             try:
