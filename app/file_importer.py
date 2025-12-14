@@ -1,13 +1,22 @@
 import pandas as pd
+from typing import Any, Optional
 from . import database as db
 
-def import_from_excel(filepath, db_path, is_current):
+def import_from_excel(filepath: str, db_path: str, is_current: int) -> bool:
     """
-    Načte data, nahradí prázdné hodnoty a bezpečně je převede na správné
+    Načte data z Excelu, nahradí prázdné hodnoty a bezpečně je převede na správné
     datové typy před vložením do databáze.
     
     Optimalizace: Při importu se metriky nepřepočítávají pro každou transakci,
-    ale jednou najednou na konci pro všechny kategorie.
+    ale jednou najednou na konci pro všechny kategorie (skip_metrics_update=True).
+    
+    Args:
+        filepath (str): Cesta k Excel souboru.
+        db_path (str): Cesta k databázi.
+        is_current (int): 1 pro aktuální rok, 0 pro historická data.
+        
+    Returns:
+        bool: True pokud import proběhl úspěšně, jinak False.
     """
     try:
         df = pd.read_excel(filepath, sheet_name='Zdroj')
@@ -18,7 +27,7 @@ def import_from_excel(filepath, db_path, is_current):
 
         for _, row in df.iterrows():
             # Helper funkce pro bezpečnou konverzi na int
-            def to_int(value):
+            def to_int(value: Any) -> Optional[int]:
                 if value == '': return None
                 try:
                     return int(value)
@@ -26,7 +35,7 @@ def import_from_excel(filepath, db_path, is_current):
                     return None
 
             # Nová helper funkce pro bezpečnou konverzi na float
-            def to_float(value):
+            def to_float(value: Any) -> float:
                 if value == '': return 0.0 # Prázdnou hodnotu považujeme za 0.0
                 try:
                     return float(value)
@@ -80,8 +89,16 @@ def import_from_excel(filepath, db_path, is_current):
         print(f"Při importu nastala neočekávaná chyba: {e}")
         return False
     
-def normalize_date(value):
-    """Převede DD.MM.YYYY na YYYY-MM-DD."""
+def normalize_date(value: Any) -> str:
+    """
+    Převede DD.MM.YYYY na YYYY-MM-DD.
+    
+    Args:
+        value (Any): Vstupní hodnota data (string nebo jiné).
+        
+    Returns:
+        str: Datum ve formátu YYYY-MM-DD nebo původní hodnota.
+    """
     value = str(value).strip()
     
     # CZ formát → ISO
