@@ -36,9 +36,7 @@ class App:
         self.root.config(menu=menubar)
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Soubor", menu=file_menu)
-        file_menu.add_command(label="Exportovat do CSV...", command=self.export_csv)
-        file_menu.add_separator()
-        file_menu.add_command(label="Konec", command=self.root.quit)
+        file_menu.add_command(label="Exportovat rozpočet do CSV", command=self.export_csv)
 
         # --- KROK 1: Vytvoření Notebooku (záložek) ---
         self.notebook = ttk.Notebook(self.root)
@@ -80,7 +78,7 @@ class App:
 
     def export_csv(self) -> None:
         """
-        Spustí dialog pro export historických dat do CSV.
+        Spustí dialog pro export rozpočtových dat do CSV.
         """
         filepath = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV soubory", "*.csv")])
         if filepath:
