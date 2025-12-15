@@ -4,9 +4,8 @@ program=itk,
 biblatex,
 language=czech,
 font=sans,
-figures=false,
+figures=true,
 tables=false,
-theorems,
 sourcecodes,
 glossaries,
 index
@@ -21,13 +20,12 @@ index
 
 \yearofsubmit{\the\year}
 
-\annotation{Cílem této bakalářské práce je vytvořit desktopovou aplikaci pro tvorbu a sledování rozpočtu. Aplikace bude zahrnovat nástroje pro vytváření a modifikaci rozpočtů, umožní uživatelům definovat vlastní účetní osnovu, a poskytne funkce pro import a export dat ve formátu CSV. Součástí aplikace budou také interaktivní grafy a reporty, které umožní sledovat plnění rozpočtu v reálném čase. Aplikace bude napsána v jazyce Python a bude navržena tak, aby byla uživatelsky přívětivá a flexibilní, což umožní široké využití v různých finančních scénářích.}
+\annotation{Cílem této bakalářské práce je návrh a implementace desktopové aplikace pro efektivní tvorbu a správu rozpočtu, která slouží jako náhrada za manuální zpracování dat v Excelu. Aplikace, vyvinutá v jazyce Python s využitím knihovny Tkinter a databáze SQLite, se zaměřuje na automatizaci zpracování transakcí importovaných primárně z formátu MS Excel. Klíčovou funkcionalitou je automatická kategorizace položek, tvorba hierarchické účetní osnovy a sledování plnění rozpočtu v reálném čase metodou Year-To-Date. Součástí řešení je interaktivní dashboard s vizuální indikací stavu rozpočtu a integrovaný průvodce, který uživatele intuitivně provází procesem nastavení aplikace.}
 
-\annotation[english]{The aim of this bachelor's thesis is to develop a desktop application for budget creation and monitoring. The application will include tools for creating and modifying budgets, allow users to define their own accounting framework, and provide features for importing and exporting data in CSV format. The application will also feature interactive charts and reports to enable real-time budget tracking. It will be developed in Python and designed to be user-friendly and flexible, making it suitable for a variety of financial scenarios.}
-
+\annotation[english]{The aim of this bachelor's thesis is the design and implementation of a desktop application for effective budget creation and management, serving as a replacement for manual data processing in Excel. Developed in Python using the Tkinter library and SQLite database, the application focuses on automating the processing of transactions imported primarily from MS Excel format. Key features include automatic item categorization, the creation of a hierarchical accounting framework, and real-time budget tracking using the Year-To-Date method. The solution includes an interactive dashboard with visual budget status indicators and an integrated tutorial that intuitively guides the user through the application setup process.}
 %% Klíčová slova práce, včetně anglických. Oddělená (obvykle) středníkem.
-\keywords{tvorba rozpočtu; sledování rozpočtu; desktopová aplikace; účetní osnova; import/export dat; Python}
-\keywords[english]{budget creation; budget monitoring; desktop application; accounting framework; data import/export; Python}
+\keywords{tvorba rozpočtu; sledování rozpočtu; desktopová aplikace; účetní osnova; import/export dat; Python; Tkinter; SQLite; Pandas}
+\keywords[english]{budget creation; budget monitoring; desktop application; accounting framework; data import/export; Python; Tkinter; SQLite; Pandas}
 
 \thanks{Děkuji vedoucímu práce Mgr. Jiřímu Zacpalovi, Ph.D. za odborné vedení, cenné rady a trpělivost při konzultacích. Dále děkuji své rodině za podporu během studia.}
 
@@ -62,54 +60,31 @@ Hlavním cílem této bakalářské práce je vytvořit desktopovou aplikaci „
 \subsection{Microsoft Excel}
 Microsoft Excel (a obecně tabulkové procesory) představuje jeden z nejrozšířenějších nástrojů pro správu osobních i firemních financí. Jeho hlavní výhodou je obrovská flexibilita – uživatel není vázán logikou aplikace a může si vytvořit strukturu přesně podle svých potřeb.
 
-Právě řešení postavené na Microsoft Excel sloužilo jako přímá inspirace pro tuto bakalářskou práci. Původní systém využíval listy pro import dat ("Zdroj"), kontingenční tabulky pro analýzu a složité vzorce pro výpočty rozpočtů. Ačkoliv je toto řešení funkční, naráží na několik limitů, které má nová aplikace řešit:
+Právě řešení postavené na Microsoft Excel sloužilo jako přímá inspirace pro tuto bakalářskou práci. Původní systém využíval list ("Zdroj") pro import dat, kontingenční tabulky pro analýzu a 
+následně manuální tvorbu rozpočtů (viz Obrázek \ref{fig:excel_showcase}). Ačkoliv je toto řešení funkční, naráží na několik limitů, které má nová aplikace řešit:
 \begin{itemize}
     \item \textbf{Absence automatizace:} Toto je nejzásadnější nedostatek původního řešení. V Excelu musel uživatel ručně nastavovat kategorie, hlídat konzistenci dat a manuálně aktualizovat výpočty. Aplikace tento proces plně automatizuje – data se sama zařazují do kategorií, určují se jejich typy a automaticky se přeskupují podle aktuální konfigurace účetní osnovy.
+    \item \textbf{Absence plnění:} Excelový systém neobsahoval žádný mechanismus pro sledování plnění rozpočtu. Uživatel musel sám porovnávat skutečné výdaje s plánem, což bylo časově náročné a náchylné k chybám.
     \item \textbf{Křehkost dat:} Při nesprávném zásahu do buňky se vzorcem může dojít k rozbití celého výpočtu.
     \item \textbf{Náročná údržba:} Přidávání nových kategorií nebo změna struktury vyžaduje manuální úpravu mnoha listů a vzorců.
     \item \textbf{Absence validace:} Excel (ve výchozím stavu) nekontroluje, zda uživatel zadal všechna povinná data, což vede k chybám v analýze.
 \end{itemize}
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width = \textwidth]{excel_showcase.png}
+    \caption{Ukázka původního řešení v Excelu}
+    \label{fig:excel_showcase}
+\end{figure}
 Cílem mé aplikace je zachovat flexibilitu Excelu (např. možnost vlastní hierarchie), ale odstranit jeho nedostatky pomocí pevné databázové struktury a validovaného uživatelského vstupu.
 
-\subsection{EveryDollar Budgeting App}
-EveryDollar je aplikace pro správu osobního rozpočtu, která uživatelům umožňuje sledovat příjmy a výdaje, nastavovat finanční cíle a plánovat úspory. Hlavním aspektem, který mne na této aplikaci zaujal, je její jednoduchost. Následující obrázky \ref{fig:planned}, \ref{fig:spent}, \ref{fig:remaining} tuto jednoduchost ilustrují. 
-
-Na obrázku \ref{fig:planned} jsou přehledně zobrazeny všechny plánované výdaje spolu s procentuálním vyjádřením jejich podílu na celkových výdajích. Nad plánovanými výdaji se nachází graf zobrazující plánovaný příjem. Domnívám se, že by bylo užitečné, kdyby aplikace umožňovala sečíst plánované výdaje a porovnat je s grafem příjmů. V tomto případě plánované výdaje dosahují 122 \% příjmů, což výrazně překračuje náš rozpočet, avšak aplikace na tuto skutečnost neupozorňuje.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width = 0.5\textwidth]{planned_income.png}
-    \caption{Plánované příjmy a výdaje}
-    \label{fig:planned}
-\end{figure}
-
-Obrázek \ref{fig:spent} zobrazuje skutečně vynaložené výdaje ve srovnání s plánovanými výdaji. V případě překročení plánovaného limitu se daný výdaj označí červeně, což usnadňuje identifikaci překročení rozpočtu.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width = 0.5\textwidth]{planned_income2.png}
-    \caption{Porovnání plánu a skutečnosti}
-    \label{fig:spent}
-\end{figure}
-
-Obrázek \ref{fig:remaining} je podle mého názoru nejvíce intuitivní. Zobrazuje zbývající část plánovaných výdajů spolu s grafickým znázorněním, což poskytuje uživatelům jasný přehled o zbývajících finančních prostředcích. 
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width = 0.5\textwidth]{planned_income3.png}
-    \caption{Zbývající prostředky}
-    \label{fig:remaining}
-\end{figure}
-
-Jak jsem již zmínil při průzkumu EveryDollar Budgetting App mne zaujalo zejména grafické zpracování, které umožňuje rychlé a efektivní porozumění finanční situaci. Na základě těchto poznatků zvažuji přidání funkcionality, která by umožňovala proklik z grafu přímo na konkrétní výdaj. Tato funkcionalita by mohla dále zvýšit intuitivnost a efektivitu aplikace, což by uživatelům poskytlo rychlý přístup k detailním informacím o jejich výdajích.
-
 \subsection{QuickBooks Accounting App}
-QuickBooks je komplexní účetní a finanční aplikace, která uživatelům umožňuje efektivně spravovat jejich finanční prostředky, včetně sledování příjmů a výdajů, vystavování faktur, správy mzdových nákladů a generování finančních reportů. Co mě na této aplikaci zaujalo nejvíce, je její robustní grafické zpracování a uživatelsky přívětivé rozhraní, které poskytuje jasný a přehledný pohled na finanční situaci uživatele.
+QuickBooks je komplexní účetní a finanční aplikace, která uživatelům umožňuje efektivně spravovat jejich finanční prostředky, včetně sledování příjmů a výdajů, vystavování faktur, správy mzdových nákladů a generování finančních reportů.
 
-Díky intuitivnímu a vizuálně přitažlivému uspořádání dat QuickBooks umožňuje uživatelům snadno monitorovat a analyzovat jejich finanční toky. Přehledné grafy a tabulky usnadňují porozumění komplexním finančním informacím, což je klíčové pro efektivní rozhodování. 
+Díky intuitivnímu a vizuálně přitažlivému uspořádání dat QuickBooks umožňuje uživatelům monitorovat a analyzovat jejich finanční toky. Přehledné grafy a tabulky usnadňují porozumění komplexním finančním informacím, což je klíčové pro efektivní rozhodování. 
 
-Inspirací pro můj projekt je zejména možnost přizpůsobení hlavní stránky aplikace pomocí modifikovatelných widgetů. Zvažuji přidání podobné funkcionality, která by uživatelům umožnila personalizovat své hlavní rozhraní podle jejich specifických potřeb a preferencí.
+Inspirací pro můj projekt je zejména hlavní stránka aplikace. Zvažuji přidání podobné funkcionality, která by uživatelům umožnila vidět přehled o jejich rozpočtu na první pohled a případně jej detailněji analyzovat.
+
+Aplikace také obsahuje funkci drag-and-drop pro přeuspořádání widgetů na hlavní obrazovce podle uživatelských preferencí. Tato funkcionalita zvyšuje uživatelský komfort a umožňuje personalizaci rozhraní dle individuálních potřeb.
 
 \begin{figure}[H]
     \centering
@@ -128,9 +103,9 @@ Inspirací pro můj projekt je zejména možnost přizpůsobení hlavní stránk
 Obrázky \ref{fig:widget}, \ref{fig:widget_changed} demonstrují zmiňovanou funkcionalitu drag-and-drop. 
 
 \subsection{Wallet by BudgetBakers}
-Wallet by BudgetBakers je pokročilá aplikace pro správu osobních financí, která uživatelům poskytuje širokou škálu funkcí pro efektivní sledování a plánování jejich finančních prostředků. Umožňuje spravovat příjmy a výdaje, nastavovat finanční cíle, sledovat úspory a generovat detailní finanční reporty. Jednou z hlavních výhod Wallet je její schopnost synchronizovat data s bankovními účty uživatelů, což zajišťuje aktuálnost a přesnost finančních informací. I když tuto funkcionalitu ve své aplikaci pravděpodobně nevyužiji, slouží jako výborný nástroj pro následující demonstraci \ref{fig:report}.
+Wallet by BudgetBakers je pokročilá aplikace pro správu osobních financí, která uživatelům poskytuje širokou škálu funkcí pro efektivní sledování a plánování jejich finančních prostředků. Umožňuje spravovat příjmy a výdaje, nastavovat finanční cíle, sledovat úspory a generovat detailní finanční reporty.
 
-Jednou z klíčových funkcí Wallet je predikce budoucích finančních toků na základě historických dat. Tato funkce umožňuje uživatelům předvídat budoucí příjmy a výdaje, což je nezbytné pro efektivní finanční plánování. Do své aplikace bych rád implementoval podobný systém reportů, který by uživatelům umožnil například srovnávat aktuální finanční situaci se stejným obdobím v minulém roce a podobně.
+Jednou z klíčových funkcí Wallet je porovnání předchozího a aktuálního období, což uživatelům umožňuje lépe pochopit jejich finanční chování a identifikovat oblasti pro zlepšení (viz Obrázek \ref{fig:report}). Do své aplikace bych rád implementoval podobný systém vizualizace plnění, který by uživatelům umožnil například srovnávat aktuální finanční situaci se stejným obdobím v minulém roce a podobně.
 
 \begin{figure}[H]
     \centering
@@ -138,19 +113,21 @@ Jednou z klíčových funkcí Wallet je predikce budoucích finančních toků n
     \caption{Reporty ve Wallet}
     \label{fig:report}
 \end{figure}
+\subsection{Další profesionální systémy}
+V rámci průzkumu existujících řešení jsem analyzoval i další profesionální nástroje pro správu financí. Tyto aplikace jsou však často koncipovány pro firemní prostředí, což s sebou přináší vysokou míru komplexity, která je pro běžného uživatele při tvorbě rozpočtu spíše překážkou. Má aplikace se proto zaměřuje na zefektivnění a zjednodušení tohoto procesu. Abych předešel problému s uživatelským zahlcením (tzv. information overload), integroval jsem do aplikace logiku interaktivního průvodce. Tento mechanismus uživatele postupně provází klíčovými kroky – od importu dat až po sestavení rozpočtu – a zpřístupňuje jednotlivé moduly aplikace dynamicky až ve chvíli, kdy jsou pro daný úkon relevantní.
 
 \section{Specifikace řešení}
 Na základě průzkumu existujících řešení a stanovených cílů byly definovány následující funkční požadavky na aplikaci.
 
 \subsection{Správa profilů a dat}
-Aplikace musí podporovat práci s více uživatelskými profily, aby mohla být využívána více osobami na jednom zařízení nebo pro lepší oddělení rozpočtových let.
+Aplikace musí podporovat práci s více uživatelskými profily, pro lepší oddělení rozpočtových let.
 \begin{itemize}
     \item \textbf{Izolace dat:} Každý profil musí mít svou vlastní oddělenou databázi (SQLite), aby nedocházelo k míchání dat.
     \item \textbf{Správa:} Uživatel musí mít možnost vytvářet nové profily a načítat existující při spuštění aplikace.
 \end{itemize}
 
 \subsection{Import a export dat}
-Klíčovou funkcí je schopnost zpracovat externí data z bankovních výpisů nebo jiných zdrojů.
+Klíčovou funkcí je schopnost zpracovat externí data z Excel souboru.
 \begin{itemize}
     \item \textbf{Import z Excelu:} Aplikace bude podporovat import transakcí ve formátu .xlsx. Importní modul musí být schopen načíst specifické sloupce (Datum, Doklad, Zdroj, Firma, Text, MD, D, částka, Cin, číslo, Co, Kdo, Středisko) a správně je mapovat na interní strukturu dat.
     \item \textbf{Rozlišení dat:} Systém musí rozlišovat mezi \textit{historickými} a \textit{aktuálními daty}. To bude sloužit k analýze trendů a sledování plnění rozpočtu v reálném čase.
@@ -168,7 +145,7 @@ Aplikace musí poskytovat flexibilní systém pro kategorizaci transakcí, kter�
 \subsection{Rozpočtování}
 Jádrem aplikace je možnost nastavit finanční limity pro jednotlivé kategorie.
 \begin{itemize}
-    \item \textbf{Plánování:} Uživatel může nastavit měsíční rozpočet pro každou kategorii v účetní osnově.
+    \item \textbf{Plánování:} Uživatel může nastavit rozpočet pro každou kategorii v účetní osnově.
     \item \textbf{Sledování historie:} Při tvorbě rozpočtu aplikace zobrazí historické výdaje v dané kategorii, aby uživateli pomohla nastavit realistický limit.
     \item \textbf{Sledování plnění:} Bude možné sledovat aktuální plnění rozpočtu na základě importovaných aktuálních dat.
 \end{itemize}
@@ -183,7 +160,7 @@ Dashboard slouží jako hlavní přehledový panel pro rychlou kontrolu finančn
         \item \textit{Žlutá:} Mírné překročení limitu (do 5 \%).
         \item \textit{Červená:} Výrazné překročení limitu.
     \end{itemize}
-    \item \textbf{Detail měsíce:} Z dashboardu musí být možný přístup do detailu konkrétního měsíce, kde uživatel uvidí rozpad výdajů dle kategorií.
+    \item \textbf{Detail měsíce:} Z dashboardu musí být možný přístup do detailu konkrétního měsíce, kde uživatel uvidí rozpad výdajů dle kategorií a jejich plnění.
 \end{itemize}
 
 \subsection{Analytické nástroje}
@@ -205,13 +182,14 @@ Uživatel musí mít plnou kontrolu nad jednotlivými záznamy.
 \section{Použité technologie}
 
 \subsection{Programovací jazyk a framework}
-Pro vývoj aplikace byl zvolen jazyk \textbf{Python} verze 3.x. Jeho hlavní výhodou je rozsáhlá standardní knihovna a silná podpora pro práci s daty.
+Pro vývoj aplikace byl zvolen jazyk \textbf{Python} verze 3.14.0. Jeho hlavní výhodou je rozsáhlá standardní knihovna a silná podpora pro práci s daty.
 Pro tvorbu grafického uživatelského rozhraní (GUI) je využit framework \textbf{Tkinter}. Jedná se o standardní GUI toolkit pro Python, který je multiplatformní a poskytuje dostatečnou sadu ovládacích prvků (widgetů) pro desktopovou aplikaci tohoto typu, včetně pokročilých prvků jako \texttt{Treeview} pro hierarchická data.
 
 \subsection{Databáze a zpracování dat}
 \begin{itemize}
     \item \textbf{SQLite:} Pro ukládání dat je využita relační databáze SQLite. Její bezserverová architektura (data uložena v souboru) je ideální pro lokální desktopovou aplikaci, protože nevyžaduje složitou instalaci a konfiguraci na straně uživatele.
     \item \textbf{Pandas:} Pro import a zpracování dat z Excelu je využita knihovna Pandas. Ta umožňuje efektivní načítání souborů .xlsx, čištění dat a jejich transformaci do formátu vhodného pro databázi.
+    \item \textbf{CSV:} Standardní modul Pythonu \texttt{csv} je využit pro export dat. Jelikož exportujeme pouze jednoduchý přehled rozpočtu, není potřeba využívat složitější knihovny.
 \end{itemize}
 
 \section{Programátorská příručka}
@@ -236,6 +214,7 @@ Projekt má následující strukturu adresářů a souborů:
     \begin{itemize}
         \item \texttt{controller.py} – Hlavní kontroler aplikace.
         \item \texttt{file\_importer.py} – Logika pro import dat z Excelu.
+        \item \texttt{file\_exporter.py} – Logika pro export dat do CSV.
         \item \texttt{utils.py} – Pomocné funkce (formátování měny, data).
         \item \texttt{database/} – Moduly pro práci s databází.
         \begin{itemize}
@@ -252,12 +231,12 @@ Projekt má následující strukturu adresářů a souborů:
     \begin{itemize}
         \item \texttt{tabs/} – Adresář obsahující moduly pro jednotlivé záložky. Každá záložka reprezentuje samostatný funkční celek aplikace (např. Dashboard, Rozpočet).
         \begin{itemize}
-            \item \texttt{home\_tab.py} – Úvodní obrazovka záložka "Home", která provází uživatele tutoriálem. Po jeho dokončení se změní na Dashboard.
-            \item \texttt{dashboard\_tab.py} – Implementace logiky Dashboardu (přehled měsíčního plnění), který je součástí Home tabu.
-            \item \texttt{sources\_tab.py} – Záložka "Transakce". Umožňuje správu, filtrování a import historických i aktuálních transakcí.
-            \item \texttt{accounting\_structure\_tab.py} – Záložka "Účetní osnova". Slouží k tvorbě a úpravě účetní osnovy.
-            \item \texttt{budget\_tab.py} – Záložka "Rozpočet". Umožňuje nastavovat finanční limity (rozpočty) pro jednotlivé kategorie.
-            \item \texttt{analysis\_tab.py} – Záložka "Analýza". Poskytuje dynamický pohled na data formou kontingenční tabulky (pivot table).
+            \item \texttt{home\_tab.py} – Úvodní obrazovka záložka \textbf{"Home"}, která provází uživatele tutoriálem. Po jeho dokončení se změní na Dashboard.
+            \item \texttt{dashboard\_tab.py} – Implementace logiky \textbf{Dashboardu} (přehled měsíčního plnění), který je součástí Home tabu.
+            \item \texttt{sources\_tab.py} – Záložka \textbf{"Transakce"}. Umožňuje správu, filtrování a import historických i aktuálních transakcí.
+            \item \texttt{accounting\_structure\_tab.py} – Záložka \textbf{"Účetní osnova"}. Slouží k tvorbě a úpravě účetní osnovy.
+            \item \texttt{budget\_tab.py} – Záložka \textbf{"Rozpočet"}. Umožňuje nastavovat finanční limity (rozpočty) pro jednotlivé kategorie.
+            \item \texttt{analysis\_tab.py} – Záložka \textbf{"Analýza"}. Poskytuje dynamický pohled na data formou kontingenční tabulky (pivot table).
         \end{itemize}
         \item \texttt{dialogs/} – Adresář s moduly pro modální dialogová okna. Ta slouží k interakci s uživatelem nad rámec hlavního okna.
         \begin{itemize}
@@ -294,7 +273,7 @@ Databáze se skládá ze tří hlavních tabulek, jejichž vztahy jsou znázorn�
     
     \item \textbf{items} – Obsahuje jednotlivé transakce
     \begin{itemize}
-        \item Každá transakce je navázána na jednu kategorii (vazba N:1).(Po přiřazení kategorie do účetní osnovy.)
+        \item Každá transakce je navázána na jednu kategorii (vazba N:1).
         \item Sloupec \texttt{is\_current} rozlišuje mezi historickými (0) a aktuálními (1) daty.
     \end{itemize}
     
@@ -311,26 +290,42 @@ Databáze se skládá ze tří hlavních tabulek, jejichž vztahy jsou znázorn�
 \subsubsection{Kategorizace transakcí}
 Jedním z nejdůležitějších algoritmů je automatické přiřazování transakcí do kategorií. Algoritmus pracuje na základě sloupce \textbf{Co} z importovaných dat.
 \begin{enumerate}
-    \item Při importu se zkontroluje, zda hodnota ve sloupci \textbf{Co} odpovídá existující kategorii v tabulce \texttt{categories}.
+    \item Při importu se zkontroluje, zda hodnota ve sloupci \textbf{Co} odpovídá existující kategorii v tabulce \texttt{kategorie}.
     \item Pokud odpovídající kategorie existuje, transakce je k ní přiřazena. A zároveň se aktualizují všechny relevantní části aplikace (dashboard, rozpočet, analýza).
-    \item Pokud kategorie neexistuje, vytvoří se v záložce \textbf{Účetní osnova} nová kategorie typu \textbf{Leaf} s názvem odpovídajícím hodnotě ve sloupci \textbf{Co}. Tuto kategorii lze zařadit do účetní osnovy.
+    \item Pokud kategorie neexistuje, transakce zůstane nezařazená (bez vazby na kategorii). Uživatel ji následně musí v aplikaci ručně klasifikovat (přidat do účetní osnovy).
 \end{enumerate}
 
-\subsubsection{Výpočet hierarchie (Roll-up)}
-Pro zobrazení dat v záložce Analýza a Rozpočet je nutné sčítat hodnoty z podkategorií do nadřazených kategorií. Tento proces (roll-up) je implementován rekurzivně.
-Každá kategorie může být buď \textit{LEAF} (listová, obsahuje přímo transakce) nebo \textit{CUSTOM} (kontejner, obsahuje jiné kategorie). Hodnota kontejneru je vždy součtem hodnot jeho dětí. Tento výpočet probíhá v reálném čase při načítání dat pro zobrazení, aby byla zajištěna konzistence.
+\subsubsection{Optimalizace výpočtů (Pre-computed Metrics)}
+Aby aplikace zůstala responzivní i při velkém množství transakcí, není efektivní provádět kompletní agregaci dat (SQL \texttt{SUM}) při každém překreslení uživatelského rozhraní. Místo toho je využit mechanismus tzv. \textit{pre-computed metrics}, který je implementován v modulu \texttt{dashboard\_db.py}.
+
+Tento systém funguje na principu inkrementálních aktualizací a cachování výsledků v tabulce \texttt{rozpocty}. Proces probíhá v následujících krocích:
+
+\begin{enumerate}
+    \item \textbf{Trigger události:} Jakákoliv změna v datech (import, přidání, editace nebo smazání transakce) vyvolá funkci pro přepočet statistik.
+    \item \textbf{Agregace na úrovni Leaf:} Nejprve se spočítají součty pro koncové (\textit{Leaf}) kategorie. SQL dotaz sečte částky transakcí seskupené podle \texttt{kategorie\_id} a typu dat (historická vs. aktuální).
+    \item \textbf{Uložení do mezipaměti:} Výsledné hodnoty se ukládají do tabulky \texttt{rozpocty}, konkrétně do sloupců \texttt{sum\_past} a \texttt{sum\_current}. Tím je zajištěno, že pro zobrazení Dashboardu nebo Rozpočtu stačí číst pouze tuto malou tabulku, nikoliv prohledávat celou historii transakcí.
+    \item \textbf{Roll-up pro Custom kategorie:} V posledním kroku se provede rekurzivní součet směrem nahoru. Hodnoty pro rodičovské (\textit{Custom}) kategorie jsou vypočítány jako součet hodnot jejich přímých potomků. Tento výpočet probíhá v paměti aplikace (Python) nad již agregovanými daty, což je řádově rychlejší než rekurzivní SQL dotazy.
+\end{enumerate}
+
+Tento mechanismus okamžité aktualizace je ideální pro běžnou práci (přidání jedné transakce), ale při hromadném importu tisíců položek by byl neefektivní. Proto je v modulu \texttt{file\_importer.py} implementována optimalizace: při importu se volá funkce \texttt{add\_item} s parametrem \texttt{skip\_metrics\_update=True}. Tím se dočasně potlačí přepočet statistik. Teprve po úspěšném vložení všech záznamů se zavolá funkce \texttt{update\_all\_metrics} (z modulu \texttt{items\_db.py}), která provede hromadný přepočet celé databáze najednou. Tím se doba importu zkracuje z desítek sekund na zlomky sekundy.
+
+Díky tomuto přístupu je zobrazení Dashboardu prakticky okamžité, bez ohledu na to, zda databáze obsahuje stovky nebo desetitisíce transakcí.
+
 
 \section{Uživatelská příručka}
 
-Tato kapitola slouží jako průvodce pro uživatele aplikace. Popisuje instalaci, spuštění a základní scénáře použití.
+Tato kapitola slouží jako průvodce pro uživatele aplikace. Kapitoly postupně vysvětlují průchod aplikací a průchod tzv. "tutoriálu", který uživatele provede funkcemi aplikace. 
+
+Aplikace je navržena tak, 
+aby uživatele co nejvíce vedla a usnadnila mu práci s ní. Pro práci s ní příručka není nezbytná, ale může pomoci s rychlejším osvojením funkcí.
 
 \subsection{Spuštění aplikace}
-Aplikace nevyžaduje složitou instalaci. Pro spuštění stačí otevřít soubor \texttt{main.py} (nebo spustit vygenerovaný .exe soubor). Po spuštění se zobrazí uvítací okno aplikace (viz Obrázek \ref{fig:welcome_window}). 
+Po spuštění se zobrazí uvítací okno aplikace (viz Obrázek \ref{fig:welcome_window}). 
 Zde je možné vybrat si mezi vytvořením nového rozpočtu nebo načtením existujícího.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{welcome_window.png}
+    \includegraphics[width=0.5\textwidth]{welcome_window.png}
     \caption{Uvítací okno aplikace}
     \label{fig:welcome_window}
 \end{figure}
@@ -341,7 +336,7 @@ Případně se můžeme vrátit zpět na uvítací obrazovku kliknutím na tlač
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{profiles.png}
+    \includegraphics[width=0.5\textwidth]{profiles.png}
     \caption{Výběr profilu}
     \label{fig:profiles}
 \end{figure}
@@ -383,7 +378,7 @@ Zároveň se aktualizuje Home záložka s informací o úspěšném importu a da
 \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{import_confirm.png}
+    \includegraphics[width=0.5\textwidth]{import_confirm.png}
     \caption{Potvrzení importu}
     \label{fig:import_confirm}
 \end{figure}
@@ -391,7 +386,7 @@ Zároveň se aktualizuje Home záložka s informací o úspěšném importu a da
 
 \subsection{Tvorba osnovy}
 Po úspěšném importu transakcí se uživateli v Home záložce zobrazí další krok tutoriálu (viz Obrázek \ref{fig:main_window_step_2}).
-Pro vytvoření osnovy je potřeba kliknout na tlačítko "Přejít na tvorbu osnovy" (Případně na záložku: účetní osnova). Tím se uživatel přesune do záložky "účetní osnova" (viz Obrázek \ref{fig:chart_tab}).
+Pro vytvoření osnovy je potřeba kliknout na tlačítko \textbf{"Přejít na tvorbu osnovy"} (Případně na záložku: \textbf{účetní osnova}). Tím se uživatel přesune do záložky \textbf{účetní osnova} (viz Obrázek \ref{fig:chart_tab}).
 
 \begin{figure}[H]
     \centering
@@ -409,8 +404,8 @@ Pro vytvoření osnovy je potřeba kliknout na tlačítko "Přejít na tvorbu os
 
 Zde si uživatel může vytvořit vlastní účetní osnovu. Hlavní je logika \textbf{transakčních} vs \textbf{custom} kategorií. Transakční kategorie jsou ty, které jsou přímo spojené s importovanými transakcemi z excelu.
 Custom kategorie jsou ty, které si uživatel vytvoří sám pro lepší přehlednost a organizaci (těmto kategoriím nikdy nebudou přiřazeny žádné transakce).
-Aplikace sama analyzuje data na základě historických a aktuálních transakcí a jednotlivé transakce rozděluje do kategorii podle hodnoty ve sloupci "Co" v excelu, zároveň automaticky určuje typ
-kategorie (MD/D) na základě hodnoty ve sloupci "MD" a "D" v excelu.
+Aplikace sama analyzuje data na základě historických a aktuálních transakcí a jednotlivé transakce rozděluje do transakčních kategorií podle hodnoty ve sloupci \textbf{Co}, zároveň automaticky určuje typ
+kategorie \textbf{(Příjmy/Výdaje)} na základě znaménka částky.
 
 \subsubsection{Přidání hlavních kategorií}
 Pokud žádnou kategorii v účetní osnově nemáme, musíme přidat \textbf{hlavní kategorii}, tou může být buď kategorie z příjmů/výdajů nebo naše custom kategorie. Pokud chceme přidat kategorii z příjmů/výdajů, 
@@ -431,20 +426,21 @@ klikneme na danou kategorii v seznamu a na tlačítko \textbf{Přidat jako hlavn
 Custom kategorie se zobrazují odlišně od transakčních, jsou červené a mají u sebe ikonu složky (viz Obrázek \ref{fig:custom_category_look}).
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{custom_category_look.png}
+    \includegraphics[width=0.3\textwidth]{custom_category_look.png}
     \caption{Vzhled custom kategorie v účetní osnově}
     \label{fig:custom_category_look}
 \end{figure}
 Poté co přidáme jakoukoliv první hlavní kategorii, se nám zobrazí upozornění, že rozpočet je připraven k použití (viz Obrázek \ref{fig:budget_ready}) a odemkne se nám nová záložka \textbf{Rozpočet}.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{budget_ready.png}
+    \includegraphics[width=0.5\textwidth]{budget_ready.png}
     \caption{Upozornění, že rozpočet je připraven k použití}
     \label{fig:budget_ready}
 \end{figure}
 \subsubsection{Přidání podkategorií}
-Pokud jsme vytvořili custom kategorii, tak teď můžeme začít přidávat i podkategorie. Podkategorie můžeme přidávat pouze pod custom kategorie. Hlavní kategorie se samy řadí do sekcí příjmů a výdajů na základě typu.
-Ale podkategorie a custom kategorie už musíme řadit ručně. Pro přidání podkategorie je potřeba vybrat kategorii, kterou chceme zařadit jako podkategorii a hlavní kategorii v seznamu účetní osnovy a kliknout na tlačítko 
+Pokud jsme vytvořili custom kategorii, tak teď můžeme začít přidávat i podkategorie. Podkategorie můžeme přidávat pouze pod custom kategorie. 
+
+Pro přidání podkategorie je potřeba vybrat kategorii, kterou chceme zařadit jako podkategorii a hlavní kategorii v seznamu účetní osnovy a kliknout na tlačítko 
 \textbf{Přidat jako podkategorii} (viz Obrázek \ref{fig:add_sub_1} a \ref{fig:add_sub_2}).
 \begin{figure}[H]
     \centering
@@ -477,7 +473,7 @@ Po vytvoření účetní osnovy se uživateli v Home záložce zobrazí další 
     \caption{Home tab po vytvoření účetní osnovy}
     \label{fig:main_window_step_3}  
 \end{figure}
-Pro vytvoření rozpočtu je potřeba kliknout na tlačítko \textbf{Přejít na tvorbu rozpočtu} (Případně na záložku: Rozpočet). Tím se uživatel přesune do záložky \textbf{Rozpočet} 
+Pro vytvoření rozpočtu je potřeba kliknout na tlačítko \textbf{Přejít na tvorbu rozpočtu} (případně na záložku \textbf{Rozpočet}). Tím se uživatel přesune do záložky \textbf{Rozpočet} 
 
 První(prázdný) rozpočet bude vypadat takto v zavislosti na osnově: (viz Obrázek \ref{fig:empty_budget_tab}).
 \begin{figure}[H]
@@ -488,12 +484,12 @@ První(prázdný) rozpočet bude vypadat takto v zavislosti na osnově: (viz Obr
 \end{figure}
 
 Vidíme 2 hlavní sekce - příjmy a výdaje, které odpovídají naší účetní osnově. Tyto sekce jsou rozděleny 4 sloupce, první sloupec \textbf{kategorie} zobrazuje hierarchii dle naši účetní osnovy, druhý sloupec \textbf{minulé období}
-je součet všech transakcí v dané kategorii z minulých transakcí (z excelu), třetí sloupec je \textbf{rozpočet} zde budeme editovat plánované rozpočty pro jednotlivé kategorie a čtvrtý sloupec je \textbf{plnění}, zde se zobrazuje
+je součet všech transakcí v dané kategorii z minulých transakcí, třetí sloupec je \textbf{rozpočet} zde budeme editovat plánované rozpočty pro jednotlivé kategorie a čtvrtý sloupec je \textbf{plnění}, zde se zobrazuje
 aktuální stav plnění rozpočtu na základě importovaných aktualních transakcí.
 
 \subsubsection{Nastavení rozpočtu}
 Pro nastavení rozpočtu dané kategorie je potřeba dvojkliknout na buňku ve sloupci rozpočet na řádku dané kategorie (viz Obrázek \ref{fig:edit_budget_1}) zadat chtěnou částku 
-a potvrdit klávesou Enter(viz Obrázek \ref{fig:edit_budget_2})
+a potvrdit klávesou Enter, případně kliknout mimo buňku(viz Obrázek \ref{fig:edit_budget_2}).
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{edit_budget_1.png}
@@ -508,10 +504,10 @@ a potvrdit klávesou Enter(viz Obrázek \ref{fig:edit_budget_2})
 \end{figure}
 
 Pokud jsme vložili úplně první rozpočet, tak se nám zobrazí nová záložka \textbf{Analýza}, aplikace nás upozorní vyskakovacím oknem (viz Obrázek \ref{fig:first_budget_info}) 
-a navrhne nám import aktuálních dat, které zpřístupní záložku Plnění a umožní analyzovat aktualní data.
+a navrhne nám import aktuálních dat, které zpřístupní plnění a umožní detailněji analyzovat data v záložce \textbf{Home} (tzv. \textbf{Dashboard}) a záložce \textbf{Analýza}.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{first_budget_info.png}
+    \includegraphics[width=0.5\textwidth]{first_budget_info.png}
     \caption{Informace o vytvoření prvního rozpočtu}
     \label{fig:first_budget_info}
 \end{figure}
@@ -524,7 +520,7 @@ který obsahuje list s názvem \textbf{Zdroj}. Tento list musí obsahovat sloupc
     \caption{Import aktuálních dat}
     \label{fig:import_current}
 \end{figure}
-Pokud jsme data neimportovali, můžeme tak učinit později v záložce \textbf{Home}. Zde se zobrazí další krok tutoriálu 
+Pokud jsme data neimportovali, můžeme tak učinit později v záložce \textbf{Home} případně záložce \textbf{Transakce} (viz sekce Záložka transakce). Zde se zobrazí další krok tutoriálu 
 (viz Obrázek \ref{fig:main_window_step_4}). 
 \begin{figure}[H]
     \centering
@@ -537,12 +533,10 @@ Kliknutím na tlačítko \textbf{Importovat aktuální data} se zobrazí dialogo
 Po úspěšném importu se nám zobrazí potvrzení importu (viz Obrázek \ref{fig:import_current_confirm}).
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{import_current_confirm.png}
+    \includegraphics[width=0.5\textwidth]{import_current_confirm.png}
     \caption{Potvrzení importu aktuálních dat}
     \label{fig:import_current_confirm}
-\end{figure}
-Zároveň se aktualizuje záložka \textbf{Home}, ze které se teď stává tzv. \textbf{Dashboard}, v záložce \textbf{Analýza} teď můžeme analyzovat i aktuální data a v záložce \textbf{Transakce} můžeme pracovat s aktuálními transakcemi.
-  
+\end{figure}  
 
 \subsection{Analýza transakcí}
 Záložka \textbf{Analýza} nám umožňuje dynamicky seskupovat transakce pomocí hierarchického pohledu (tzv. pivot table) a sledovat součty na jednotlivých úrovních. Můžeme přepínat mezi jednotlivými presety, 
@@ -555,7 +549,7 @@ Celou analýzu ovládáme pomocí panelu nástrojů v horní části záložky (
     \caption{Panel nástrojů v záložce Analýza}
     \label{fig:analysis_toolbar}
 \end{figure}
-Funkce \textbf{řádky} je ve výchozím nastavení zašedlá a nelze na ni kliknout, protože hierarchie je nastavena podle výchozího presetu. O změně hierarchie se dozvíme v sekci Presety.
+Funkce \textbf{Upravit hierarchii} je ve výchozím nastavení zašedlá a nelze na ni kliknout, protože hierarchie je nastavena podle výchozího presetu. O změně hierarchie se dozvíme v sekci Presety.
 \subsubsection{Hierarchický pohled}
 V záložce \textbf{Analýza} vidíme hierarchický pohled na naše transakce (viz Obrázek \ref{fig:analysis_tab}). Ve výchozím nastavení je hierarchie nastavena podle presetu \textbf{Analýza středisek}, 
 ale uživatel může tuto hierarchii měnit podle svých potřeb (viz sekce Presety).
@@ -575,14 +569,14 @@ Hierarchii můžeme rozbalovat a sbalovat kliknutím na ikony + a - vlevo od ř�
 \end{figure}
 \subsubsection{Presety}
 Presety nám umožňují rychle měnit hierarchii zobrazenou v záložce \textbf{Analýza}. Kliknutím na rolovací menu \textbf{Preset} se zobrazí nabídka dostupných presetů (viz Obrázek \ref{fig:presets_menu}). Lze volit mezi 
-předdefinovanými presety nebo vytvořit vlastní preset kliknutím na \textbf{Vlastní}.
+předdefinovanými presety nebo zvolit vlastní preset kliknutím na \textbf{Vlastní}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{presets_menu.png}
     \caption{Nabídka presetů}
     \label{fig:presets_menu}
 \end{figure}
-Po výběru presetu se hierarchie v záložce \textbf{Analýza} automaticky aktualizuje podle zvoleného presetu. Pokud zvolíme \textbf{Vlastní}, funkce \textbf{řádky} se odemkne a po kliknutí nám 
+Po výběru presetu se hierarchie v záložce \textbf{Analýza} automaticky aktualizuje podle zvoleného presetu. Pokud zvolíme \textbf{Vlastní}, funkce \textbf{Upravit hierarchii} se odemkne a po kliknutí nám 
 umožní ručně nastavovat hierarchii. Pomocí šipek nahoru a dolů můžeme měnit pořadí polí, čímž měníme hierarchii zobrazenou v záložce \textbf{Analýza}. Pomocí šipek vlevo a vpravo můžeme volit, 
 které řádky chceme zahrnout do hierarchie. Na pole, se kterým chceme pracovat, musíme nejprve kliknout poté můžeme použít šipky pro úpravu hierarchie (viz Obrázek \ref{fig:custom_rows}).
 \begin{figure}[H]
@@ -611,7 +605,7 @@ Po splnění všech kroků tutoriálu se nám v záložce \textbf{Home} zobrazí
 Pro odemčení dashboardu je potřeba nastavit rozpočet pro každou kategorii naší účetní osnovy. Po odemčení se nám zobrazí kompletní dashboard (viz Obrázek \ref{fig:complete_dashboard}).
 
 \subsubsection{Hlavní přehled}
-V dashboardu máme 2 hlavní sekce: \textbf{Výdaje} a \textbf{Příjmy} lze mezi nimi přepínat pomocí tlačítek v levé horní části (viz Obrázek \ref{fig:complete_dashboard}). 
+V dashboardu máme 2 hlavní sekce: \textbf{Výdaje} a \textbf{Příjmy} lze mezi nimi přepínat pomocí přepínačů v levé horní části (viz Obrázek \ref{fig:complete_dashboard}). 
 
 Pod těmito tlačítky se nachází
 jednotlivé měsíce, které zobrazujeme jako tlačítka pro rychlý přístup k datům daného měsíce. Na těchto tlačítkách vidíme \textbf{procentuální plnění rozpočtu YTD} (Year-To-Date, od začátku roku) pro daný měsíc a \textbf{Limit} ( očekávané plnění rozpočtu ((měsíc/12)*100)).
@@ -655,8 +649,8 @@ Zároveň dole vlevo vidíme hodnotu \textbf{Celkem}, tato hodnota zobrazuje pln
 V dashboardu se nám díky hodnotě \textbf{14.4\%} zobrazuje tlačítko červeně. Zde, ale vidíme, celkové plnění rozpočtu YTD a můžeme tak vyvodit, že i přes to, že jsme tento měsíc utratili více než je náš fixní limit, 
 tak celkově jsme stále pod limitem v rámci rozpočtu a detailně vidíme přesnou částku. 
 
-Je normální, že v některých měsících utratíme více a v jiných méně, důležité je sledovat celkové plnění rozpočtu v rámci roku. Díky této barevné logice můžeme identifikovat, které měsíce jsou více příjmové/výdajové 
-a které méně.
+Je normální, že v některých měsících utratíme více a v jiných méně. Sledování celkového plnění rozpočtu v rámci roku nám umožňuje identifikovat, které měsíce jsou více příjmové/výdajové a které méně. 
+Detailnější analýza měsíce nám umožňuje lépe porozumět našim finančním návykům a plánovat budoucí rozpočty efektivněji.
 
 
 
@@ -670,11 +664,12 @@ přidali ručně. Mezi historické a aktuální transakce můžeme přepínat po
     \label{fig:transactions_tab}
 \end{figure}
 \subsubsection{Vizualizace transakcí}
-Jako první si můžeme na obrázku \ref{fig:transactions_tab} všimnout, že některé transakce jsou červené. To značí, že těmto transakcím chybí povinná položka buď text \textbf{Co} nebo \textbf{Částka}. Obě tyto 
-položky jsou klíčové pro automatické určení kategorie a typu transakce. Pokud některá z těchto položek chybí, aplikace s touto transakcí nepracuje a je nutné ji opravit ručně (viz sekce Editace transakcí).
+Jako první si můžeme na obrázku \ref{fig:transactions_tab} všimnout, že některé transakce jsou červené. To značí, že těmto transakcím chybí povinná položka \textbf{Datum}, \textbf{Co} nebo \textbf{Částka}. Položky 
+\textbf{Co} a \textbf{Částka} jsou klíčové pro automatické určení kategorie a typu transakce. Pokud některá z těchto položek chybí, aplikace s touto transakcí nepracuje a je nutné ji opravit ručně (viz sekce Editace transakcí). Pokud 
+chybí pouze položka \textbf{Datum}, aplikace s transakcí pracuje, ale nezahrnuje ji do analyzy měsíce v Dashboardu a zobrazuje ji červeně jako upozornění pro uživatele, že by měl datum doplnit.
 
 Při bližším pohledu si můžeme všimnout jednotlivých sloupců: \textbf{Datum}, \textbf{Doklad}, \textbf{Firma}, \textbf{Text}, \textbf{Co}, \textbf{Částka}.
-Zobrazujeme pouze tyto sloupce z důvodu přehlednosti, ale aplikace interně uchovává všechny informace z excelu (případně z manuálně přidaných transakcí).Pokud chceme zobrazit více informací o dané transakci, 
+Zobrazujeme pouze tyto sloupce z důvodu přehlednosti, ale aplikace interně uchovává všechny informace transakcí. Pokud chceme zobrazit více informací o dané transakci, 
 můžeme na ni kliknout a poté kliknout na tlačítko \textbf{Upravit}, tím se nám zobrazí okno s kompletními informacemi o dané transakci (viz Obrázek \ref{fig:edit_transaction_window}).Tohle tlačítko slouží i 
 pro editaci transakce (viz sekce Editace transakcí).
 \subsubsection{Filtrování transakcí}
@@ -688,7 +683,7 @@ viz obrázek \ref{fig:rolldown}).
 \end{figure} 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{rolldown.png}
+    \includegraphics[width=0.3\textwidth]{rolldown.png}
     \caption{Rolldown menu pro výběr kategorie}
     \label{fig:rolldown}
 \end{figure}
@@ -710,7 +705,7 @@ Tento list musí obsahovat sloupce: \textbf{Datum, Doklad, Zdroj, Firma, Text, M
 existujícím nebo je nahradit (viz Obrázek \ref{fig:import_options}).
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{import_options.png}
+    \includegraphics[width=0.5\textwidth]{import_options.png}
     \caption{Možnosti importu transakcí}
     \label{fig:import_options}
 \end{figure}
@@ -723,15 +718,14 @@ Při kliknutí na tlačítko \textbf{Přidat záznam} se zobrazí okno pro manu�
     \caption{Okno pro přidání nové transakce}
     \label{fig:add_transaction_window}
 \end{figure}
-Uživatel vyplní požadované informace o transakci a klikne na tlačítko \textbf{Uložit}, tím se nová transakce přidá do seznamu. Nutné položky \textbf{Datum}, \textbf{Co} a \textbf{Částka} jsou označeny hvězdičkou (*). O MD/D 
-se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
+Uživatel vyplní požadované informace o transakci a klikne na tlačítko \textbf{Uložit}, tím se nová transakce přidá do seznamu. Nutné položky \textbf{Datum}, \textbf{Co} a \textbf{Částka} jsou označeny hvězdičkou (*). 
+O \textbf{MD/D} se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
 
 Aplikace po přidání nové transakce automaticky určí kategorii a typ transakce na základě hodnot v poli \textbf{Co} a \textbf{Částka}. Pokud kategorie neexistuje v účetní osnově, transakce zůstane nezařazená 
 a je potřeba ji zařadit ručně (viz sekce Tvorba osnovy).
 
 Pro editaci existující transakce je potřeba ji nejdříve vybrat v seznamu a poté kliknout na tlačítko \textbf{Upravit} (viz Obrázek \ref{fig:functions}). Tím se nám zobrazí okno pro úpravu transakce 
 (viz Obrázek \ref{fig:edit_transaction_window}).
-Uživatel může upravit požadované
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{edit_transaction_window.png}
@@ -739,21 +733,22 @@ Uživatel může upravit požadované
     \label{fig:edit_transaction_window}
 \end{figure}
 Editování transakcí je obdobné jako přidávání nových transakcí, uživatel může změnit jakékoliv pole a poté kliknout na tlačítko \textbf{Uložit} pro uložení změn. Nutné položky \textbf{Datum}, \textbf{Co} 
-a \textbf{Částka} jsou označeny hvězdičkou (*). O MD/D se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
+a \textbf{Částka} jsou označeny hvězdičkou (*). O \textbf{MD/D} se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
 
-Aplikace po uložení změn automaticky aktualizuje kategorii a typ transakce na základě nových hodnot v poli \textbf{Co} a \textbf{Částka}. účetní osnova a rozpočet se tímto nijak neovlivní, pouze se změní zařazení dané 
+Aplikace po uložení změn automaticky aktualizuje kategorii a typ transakce na základě nových hodnot v poli \textbf{Co} a \textbf{Částka}. Účetní osnova a rozpočet se tímto nijak neovlivní, pouze se změní zařazení dané 
 transakce.
 \subsubsection{Mazání transakcí}
 Pro smazání transakce je potřeba ji nejdříve vybrat v seznamu a poté kliknout na tlačítko \textbf{Smazat} (viz Obrázek \ref{fig:functions}). Aplikace se nás ještě zeptá na potvrzení smazání 
 (viz Obrázek \ref{fig:delete_confirm}).
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{delete_confirm.png}
+    \includegraphics[width=0.5\textwidth]{delete_confirm.png}
     \caption{Potvrzení smazání transakce}
     \label{fig:delete_confirm}
 \end{figure}
-Po potvrzení se vybraná transakce smaže ze seznamu. Mazání transakcí nám neovlivňuje účetní osnovu ani rozpočet, pouze se odstraní z historie transakcí (ovlivní tedy pouze dashboard, 
-pokud je daná transakce součástí účetní osnovy).
+Po potvrzení se vybraná transakce smaže ze seznamu. 
+
+Mazání transakcí nám neovlivňuje účetní osnovu, ale dynamicky aktualizuje přehledy historických a aktuálních transakcí v záložce \textbf{Rozpočet} a \textbf{Dashboard}.
 \subsection{Export dat}
 Aplikace prozatím umožňuje pouze jeden druh exportu, a to export rozpočtových dat ve formě CSV souboru. 
 \subsubsection{Export rozpočtu}
@@ -766,13 +761,25 @@ Pro export rozpočtu je potřeba kliknout na tlačítko \textbf{Soubor}, které 
 \end{figure}
 Zde najdeme možnost \textbf{Export rozpočet do CSV}, po kliknutí na tuto možnost se nám zobrazí dialogové okno pro výběr umístění a názvu exportovaného souboru. Po potvrzení se rozpočet exportuje do zvoleného 
 umístění ve formátu CSV.
+
+Tento export je užitečný když uživatel má již vytvořený rozpočet (nebo jeho část) a chce jej sdílet nebo zálohovat ve formátu, který je snadno čitelný a kompatibilní s jinými aplikacemi.
+
+Pokud se uživatel bude snažit exportovat rozpočet, aniž by měl nastavený rozpočet, aplikace ho na to upozorní vyskakovacím oknem (viz Obrázek \ref{fig:export_error}) a export se nespustí.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{export_error.png}
+    \caption{Chybové hlášení při pokusu o export bez nastaveného rozpočtu}
+    \label{fig:export_error}
+\end{figure}
 %% Povinné závěry
 \begin{kiconclusions}
 Cílem této bakalářské práce bylo navrhnout a implementovat desktopovou aplikaci pro tvorbu a správu rozpočtu, která by nahradila stávající manuální proces založený na tabulkovém procesoru Microsoft Excel. 
 
 V rámci práce byla provedena analýza existujících řešení, která potvrdila, že ačkoliv jsou nástroje jako Excel vysoce flexibilní, postrádají potřebnou automatizaci a validaci dat. Na základě těchto zjištění byla navržena aplikace v jazyce Python s využitím knihovny Tkinter pro grafické rozhraní a databáze SQLite pro ukládání dat.
 
-Výsledná aplikace úspěšně naplňuje stanovené cíle. Umožňuje importovat transakce z externích zdrojů, automaticky je kategorizovat a na základě toho tvořit účetní osnovu, která zjednoduší sestavení rozpočtu. Největší výzvou při návrhu bylo nalezení rovnováhy mezi automatizací a flexibilitou. Podařilo se vytvořit systém, který většinu rutinních úkonů provádí automaticky (např. detekce typu transakce, párování kategorií), ale zároveň umožňuje uživateli kdykoliv zasáhnout, upravit strukturu osnovy nebo manuálně přeřadit položky.
+Výsledná aplikace úspěšně naplňuje stanovené cíle. Umožňuje importovat transakce z excelu nebo manuálně, automaticky je kategorizovat a na základě toho tvořit účetní osnovu, která zjednoduší sestavení rozpočtu. 
+
+Největší výzvou při návrhu bylo nalezení rovnováhy mezi automatizací a flexibilitou. Podařilo se vytvořit systém, který většinu rutinních úkonů provádí automaticky (např. detekce typu transakce, párování kategorií), ale zároveň umožňuje uživateli kdykoliv zasáhnout, upravit strukturu osnovy nebo manuálně přeřadit položky.
 
 Zvolená technologie Tkinter se ukázala jako vhodná pro rychlý vývoj desktopové aplikace, nicméně při implementaci složitějších vizualizací a moderních UI prvků narážela na své limity. Pro budoucí rozvoj aplikace by bylo vhodné zvážit přechod na modernější framework nebo webové rozhraní, které by umožnilo snadnější přístup z více zařízení a modernější design uživatelského rozhraní.
 
