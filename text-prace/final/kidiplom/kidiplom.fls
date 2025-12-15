@@ -749,6 +749,12 @@ INPUT .\obrazky\delete_confirm.png
 INPUT .\obrazky\delete_confirm.png
 INPUT .\obrazky\delete_confirm.png
 INPUT .\obrazky\delete_confirm.png
+INPUT .\obrazky\export_menu.png
+INPUT .\obrazky\export_menu.png
+INPUT .\obrazky\export_menu.png
+INPUT .\obrazky\export_menu.png
+INPUT .\obrazky\export_menu.png
+INPUT .\obrazky\export_menu.png
 OUTPUT kidiplom.loe
 INPUT kidiplom.aux
 INPUT kidiplom.run.xml

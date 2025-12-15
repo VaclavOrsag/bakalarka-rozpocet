@@ -80,6 +80,10 @@ class App:
         """
         Spustí dialog pro export rozpočtových dat do CSV.
         """
+        if not db.has_any_budget(self.profile_path):
+            messagebox.showwarning("Export není možný", "Nemáte nastavený žádný rozpočet k exportu.")
+            return
+
         filepath = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV soubory", "*.csv")])
         if filepath:
             if file_exporter.export_to_csv(filepath, self.profile_path):

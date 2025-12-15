@@ -41,9 +41,10 @@
 \contentsline {subsubsection}{\numberline {6.7.1}Vizualizace transakcí}{39}{subsubsection.6.7.1}%
 \contentsline {subsubsection}{\numberline {6.7.2}Filtrování transakcí}{40}{subsubsection.6.7.2}%
 \contentsline {subsubsection}{\numberline {6.7.3}Import transakcí}{40}{subsubsection.6.7.3}%
-\contentsline {subsubsection}{\numberline {6.7.4}Editace transakcí}{42}{subsubsection.6.7.4}%
-\contentsline {subsubsection}{\numberline {6.7.5}Mazání transakcí}{43}{subsubsection.6.7.5}%
-\contentsline {section}{Z\'av\v er}{45}{section*.50}%
+\contentsline {subsubsection}{\numberline {6.7.4}Mazání transakcí}{43}{subsubsection.6.7.4}%
+\contentsline {subsection}{\numberline {6.8}Export dat}{44}{subsection.6.8}%
+\contentsline {subsubsection}{\numberline {6.8.1}Export rozpočtu}{44}{subsubsection.6.8.1}%
+\contentsline {section}{Z\'av\v er}{45}{section*.51}%
 \babel@toc {czech}{}\relax 
 \babel@toc {czech}{}\relax 
 \contentsline {section}{\numberline {A}Obsah přiloženého média}{46}{appendix.A}%

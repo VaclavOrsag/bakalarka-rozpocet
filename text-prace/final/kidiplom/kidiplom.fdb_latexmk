@@ -1,18 +1,18 @@
 # Fdb version 4
-["biber kidiplom"] 0 "kidiplom.bcf" "kidiplom.bbl" "kidiplom" 1765745057.16495 -1
+["biber kidiplom"] 0 "kidiplom.bcf" "kidiplom.bbl" "kidiplom" 1765806201.12941 -1
   "bibliografie.bib" 1764857201 4922 d52777d7240f85c9a2e8b2b7fbcf7b44 ""
-  "kidiplom.bcf" 1765745056 100035 51885fcbc197b6432934bc6811f598c1 "pdflatex"
+  "kidiplom.bcf" 1765806200 100035 51885fcbc197b6432934bc6811f598c1 "pdflatex"
   (generated)
   "kidiplom.bbl"
   "kidiplom.blg"
   (rewritten before read)
-["makeindex kidiplom.idx"] 1765744533.71315 "kidiplom.idx" "kidiplom.ind" "kidiplom" 1765745057.16457 0
-  "kidiplom.idx" 1765745052 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+["makeindex kidiplom.idx"] 1765744533.71315 "kidiplom.idx" "kidiplom.ind" "kidiplom" 1765806201.12906 0
+  "kidiplom.idx" 1765806196 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   (generated)
   "kidiplom.ilg"
   "kidiplom.ind"
   (rewritten before read)
-["pdflatex"] 1765745052.13002 "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" "kidiplom.pdf" "kidiplom" 1765745057.16555 0
+["pdflatex"] 1765806196.09441 "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" "kidiplom.pdf" "kidiplom" 1765806201.12999 0
   "C:/Users/vacla/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1764860723 122053 af0347cf142371fbb1a8708ace8c3dce ""
   "C:/Users/vacla/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764860339 13333511 52cc03aa535bff964163ccfdeb4df3b9 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -185,7 +185,7 @@
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/tex/latex/xfor/xfor.sty" 1233849756 2689 44855b72da58344b1c1d9b3087bce6ca ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" 1765745046 56246 4195b901136d5fd836950e80a3dab8ef ""
+  "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" 1765806190 57032 7cbf203c1acb09eb51067f3bac0cecc8 ""
   "czech-iso.lbx" 1764857201 294 7ce53d925459ba9e674024c57d6c7af9 ""
   "czech.lbx" 1764857201 23857 01707bd906156286610d5e5bcb06aa09 ""
   "english-iso.lbx" 1764857201 292 ce1004c4c0d380cc5ae6d84de8c03da6 ""
@@ -195,16 +195,16 @@
   "iso-numeric.cbx" 1764857201 73 45828f8df9dead5135d2c8a727f5b601 ""
   "iso.bbx" 1765744508 13233 9f9e9c852fe772bfe1efaacc6b415eb7 ""
   "kibase.sty" 1765744508 23853 021ae8236751950ac5e18f6a5bcf1da7 ""
-  "kidiplom.aux" 1765745056 34963 e1fb8563846ec1ec9f9bf5fd75d95db9 "pdflatex"
+  "kidiplom.aux" 1765806200 35522 c3db729e96f961b77d34afb5f130448e "pdflatex"
   "kidiplom.bbl" 1764860486 28002 79b869f578a16db59681cafe498a3616 "biber kidiplom"
   "kidiplom.cls" 1764857201 18598 7684b2d13ac67d7b017c4eea1e12fa0c ""
   "kidiplom.glsdefs" 1765549105 525 791a05cd0a9f8650067804d8f5ff3f41 ""
   "kidiplom.ind" 1765744533 0 d41d8cd98f00b204e9800998ecf8427e "makeindex kidiplom.idx"
-  "kidiplom.loe" 1765745056 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "kidiplom.lol" 1765745053 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "kidiplom.run.xml" 1765745056 2535 2737d3f684fc863fcc16a4e0d9d0a735 "pdflatex"
-  "kidiplom.tex" 1765745046 56246 4195b901136d5fd836950e80a3dab8ef ""
-  "kidiplom.toc" 1765745056 4171 01d81980fde5b3fe9f6416d0f632e9cd "pdflatex"
+  "kidiplom.loe" 1765806200 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "kidiplom.lol" 1765806197 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "kidiplom.run.xml" 1765806200 2535 2737d3f684fc863fcc16a4e0d9d0a735 "pdflatex"
+  "kidiplom.tex" 1765806190 57032 7cbf203c1acb09eb51067f3bac0cecc8 ""
+  "kidiplom.toc" 1765806200 4246 54ab6359d946fe601b2ca27c0f73d740 "pdflatex"
   "obrazky/add_sub_1.png" 1765561828 16132 e3cdbc663c0f60d45109868b3d991a49 ""
   "obrazky/add_sub_2.png" 1765561840 16346 e0842d2b3c51a504ecee92df77f1dcc5 ""
   "obrazky/add_transaction_window.png" 1765649431 14327 961f131c603943ab69338a6b0ed746e5 ""
@@ -226,6 +226,7 @@
   "obrazky/edit_transaction_window.png" 1765649598 20585 9ac14090ec980270cd6071a528b90538 ""
   "obrazky/empty_budget_tab.png" 1765565586 41732 11fc8ec9530c14fb6b7c6cde607809bb ""
   "obrazky/er_diagram.png" 1765741639 1080423 4044155fd113255af6e2dab72d93bd03 ""
+  "obrazky/export_menu.png" 1765806029 7261 d992c943f399b30ff23946fe315172eb ""
   "obrazky/filters.png" 1765647296 4219 58aee016d77202edc738b14bc908214e ""
   "obrazky/final_chart.png" 1765562616 14874 e3fb10be4968b581cd923ef62b340979 ""
   "obrazky/first_budget_info.png" 1765566467 8983 fd13d273782d5c3bef883b032a9047bd ""

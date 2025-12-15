@@ -729,7 +729,6 @@ se aplikace postará sama na základě hodnoty v částce (kladná/ záporná).
 Aplikace po přidání nové transakce automaticky určí kategorii a typ transakce na základě hodnot v poli \textbf{Co} a \textbf{Částka}. Pokud kategorie neexistuje v účetní osnově, transakce zůstane nezařazená 
 a je potřeba ji zařadit ručně (viz sekce Tvorba osnovy).
 
-\subsubsection{Editace transakcí}
 Pro editaci existující transakce je potřeba ji nejdříve vybrat v seznamu a poté kliknout na tlačítko \textbf{Upravit} (viz Obrázek \ref{fig:functions}). Tím se nám zobrazí okno pro úpravu transakce 
 (viz Obrázek \ref{fig:edit_transaction_window}).
 Uživatel může upravit požadované
@@ -755,7 +754,18 @@ Pro smazání transakce je potřeba ji nejdříve vybrat v seznamu a poté klikn
 \end{figure}
 Po potvrzení se vybraná transakce smaže ze seznamu. Mazání transakcí nám neovlivňuje účetní osnovu ani rozpočet, pouze se odstraní z historie transakcí (ovlivní tedy pouze dashboard, 
 pokud je daná transakce součástí účetní osnovy).
-
+\subsection{Export dat}
+Aplikace prozatím umožňuje pouze jeden druh exportu, a to export rozpočtových dat ve formě CSV souboru. 
+\subsubsection{Export rozpočtu}
+Pro export rozpočtu je potřeba kliknout na tlačítko \textbf{Soubor}, které nalezneme vždy nalevo nahoře v hlavním menu aplikace. Po kliknutí se nám zobrazí rolovací menu (viz Obrázek \ref{fig:export_menu}). 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{export_menu.png}
+    \caption{Menu pro export dat}
+    \label{fig:export_menu}
+\end{figure}
+Zde najdeme možnost \textbf{Export rozpočet do CSV}, po kliknutí na tuto možnost se nám zobrazí dialogové okno pro výběr umístění a názvu exportovaného souboru. Po potvrzení se rozpočet exportuje do zvoleného 
+umístění ve formátu CSV.
 %% Povinné závěry
 \begin{kiconclusions}
 Cílem této bakalářské práce bylo navrhnout a implementovat desktopovou aplikaci pro tvorbu a správu rozpočtu, která by nahradila stávající manuální proces založený na tabulkovém procesoru Microsoft Excel. 
