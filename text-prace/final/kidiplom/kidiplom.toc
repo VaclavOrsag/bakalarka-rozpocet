@@ -25,26 +25,26 @@
 \contentsline {subsubsection}{\numberline {5.4.2}Optimalizace výpočtů (Pre-computed Metrics)}{19}{subsubsection.5.4.2}%
 \contentsline {section}{\numberline {6}Uživatelská příručka}{20}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Spuštění aplikace}{20}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Importování transakcí z excelu}{23}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Tvorba osnovy}{24}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.2}Importování transakcí z excelu}{22}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Tvorba osnovy}{23}{subsection.6.3}%
 \contentsline {subsubsection}{\numberline {6.3.1}Přidání hlavních kategorií}{25}{subsubsection.6.3.1}%
-\contentsline {subsubsection}{\numberline {6.3.2}Přidání podkategorií}{27}{subsubsection.6.3.2}%
-\contentsline {subsection}{\numberline {6.4}Tvorba rozpočtu}{28}{subsection.6.4}%
-\contentsline {subsubsection}{\numberline {6.4.1}Nastavení rozpočtu}{29}{subsubsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.5}Analýza transakcí}{32}{subsection.6.5}%
+\contentsline {subsubsection}{\numberline {6.3.2}Přidání podkategorií}{26}{subsubsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.4}Tvorba rozpočtu}{27}{subsection.6.4}%
+\contentsline {subsubsection}{\numberline {6.4.1}Nastavení rozpočtu}{28}{subsubsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.5}Analýza transakcí}{31}{subsection.6.5}%
 \contentsline {subsubsection}{\numberline {6.5.1}Hierarchický pohled}{32}{subsubsection.6.5.1}%
-\contentsline {subsubsection}{\numberline {6.5.2}Presety}{34}{subsubsection.6.5.2}%
-\contentsline {subsection}{\numberline {6.6}Dashboard}{35}{subsection.6.6}%
-\contentsline {subsubsection}{\numberline {6.6.1}Hlavní přehled}{36}{subsubsection.6.6.1}%
-\contentsline {subsubsection}{\numberline {6.6.2}Měsíční analýza}{37}{subsubsection.6.6.2}%
-\contentsline {subsection}{\numberline {6.7}Záložka transakce}{39}{subsection.6.7}%
-\contentsline {subsubsection}{\numberline {6.7.1}Vizualizace transakcí}{39}{subsubsection.6.7.1}%
-\contentsline {subsubsection}{\numberline {6.7.2}Filtrování transakcí}{40}{subsubsection.6.7.2}%
-\contentsline {subsubsection}{\numberline {6.7.3}Import transakcí}{40}{subsubsection.6.7.3}%
-\contentsline {subsubsection}{\numberline {6.7.4}Mazání transakcí}{43}{subsubsection.6.7.4}%
-\contentsline {subsection}{\numberline {6.8}Export dat}{44}{subsection.6.8}%
-\contentsline {subsubsection}{\numberline {6.8.1}Export rozpočtu}{44}{subsubsection.6.8.1}%
-\contentsline {section}{Z\'av\v er}{46}{section*.50}%
+\contentsline {subsubsection}{\numberline {6.5.2}Presety}{33}{subsubsection.6.5.2}%
+\contentsline {subsection}{\numberline {6.6}Dashboard}{34}{subsection.6.6}%
+\contentsline {subsubsection}{\numberline {6.6.1}Hlavní přehled}{35}{subsubsection.6.6.1}%
+\contentsline {subsubsection}{\numberline {6.6.2}Měsíční analýza}{36}{subsubsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.7}Záložka transakce}{38}{subsection.6.7}%
+\contentsline {subsubsection}{\numberline {6.7.1}Vizualizace transakcí}{38}{subsubsection.6.7.1}%
+\contentsline {subsubsection}{\numberline {6.7.2}Filtrování transakcí}{39}{subsubsection.6.7.2}%
+\contentsline {subsubsection}{\numberline {6.7.3}Import transakcí}{39}{subsubsection.6.7.3}%
+\contentsline {subsubsection}{\numberline {6.7.4}Mazání transakcí}{42}{subsubsection.6.7.4}%
+\contentsline {subsection}{\numberline {6.8}Export dat}{43}{subsection.6.8}%
+\contentsline {subsubsection}{\numberline {6.8.1}Export rozpočtu}{43}{subsubsection.6.8.1}%
+\contentsline {section}{Z\'av\v er}{45}{section*.50}%
 \babel@toc {czech}{}\relax 
 \babel@toc {czech}{}\relax 
-\contentsline {section}{\numberline {A}Obsah přiloženého média}{47}{appendix.A}%
+\contentsline {section}{\numberline {A}Obsah přiloženého média}{46}{appendix.A}%
