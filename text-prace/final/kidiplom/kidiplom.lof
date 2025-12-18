@@ -3,47 +3,47 @@
 \contentsline {figure}{\numberline {2}{\ignorespaces Uspořádání widgetů před změnou}}{11}{figure.caption.5}%
 \contentsline {figure}{\numberline {3}{\ignorespaces Uspořádání widgetů po změně}}{11}{figure.caption.6}%
 \contentsline {figure}{\numberline {4}{\ignorespaces Reporty ve Wallet}}{12}{figure.caption.7}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Entitně-relační diagram (ERD) databáze}}{18}{figure.caption.8}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Uvítací okno aplikace}}{21}{figure.caption.9}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Výběr profilu}}{21}{figure.caption.10}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Vytvoření nového profilu}}{22}{figure.caption.11}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Hlavní okno aplikace}}{22}{figure.caption.12}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Výběr souboru pro import}}{23}{figure.caption.13}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Potvrzení importu}}{23}{figure.caption.14}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Home tab po importu}}{24}{figure.caption.15}%
-\contentsline {figure}{\numberline {13}{\ignorespaces Tab účetní osnova}}{24}{figure.caption.16}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Volba jména custom kategorie}}{25}{figure.caption.17}%
-\contentsline {figure}{\numberline {15}{\ignorespaces Volba typu custom kategorie}}{25}{figure.caption.18}%
-\contentsline {figure}{\numberline {16}{\ignorespaces Vzhled custom kategorie v účetní osnově}}{25}{figure.caption.19}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Upozornění, že rozpočet je připraven k použití}}{26}{figure.caption.20}%
-\contentsline {figure}{\numberline {18}{\ignorespaces Přidání podkategorie - krok 1}}{26}{figure.caption.21}%
-\contentsline {figure}{\numberline {19}{\ignorespaces Přidání podkategorie - krok 2}}{26}{figure.caption.22}%
-\contentsline {figure}{\numberline {20}{\ignorespaces Finální podoba účetní osnovy}}{27}{figure.caption.23}%
-\contentsline {figure}{\numberline {21}{\ignorespaces Home tab po vytvoření účetní osnovy}}{27}{figure.caption.24}%
-\contentsline {figure}{\numberline {22}{\ignorespaces Tab rozpočet před vytvořením rozpočtu}}{28}{figure.caption.25}%
-\contentsline {figure}{\numberline {23}{\ignorespaces Úprava rozpočtu - krok 1}}{29}{figure.caption.26}%
-\contentsline {figure}{\numberline {24}{\ignorespaces Úprava rozpočtu - krok 2}}{29}{figure.caption.27}%
-\contentsline {figure}{\numberline {25}{\ignorespaces Informace o vytvoření prvního rozpočtu}}{30}{figure.caption.28}%
-\contentsline {figure}{\numberline {26}{\ignorespaces Import aktuálních dat}}{30}{figure.caption.29}%
-\contentsline {figure}{\numberline {27}{\ignorespaces Home tab po vytvoření prvního rozpočtu}}{31}{figure.caption.30}%
-\contentsline {figure}{\numberline {28}{\ignorespaces Potvrzení importu aktuálních dat}}{31}{figure.caption.31}%
-\contentsline {figure}{\numberline {29}{\ignorespaces Panel nástrojů v záložce Analýza}}{32}{figure.caption.32}%
-\contentsline {figure}{\numberline {30}{\ignorespaces Tab Analýza}}{32}{figure.caption.33}%
-\contentsline {figure}{\numberline {31}{\ignorespaces Rozbalení a sbalení hierarchie}}{33}{figure.caption.34}%
-\contentsline {figure}{\numberline {32}{\ignorespaces Nabídka presetů}}{34}{figure.caption.35}%
-\contentsline {figure}{\numberline {33}{\ignorespaces Nastavení vlastních řádků pro hierarchii}}{34}{figure.caption.36}%
-\contentsline {figure}{\numberline {34}{\ignorespaces Zamknutý dashboard}}{35}{figure.caption.37}%
-\contentsline {figure}{\numberline {35}{\ignorespaces Kompletní dashboard}}{36}{figure.caption.38}%
-\contentsline {figure}{\numberline {36}{\ignorespaces Měsíční analýza}}{37}{figure.caption.39}%
-\contentsline {figure}{\numberline {37}{\ignorespaces Záložka transakce}}{38}{figure.caption.40}%
-\contentsline {figure}{\numberline {38}{\ignorespaces Filtrování transakcí}}{39}{figure.caption.41}%
-\contentsline {figure}{\numberline {39}{\ignorespaces Rolldown menu pro výběr kategorie}}{39}{figure.caption.42}%
-\contentsline {figure}{\numberline {40}{\ignorespaces Sekce pro akce s transakcemi}}{39}{figure.caption.43}%
-\contentsline {figure}{\numberline {41}{\ignorespaces Možnosti importu transakcí}}{40}{figure.caption.44}%
-\contentsline {figure}{\numberline {42}{\ignorespaces Okno pro přidání nové transakce}}{41}{figure.caption.45}%
-\contentsline {figure}{\numberline {43}{\ignorespaces Okno pro úpravu transakce}}{42}{figure.caption.46}%
-\contentsline {figure}{\numberline {44}{\ignorespaces Potvrzení smazání transakce}}{43}{figure.caption.47}%
-\contentsline {figure}{\numberline {45}{\ignorespaces Menu pro export dat}}{43}{figure.caption.48}%
-\contentsline {figure}{\numberline {46}{\ignorespaces Chybové hlášení při pokusu o export bez nastaveného rozpočtu}}{44}{figure.caption.49}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Entitně-relační diagram (ERD) databáze}}{17}{figure.caption.8}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Uvítací okno aplikace}}{20}{figure.caption.9}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Výběr profilu}}{20}{figure.caption.10}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Vytvoření nového profilu}}{21}{figure.caption.11}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Hlavní okno aplikace}}{21}{figure.caption.12}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Výběr souboru pro import}}{22}{figure.caption.13}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Potvrzení importu}}{22}{figure.caption.14}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Home tab po importu}}{23}{figure.caption.15}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Tab účetní osnova}}{23}{figure.caption.16}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Volba jména custom kategorie}}{24}{figure.caption.17}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Volba typu custom kategorie}}{24}{figure.caption.18}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Vzhled custom kategorie v účetní osnově}}{24}{figure.caption.19}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Upozornění, že rozpočet je připraven k použití}}{25}{figure.caption.20}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Přidání podkategorie - krok 1}}{25}{figure.caption.21}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Přidání podkategorie - krok 2}}{25}{figure.caption.22}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Finální podoba účetní osnovy}}{26}{figure.caption.23}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Home tab po vytvoření účetní osnovy}}{26}{figure.caption.24}%
+\contentsline {figure}{\numberline {22}{\ignorespaces Tab rozpočet před vytvořením rozpočtu}}{27}{figure.caption.25}%
+\contentsline {figure}{\numberline {23}{\ignorespaces Úprava rozpočtu - krok 1}}{28}{figure.caption.26}%
+\contentsline {figure}{\numberline {24}{\ignorespaces Úprava rozpočtu - krok 2}}{28}{figure.caption.27}%
+\contentsline {figure}{\numberline {25}{\ignorespaces Informace o vytvoření prvního rozpočtu}}{29}{figure.caption.28}%
+\contentsline {figure}{\numberline {26}{\ignorespaces Import aktuálních dat}}{29}{figure.caption.29}%
+\contentsline {figure}{\numberline {27}{\ignorespaces Home tab po vytvoření prvního rozpočtu}}{30}{figure.caption.30}%
+\contentsline {figure}{\numberline {28}{\ignorespaces Potvrzení importu aktuálních dat}}{30}{figure.caption.31}%
+\contentsline {figure}{\numberline {29}{\ignorespaces Panel nástrojů v záložce Analýza}}{31}{figure.caption.32}%
+\contentsline {figure}{\numberline {30}{\ignorespaces Tab Analýza}}{31}{figure.caption.33}%
+\contentsline {figure}{\numberline {31}{\ignorespaces Rozbalení a sbalení hierarchie}}{32}{figure.caption.34}%
+\contentsline {figure}{\numberline {32}{\ignorespaces Nabídka presetů}}{33}{figure.caption.35}%
+\contentsline {figure}{\numberline {33}{\ignorespaces Nastavení vlastních řádků pro hierarchii}}{33}{figure.caption.36}%
+\contentsline {figure}{\numberline {34}{\ignorespaces Zamknutý dashboard}}{34}{figure.caption.37}%
+\contentsline {figure}{\numberline {35}{\ignorespaces Kompletní dashboard}}{35}{figure.caption.38}%
+\contentsline {figure}{\numberline {36}{\ignorespaces Měsíční analýza}}{36}{figure.caption.39}%
+\contentsline {figure}{\numberline {37}{\ignorespaces Záložka transakce}}{37}{figure.caption.40}%
+\contentsline {figure}{\numberline {38}{\ignorespaces Filtrování transakcí}}{38}{figure.caption.41}%
+\contentsline {figure}{\numberline {39}{\ignorespaces Rolldown menu pro výběr kategorie}}{38}{figure.caption.42}%
+\contentsline {figure}{\numberline {40}{\ignorespaces Sekce pro akce s transakcemi}}{38}{figure.caption.43}%
+\contentsline {figure}{\numberline {41}{\ignorespaces Možnosti importu transakcí}}{39}{figure.caption.44}%
+\contentsline {figure}{\numberline {42}{\ignorespaces Okno pro přidání nové transakce}}{40}{figure.caption.45}%
+\contentsline {figure}{\numberline {43}{\ignorespaces Okno pro úpravu transakce}}{41}{figure.caption.46}%
+\contentsline {figure}{\numberline {44}{\ignorespaces Potvrzení smazání transakce}}{42}{figure.caption.47}%
+\contentsline {figure}{\numberline {45}{\ignorespaces Menu pro export dat}}{42}{figure.caption.48}%
+\contentsline {figure}{\numberline {46}{\ignorespaces Chybové hlášení při pokusu o export bez nastaveného rozpočtu}}{43}{figure.caption.49}%
 \babel@toc {czech}{}\relax 
 \babel@toc {czech}{}\relax 

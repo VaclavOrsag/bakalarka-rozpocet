@@ -750,6 +750,9 @@ INPUT .\obrazky\export_error.png
 INPUT .\obrazky\export_error.png
 INPUT .\obrazky\export_error.png
 INPUT .\obrazky\export_error.png
+INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrb8t.tfm
+INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\courier\pcrb8t.vf
+INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrb8r.tfm
 INPUT kidiplom.aux
 INPUT kidiplom.run.xml
 OUTPUT kidiplom.run.xml
@@ -759,5 +762,7 @@ INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\nowacki\iwona\iwo
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\nowacki\iwona\iwonali.pfb
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\nowacki\iwona\iwonam.pfb
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\nowacki\iwona\iwonam.pfb
+INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\urw\courier\ucrb8a.pfb
+INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\urw\courier\ucrb8a.pfb
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\urw\courier\ucrr8a.pfb
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\type1\urw\courier\ucrr8a.pfb

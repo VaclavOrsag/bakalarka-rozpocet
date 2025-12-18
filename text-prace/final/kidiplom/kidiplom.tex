@@ -253,7 +253,7 @@ Aplikace využívá relační databázi SQLite. Každý uživatelský profil má
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{obrazky/er_diagram.png}
+    \includegraphics[width=0.60\textwidth]{obrazky/er_diagram.png}
     \caption{Entitně-relační diagram (ERD) databáze}
     \label{fig:erd_detail}
 \end{figure}
@@ -485,7 +485,7 @@ První(prázdný) rozpočet bude vypadat takto v zavislosti na osnově: (viz Obr
 
 Vidíme 2 hlavní sekce - příjmy a výdaje, které odpovídají naší účetní osnově. Tyto sekce jsou rozděleny 4 sloupce, první sloupec \textbf{kategorie} zobrazuje hierarchii dle naši účetní osnovy, druhý sloupec \textbf{minulé období}
 je součet všech transakcí v dané kategorii z minulých transakcí, třetí sloupec je \textbf{rozpočet} zde budeme editovat plánované rozpočty pro jednotlivé kategorie a čtvrtý sloupec je \textbf{plnění}, zde se zobrazuje
-aktuální stav plnění rozpočtu na základě importovaných aktualních transakcí.
+aktuální stav plnění rozpočtu na základě importovaných aktualních transakcí. Dole vidíme souhrnné hodnoty pro příjmy a výdaje. 
 
 \subsubsection{Nastavení rozpočtu}
 Pro nastavení rozpočtu dané kategorie je potřeba dvojkliknout na buňku ve sloupci rozpočet na řádku dané kategorie (viz Obrázek \ref{fig:edit_budget_1}) zadat chtěnou částku 
@@ -791,11 +791,27 @@ Vytvořená aplikace však již v současné podobě představuje funkční a ef
 %% Přílohy
 \appendix
 
-\section{Obsah přiloženého média}
-\begin{itemize}
-    \item Zdrojové kódy aplikace
-    \item Text práce ve formátu PDF
-    \item Instalační soubory
-\end{itemize}
+\section{Obsah elektronických dat}
+\begin{description}
+
+\item[\texttt{text/}] \hfill \\
+  Adresář s textem práce ve formátu PDF, vytvořený s~použitím
+  závazného stylu KI PřF UP v~Olomouci pro závěrečné práce, včetně
+  všech (textových) příloh, a~všechny soubory potřebné pro
+  bezproblémové vytvoření PDF dokumentu textu (případně v~ZIP
+  archivu), tj.~zdrojový text textu a příloh, vložené obrázky, apod.
+
+\item[\texttt{README.txt}] \hfill \\
+  Soubor obsahující základní informace o aplikaci, instrukce pro spuštění a popis přiložených testovacích dat.
+
+\item[\texttt{src/}] \hfill \\
+    Adresář obsahující kompletní zdrojové kódy aplikace.
+
+\item[\texttt{app/}] \hfill \\
+    Adresář obsahující zkompilovanou spustitelnou verzi aplikace (\texttt{.exe}) pro operační systém Windows.
+
+\item[\texttt{data/}] \hfill \\
+    Adresář obsahující ukázková data, která slouží k otestování funkcí aplikace.
+\end{description}
 
 \end{document}
