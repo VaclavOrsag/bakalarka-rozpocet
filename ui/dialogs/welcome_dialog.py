@@ -91,14 +91,42 @@ class WelcomeDialog:
         self.top.destroy()
 
     def confirm_create_empty(self) -> None:
-        """Otevře dialog pro vytvoření nového souboru profilu."""
-        filepath = filedialog.asksaveasfilename(
-            initialdir=self.profiles_dir,
-            title="Vytvořit nový prázdný profil",
-            defaultextension=".db", filetypes=[("Databázové soubory", "*.db")]
-        )
-        if filepath:
-            self.selected_profile_path = filepath
-            self.action = "create_empty"
-            self.top.destroy()
+        """Zobrazí formulář pro zadání názvu nového profilu."""
+        self.clear_frame()
+        ttk.Label(self.main_frame, text="Zadejte název nového profilu:", font=("Arial", 12)).pack(pady=10)
+        
+        self.profile_name_var = tk.StringVar()
+        entry = ttk.Entry(self.main_frame, textvariable=self.profile_name_var)
+        entry.pack(pady=5, padx=20, fill="x")
+        entry.focus()
+        
+        ttk.Button(self.main_frame, text="Vytvořit", command=self._perform_create_profile).pack(pady=10)
+        ttk.Button(self.main_frame, text="Zpět", command=self.show_initial_choice).pack()
+
+    def _perform_create_profile(self) -> None:
+        """Vytvoří cestu k novému profilu a zavře dialog."""
+        name = self.profile_name_var.get().strip()
+        if not name:
+            messagebox.showwarning("Chyba", "Zadejte název profilu.")
+            return
+            
+        # Sanitizace názvu souboru
+        invalid_chars = '<>:"/\\|?*'
+        for char in invalid_chars:
+            if char in name:
+                messagebox.showwarning("Chyba", f"Název profilu nesmí obsahovat znaky: {invalid_chars}")
+                return
+
+        if not name.endswith(".db"):
+            name += ".db"
+            
+        filepath = os.path.join(self.profiles_dir, name)
+        
+        if os.path.exists(filepath):
+            messagebox.showwarning("Chyba", "Profil s tímto názvem již existuje.")
+            return
+            
+        self.selected_profile_path = filepath
+        self.action = "create_empty"
+        self.top.destroy()
             
