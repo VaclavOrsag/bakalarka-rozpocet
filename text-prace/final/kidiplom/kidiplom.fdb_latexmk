@@ -1,22 +1,23 @@
 # Fdb version 4
-["biber kidiplom"] 0 "kidiplom.bcf" "kidiplom.bbl" "kidiplom" 1766080948.81886 -1
-  "bibliografie.bib" 1764857201 4922 d52777d7240f85c9a2e8b2b7fbcf7b44 ""
-  "kidiplom.bcf" 1766080948 100035 51885fcbc197b6432934bc6811f598c1 "pdflatex"
+["biber kidiplom"] 1766082027.33847 "kidiplom.bcf" "kidiplom.bbl" "kidiplom" 1766082785.93518 0
+  "bibliografie.bib" 1766081626 1522 95867fbf50928ea5b202176977f9fcba ""
+  "kidiplom.bcf" 1766082785 100929 ac366c44876bec8fd12a2773d60c3466 "pdflatex"
   (generated)
   "kidiplom.bbl"
   "kidiplom.blg"
   (rewritten before read)
-["makeindex kidiplom.idx"] 1765744533.71315 "kidiplom.idx" "kidiplom.ind" "kidiplom" 1766080948.81851 0
-  "kidiplom.idx" 1766080945 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+["makeindex kidiplom.idx"] 1766081759.74022 "kidiplom.idx" "kidiplom.ind" "kidiplom" 1766082785.93478 0
+  "kidiplom.idx" 1766082782 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   (generated)
   "kidiplom.ilg"
   "kidiplom.ind"
   (rewritten before read)
-["pdflatex"] 1766080944.92671 "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" "kidiplom.pdf" "kidiplom" 1766080948.81944 0
+["pdflatex"] 1766082781.93371 "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" "kidiplom.pdf" "kidiplom" 1766082785.93577 0
   "C:/Users/vacla/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1764860723 122053 af0347cf142371fbb1a8708ace8c3dce ""
   "C:/Users/vacla/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764860339 13333511 52cc03aa535bff964163ccfdeb4df3b9 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/iwona/ec-iwona.enc" 1280852356 2027 f8708480c25b8150843bb94b8b39c93f ""
+  "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/iwona/sy-iwona.enc" 1280852356 2607 4f90eff2cc240e3112f0965712b5fac0 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/iwona/ts1-iwona.enc" 1280852356 2498 0f0d8d7f399a2d1e2f1ba0b123477449 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/courier/pcrb8r.tfm" 1136765053 1292 3059476c50a24578715759f22652f3d0 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/courier/pcrb8t.tfm" 1136765053 1384 87406e4336af44af883a035f17f319d9 ""
@@ -189,7 +190,7 @@
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/tex/latex/xfor/xfor.sty" 1233849756 2689 44855b72da58344b1c1d9b3087bce6ca ""
   "C:/Users/vacla/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
-  "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" 1766080940 59747 b53011831af4411ffa77b833662e03d4 ""
+  "c:/Users/vacla/Desktop/thesis/bakalarka-rozpocet/text-prace/final/kidiplom/kidiplom.tex" 1766082777 62195 313accecb75835612ea69869aa6a95b1 ""
   "czech-iso.lbx" 1764857201 294 7ce53d925459ba9e674024c57d6c7af9 ""
   "czech.lbx" 1764857201 23857 01707bd906156286610d5e5bcb06aa09 ""
   "english-iso.lbx" 1764857201 292 ce1004c4c0d380cc5ae6d84de8c03da6 ""
@@ -199,16 +200,16 @@
   "iso-numeric.cbx" 1764857201 73 45828f8df9dead5135d2c8a727f5b601 ""
   "iso.bbx" 1765744508 13233 9f9e9c852fe772bfe1efaacc6b415eb7 ""
   "kibase.sty" 1765744508 23853 021ae8236751950ac5e18f6a5bcf1da7 ""
-  "kidiplom.aux" 1766080948 35618 c064c550668bb93aff17ce9eb830ec12 "pdflatex"
-  "kidiplom.bbl" 1764860486 28002 79b869f578a16db59681cafe498a3616 "biber kidiplom"
+  "kidiplom.aux" 1766082785 37242 0f1506b3b04e9e9070ce0fab0d0b81f5 "pdflatex"
+  "kidiplom.bbl" 1766082029 10567 934e9ab2b38b0106542573ae9c90f845 "biber kidiplom"
   "kidiplom.cls" 1764857201 18598 7684b2d13ac67d7b017c4eea1e12fa0c ""
   "kidiplom.glsdefs" 1765549105 525 791a05cd0a9f8650067804d8f5ff3f41 ""
-  "kidiplom.ind" 1765744533 0 d41d8cd98f00b204e9800998ecf8427e "makeindex kidiplom.idx"
-  "kidiplom.lof" 1766080948 5169 d610813f6e4b3a3587f0d54d44498d83 "pdflatex"
-  "kidiplom.lol" 1766080946 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "kidiplom.run.xml" 1766080948 2535 2737d3f684fc863fcc16a4e0d9d0a735 "pdflatex"
-  "kidiplom.tex" 1766080940 59747 b53011831af4411ffa77b833662e03d4 ""
-  "kidiplom.toc" 1766080948 4268 a91c70aec45869b1012758d88aa4bff9 "pdflatex"
+  "kidiplom.ind" 1766081759 0 d41d8cd98f00b204e9800998ecf8427e "makeindex kidiplom.idx"
+  "kidiplom.lof" 1766082785 5227 c3199aca0407b88f7df7d1c07f00ebdc "pdflatex"
+  "kidiplom.lol" 1766082783 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "kidiplom.run.xml" 1766082785 2535 2737d3f684fc863fcc16a4e0d9d0a735 "pdflatex"
+  "kidiplom.tex" 1766082777 62195 313accecb75835612ea69869aa6a95b1 ""
+  "kidiplom.toc" 1766082785 4435 c4fff4bf890710cc519467c6fedf6b30 "pdflatex"
   "obrazky/add_sub_1.png" 1765561828 16132 e3cdbc663c0f60d45109868b3d991a49 ""
   "obrazky/add_sub_2.png" 1765561840 16346 e0842d2b3c51a504ecee92df77f1dcc5 ""
   "obrazky/add_transaction_window.png" 1765649431 14327 961f131c603943ab69338a6b0ed746e5 ""

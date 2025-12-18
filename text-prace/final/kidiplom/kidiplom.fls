@@ -753,6 +753,7 @@ INPUT .\obrazky\export_error.png
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrb8t.tfm
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\courier\pcrb8t.vf
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrb8r.tfm
+INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\iwona\sy-iwona.enc
 INPUT kidiplom.aux
 INPUT kidiplom.run.xml
 OUTPUT kidiplom.run.xml

@@ -2157,6 +2157,14 @@
     <bcf:datasource type="file" datatype="bibtex">bibliografie.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
+    <bcf:citekey order="1" intorder="1">excel</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">quickbooks</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">wallet</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">python</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">tkinter</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">sqlite</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">pandas</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">mvc</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
@@ -2168,4 +2176,14 @@
     </bcf:sort>
   </bcf:sortingtemplate>
   <!-- DATALISTS -->
+  <bcf:datalist section="0"
+                name="none/global//global/global/global"
+                type="entry"
+                sortingtemplatename="none"
+                sortingnamekeytemplatename="global"
+                labelprefix=""
+                uniquenametemplatename="global"
+                labelalphanametemplatename="global"
+                namehashtemplatename="global">
+  </bcf:datalist>
 </bcf:controlfile>

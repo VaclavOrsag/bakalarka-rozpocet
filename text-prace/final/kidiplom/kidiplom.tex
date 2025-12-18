@@ -49,7 +49,7 @@ index
 %% Vlastní text závěrečné práce.
 
 \section{Úvod}
-V dnešní době je efektivní správa financí klíčová pro stabilitu osobních i firemních rozpočtů. Mnoho uživatelů, včetně odborníků, však stále spoléhá na tabulkové procesory, jako je Microsoft Excel. Ačkoliv jsou tyto nástroje flexibilní, při opakovaném zpracování velkého množství transakcí a tvorbě komplexních rozpočtů narážejí na své limity – proces je často zdlouhavý, manuální a náchylný k chybám.
+V dnešní době je efektivní správa financí klíčová pro stabilitu osobních i firemních rozpočtů. Mnoho uživatelů, včetně odborníků, však stále spoléhá na tabulkové procesory, jako je Microsoft Excel \cite{excel}. Ačkoliv jsou tyto nástroje flexibilní, při opakovaném zpracování velkého množství transakcí a tvorbě komplexních rozpočtů narážejí na své limity – proces je často zdlouhavý, manuální a náchylný k chybám.
 
 Impulsem pro vznik této práce byla reálná potřeba zefektivnit proces tvorby rozpočtu, který doposud probíhal právě touto manuální cestou. Vedoucí této práce, Mgr. Jiří Zacpal, Ph.D., využíval pro tvorbu rozpočtu systém založený na exportu transakcí z účetního programu a jejich následném zpracování v Excelu. Tento proces zahrnoval ruční analýzu nákladových středisek, manuální tvorbu účetní osnovy a pracné párování jednotlivých transakcí s rozpočtem.
 
@@ -78,7 +78,7 @@ následně manuální tvorbu rozpočtů (viz Obrázek \ref{fig:excel_showcase}).
 Cílem mé aplikace je zachovat flexibilitu Excelu (např. možnost vlastní hierarchie), ale odstranit jeho nedostatky pomocí pevné databázové struktury a validovaného uživatelského vstupu.
 
 \subsection{QuickBooks Accounting App}
-QuickBooks je komplexní účetní a finanční aplikace, která uživatelům umožňuje efektivně spravovat jejich finanční prostředky, včetně sledování příjmů a výdajů, vystavování faktur, správy mzdových nákladů a generování finančních reportů.
+QuickBooks \cite{quickbooks} je komplexní účetní a finanční aplikace, která uživatelům umožňuje efektivně spravovat jejich finanční prostředky, včetně sledování příjmů a výdajů, vystavování faktur, správy mzdových nákladů a generování finančních reportů.
 
 Díky intuitivnímu a vizuálně přitažlivému uspořádání dat QuickBooks umožňuje uživatelům monitorovat a analyzovat jejich finanční toky. Přehledné grafy a tabulky usnadňují porozumění komplexním finančním informacím, což je klíčové pro efektivní rozhodování. 
 
@@ -103,7 +103,7 @@ Aplikace také obsahuje funkci drag-and-drop pro přeuspořádání widgetů na 
 Obrázky \ref{fig:widget}, \ref{fig:widget_changed} demonstrují zmiňovanou funkcionalitu drag-and-drop. 
 
 \subsection{Wallet by BudgetBakers}
-Wallet by BudgetBakers je pokročilá aplikace pro správu osobních financí, která uživatelům poskytuje širokou škálu funkcí pro efektivní sledování a plánování jejich finančních prostředků. Umožňuje spravovat příjmy a výdaje, nastavovat finanční cíle, sledovat úspory a generovat detailní finanční reporty.
+Wallet by BudgetBakers \cite{wallet} je pokročilá aplikace pro správu osobních financí, která uživatelům poskytuje širokou škálu funkcí pro efektivní sledování a plánování jejich finančních prostředků. Umožňuje spravovat příjmy a výdaje, nastavovat finanční cíle, sledovat úspory a generovat detailní finanční reporty.
 
 Jednou z klíčových funkcí Wallet je porovnání předchozího a aktuálního období, což uživatelům umožňuje lépe pochopit jejich finanční chování a identifikovat oblasti pro zlepšení (viz Obrázek \ref{fig:report}). Do své aplikace bych rád implementoval podobný systém vizualizace plnění, který by uživatelům umožnil například srovnávat aktuální finanční situaci se stejným obdobím v minulém roce a podobně.
 
@@ -182,13 +182,13 @@ Uživatel musí mít plnou kontrolu nad jednotlivými záznamy.
 \section{Použité technologie}
 
 \subsection{Programovací jazyk a framework}
-Pro vývoj aplikace byl zvolen jazyk \textbf{Python} verze 3.14.0. Jeho hlavní výhodou je rozsáhlá standardní knihovna a silná podpora pro práci s daty.
-Pro tvorbu grafického uživatelského rozhraní (GUI) je využit framework \textbf{Tkinter}. Jedná se o standardní GUI toolkit pro Python, který je multiplatformní a poskytuje dostatečnou sadu ovládacích prvků (widgetů) pro desktopovou aplikaci tohoto typu, včetně pokročilých prvků jako \texttt{Treeview} pro hierarchická data.
+Pro vývoj aplikace byl zvolen jazyk \textbf{Python} verze 3.14.0 \cite{python}. Jeho hlavní výhodou je rozsáhlá standardní knihovna a silná podpora pro práci s daty.
+Pro tvorbu grafického uživatelského rozhraní (GUI) je využit framework \textbf{Tkinter} \cite{tkinter}. Jedná se o standardní GUI toolkit pro Python, který je multiplatformní a poskytuje dostatečnou sadu ovládacích prvků (widgetů) pro desktopovou aplikaci tohoto typu, včetně pokročilých prvků jako \texttt{Treeview} pro hierarchická data.
 
 \subsection{Databáze a zpracování dat}
 \begin{itemize}
-    \item \textbf{SQLite:} Pro ukládání dat je využita relační databáze SQLite. Její bezserverová architektura (data uložena v souboru) je ideální pro lokální desktopovou aplikaci, protože nevyžaduje složitou instalaci a konfiguraci na straně uživatele.
-    \item \textbf{Pandas:} Pro import a zpracování dat z Excelu je využita knihovna Pandas. Ta umožňuje efektivní načítání souborů .xlsx, čištění dat a jejich transformaci do formátu vhodného pro databázi.
+    \item \textbf{SQLite:} Pro ukládání dat je využita relační databáze SQLite \cite{sqlite}. Její bezserverová architektura (data uložena v souboru) je ideální pro lokální desktopovou aplikaci, protože nevyžaduje složitou instalaci a konfiguraci na straně uživatele.
+    \item \textbf{Pandas:} Pro import a zpracování dat z Excelu je využita knihovna Pandas \cite{pandas}. Ta umožňuje efektivní načítání souborů .xlsx, čištění dat a jejich transformaci do formátu vhodného pro databázi.
     \item \textbf{CSV:} Standardní modul Pythonu \texttt{csv} je využit pro export dat. Jelikož exportujeme pouze jednoduchý přehled rozpočtu, není potřeba využívat složitější knihovny.
 \end{itemize}
 
@@ -196,7 +196,7 @@ Pro tvorbu grafického uživatelského rozhraní (GUI) je využit framework \tex
 Tato kapitola poskytuje technický pohled na implementaci aplikace. Je určena pro vývojáře, kteří chtějí pochopit vnitřní fungování systému, provádět úpravy nebo rozšiřovat jeho funkcionalitu.
 
 \subsection{Architektura aplikace}
-Aplikace je navržena s důrazem na modularitu a oddělení odpovědností (Separation of Concerns). Ačkoliv striktně nedodržuje vzor MVC (Model-View-Controller) v jeho čisté podobě, využívá jeho principy pro organizaci kódu.
+Aplikace je navržena s důrazem na modularitu a oddělení odpovědností (Separation of Concerns). Ačkoliv striktně nedodržuje vzor MVC (Model-View-Controller) \cite{mvc} v jeho čisté podobě, využívá jeho principy pro organizaci kódu.
 
 \begin{itemize}
     \item \textbf{Model (Data):} Datová vrstva je reprezentována SQLite databází a sadou modulů v adresáři \texttt{app/database/}. Tyto moduly zapouzdřují veškeré SQL dotazy a logiku pro manipulaci s daty.
@@ -788,6 +788,22 @@ Do budoucna se nabízí také rozšíření analytických funkcí. Aplikaci by b
 Vytvořená aplikace však již v současné podobě představuje funkční a efektivní nástroj, který výrazně zrychluje a zpřehledňuje proces rozpočtování.
 \end{kiconclusions}
 
+\begin{kiconclusions}[english]
+The goal of this bachelor thesis was to design and implement a desktop application for budget creation and management, which would replace the existing manual process based on the Microsoft Excel spreadsheet processor.
+
+Within the thesis, an analysis of existing solutions was performed, which confirmed that although tools like Excel are highly flexible, they lack the necessary automation and data validation. Based on these findings, an application was designed in the Python language using the Tkinter library for the graphical interface and the SQLite database for data storage.
+
+The resulting application successfully fulfills the set goals. It allows importing transactions from Excel or manually, automatically categorizing them, and based on that creating an accounting chart of accounts, which simplifies budget compilation.
+
+The biggest challenge in the design was finding a balance between automation and flexibility. A system was successfully created that performs most routine tasks automatically (e.g., transaction type detection, category pairing), but at the same time allows the user to intervene at any time, modify the chart structure, or manually reassign items.
+
+The chosen Tkinter technology proved suitable for rapid desktop application development; however, it encountered its limits when implementing more complex visualizations and modern UI elements. For future application development, it would be appropriate to consider switching to a more modern framework or web interface, which would allow easier access from multiple devices and a more modern user interface design.
+
+In the future, there is also an opportunity to expand analytical functions. It would be appropriate to enrich the application with graphs for better data visualization and implement more detailed filtering options for deeper transaction analysis. A significant step forward would also be support for creating custom profiles with the ability to define a different database structure, which would significantly increase the tool's universality.
+
+However, the created application in its current form already represents a functional and effective tool that significantly speeds up and clarifies the budgeting process.
+\end{kiconclusions}
+
 %% Přílohy
 \appendix
 
@@ -813,5 +829,6 @@ Vytvořená aplikace však již v současné podobě představuje funkční a ef
 \item[\texttt{data/}] \hfill \\
     Adresář obsahující ukázková data, která slouží k otestování funkcí aplikace.
 \end{description}
-
+%% Sazba povinné bibliografie
+\printbibliography
 \end{document}

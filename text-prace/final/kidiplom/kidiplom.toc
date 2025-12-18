@@ -47,4 +47,8 @@
 \contentsline {section}{Z\'av\v er}{44}{section*.50}%
 \babel@toc {czech}{}\relax 
 \babel@toc {czech}{}\relax 
-\contentsline {section}{\numberline {A}Obsah elektronických dat}{45}{appendix.A}%
+\contentsline {section}{Conclusions}{45}{section*.52}%
+\babel@toc {english}{}\relax 
+\babel@toc {czech}{}\relax 
+\contentsline {section}{\numberline {A}Obsah elektronických dat}{46}{appendix.A}%
+\contentsline {section}{Literatura}{47}{section*.54}%
