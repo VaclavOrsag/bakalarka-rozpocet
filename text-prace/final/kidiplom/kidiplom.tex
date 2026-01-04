@@ -6,7 +6,7 @@ language=czech,
 font=sans,
 figures=true,
 tables=false,
-sourcecodes,
+sourcecodes=false,
 glossaries,
 index
 ]{kidiplom}
@@ -23,7 +23,6 @@ index
 \annotation{Cílem této bakalářské práce je návrh a implementace desktopové aplikace pro efektivní tvorbu a správu rozpočtu, která slouží jako náhrada za manuální zpracování dat v Excelu. Aplikace, vyvinutá v jazyce Python s využitím knihovny Tkinter a databáze SQLite, se zaměřuje na automatizaci zpracování transakcí importovaných primárně z formátu MS Excel. Klíčovou funkcionalitou je automatická kategorizace položek, tvorba hierarchické účetní osnovy a sledování plnění rozpočtu v reálném čase metodou Year-To-Date. Součástí řešení je interaktivní dashboard s vizuální indikací stavu rozpočtu a integrovaný průvodce, který uživatele intuitivně provází procesem nastavení aplikace.}
 
 \annotation[english]{The aim of this bachelor's thesis is the design and implementation of a desktop application for effective budget creation and management, serving as a replacement for manual data processing in Excel. Developed in Python using the Tkinter library and SQLite database, the application focuses on automating the processing of transactions imported primarily from MS Excel format. Key features include automatic item categorization, the creation of a hierarchical accounting framework, and real-time budget tracking using the Year-To-Date method. The solution includes an interactive dashboard with visual budget status indicators and an integrated tutorial that intuitively guides the user through the application setup process.}
-%% Klíčová slova práce, včetně anglických. Oddělená (obvykle) středníkem.
 \keywords{tvorba rozpočtu; sledování rozpočtu; desktopová aplikace; účetní osnova; import/export dat; Python; Tkinter; SQLite; Pandas}
 \keywords[english]{budget creation; budget monitoring; desktop application; accounting framework; data import/export; Python; Tkinter; SQLite; Pandas}
 
@@ -314,7 +313,7 @@ Díky tomuto přístupu je zobrazení Dashboardu prakticky okamžité, bez ohled
 
 \section{Uživatelská příručka}
 
-Tato kapitola slouží jako průvodce pro uživatele aplikace. Kapitoly postupně vysvětlují průchod aplikací a průchod tzv. "tutoriálu", který uživatele provede funkcemi aplikace. 
+Tato kapitola slouží jako průvodce pro uživatele aplikace. Kapitoly postupně vysvětlují průchod aplikací a průchod tzv. \textbf{"tutoriálu"}, který uživatele provede funkcemi aplikace. 
 
 Aplikace je navržena tak, 
 aby uživatele co nejvíce vedla a usnadnila mu práci s ní. Pro práci s ní příručka není nezbytná, ale může pomoci s rychlejším osvojením funkcí.
@@ -330,9 +329,9 @@ Zde je možné vybrat si mezi vytvořením nového rozpočtu nebo načtením exi
     \label{fig:welcome_window}
 \end{figure}
 
-Pokud profil máme zvolíme možnost : Ano, vybrat  ze seznamu a zobrazí se nám okno (viz Obrázek \ref{fig:profiles}). 
-Zde si můžeme zvolit svůj existující profil ze seznamu a kliknout na tlačítko "otevřít vybraný", tím profil načteme a přesuneme se do hlavního okna aplikace (viz Obrázek \ref{fig:main_window_step_1}).
-Případně se můžeme vrátit zpět na uvítací obrazovku kliknutím na tlačítko "Zpět".
+Pokud profil máme zvolíme možnost : \textbf{Ano, vybrat  ze seznamu} a zobrazí se nám okno (viz Obrázek \ref{fig:profiles}). 
+Zde si můžeme zvolit svůj existující profil ze seznamu a kliknout na tlačítko \textbf{"Otevřít vybraný"}, tím profil načteme a přesuneme se do hlavního okna aplikace (viz Obrázek \ref{fig:main_window_step_1}).
+Případně se můžeme vrátit zpět na uvítací obrazovku kliknutím na tlačítko \textbf{"Zpět"}.
 
 \begin{figure}[H]
     \centering
@@ -341,8 +340,8 @@ Případně se můžeme vrátit zpět na uvítací obrazovku kliknutím na tlač
     \label{fig:profiles}
 \end{figure}
 
-Pokud profil nemáme zvolíme možnost : Ne, vytvořit nový a zobrazí se nám okno (viz Obrázek \ref{fig:create_new}). 
-Zde je možné pojmenovat si svůj profil a kliknout na tlačítko uložit, tím profil vytvoříme a přesuneme se do hlavního okna aplikace (viz Obrázek \ref{fig:main_window_step_1}).
+Pokud profil nemáme zvolíme možnost : \textbf{Ne, vytvořit nový} a zobrazí se nám okno (viz Obrázek \ref{fig:create_new}). 
+Zde je možné pojmenovat si svůj profil a kliknout na tlačítko \textbf{"Vytvořit"}, tím profil vytvoříme a přesuneme se do hlavního okna aplikace (viz Obrázek \ref{fig:main_window_step_1}).
 
 \begin{figure}[H]
     \centering
@@ -366,10 +365,10 @@ Zde je možné pojmenovat si svůj profil a kliknout na tlačítko uložit, tím
 Po vytvoření nového profilu se uživateli zobrazí hlavní okno aplikace (viz Obrázek \ref{fig:main_window_step_1}). Zde má zatím uživatel většinu funkcionalit uzamčených. 
 Pro odemčení funkcí je potřeba projít "tutoriálem", který se postupně vždy aktualizuje v záložce Home. (Aktuálně jediné viditelné záložce.)
 
-Pro importování transakcí je potřeba mít připravený excelový soubor, který obsahuje list s názvem "Zdroj". Tento list musí obsahovat sloupce: Datum, Doklad, Zdroj, Firma, Text, MD, D, částka, Cin, číslo, Co, Kdo, Středisko.
-Po kliknutí na tlačítko "Importovat transakce z Excelu" se zobrazí dialogové okno (viz Obrázek \ref{fig:choose_window}) pro výběr souboru. 
-Uživatel vybere svůj excelový soubor a klikne na tlačítko "Otevřít". Aplikace si načte data z vybraného souboru a zobrazí potvrzení importu (viz Obrázek \ref{fig:import_confirm}).
-Zároveň se aktualizuje Home záložka s informací o úspěšném importu a dalším krokem v tutoriálu a zviditelní se nám nové záložky: Transakce a účetní osnova. (viz Obrázek \ref{fig:main_window_step_2})
+Pro importování transakcí je potřeba mít připravený excelový soubor, který obsahuje list s názvem \textbf{"Zdroj"}. Tento list musí obsahovat sloupce: Datum, Doklad, Zdroj, Firma, Text, MD, D, částka, Cin, číslo, Co, Kdo, Středisko.
+Po kliknutí na tlačítko \textbf{"Importovat transakce z Excelu"} se zobrazí dialogové okno (viz Obrázek \ref{fig:choose_window}) pro výběr souboru. 
+Uživatel vybere svůj excelový soubor a klikne na tlačítko \textbf{"Otevřít"}. Aplikace si načte data z vybraného souboru a zobrazí potvrzení importu (viz Obrázek \ref{fig:import_confirm}).
+Zároveň se aktualizuje Home záložka s informací o úspěšném importu a dalším krokem v tutoriálu a zviditelní se nám nové záložky: \textbf{Transakce} a \textbf{Účetní osnova}. (viz Obrázek \ref{fig:main_window_step_2})
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{choose_window.png}
@@ -386,7 +385,7 @@ Zároveň se aktualizuje Home záložka s informací o úspěšném importu a da
 
 \subsection{Tvorba osnovy}
 Po úspěšném importu transakcí se uživateli v Home záložce zobrazí další krok tutoriálu (viz Obrázek \ref{fig:main_window_step_2}).
-Pro vytvoření osnovy je potřeba kliknout na tlačítko \textbf{"Přejít na tvorbu osnovy"} (Případně na záložku: \textbf{účetní osnova}). Tím se uživatel přesune do záložky \textbf{účetní osnova} (viz Obrázek \ref{fig:chart_tab}).
+Pro vytvoření osnovy je potřeba kliknout na tlačítko \textbf{"Přejít na tvorbu osnovy"} (Případně na záložku: \textbf{Účetní osnova}). Tím se uživatel přesune do záložky \textbf{Účetní osnova} (viz Obrázek \ref{fig:chart_tab}).
 
 \begin{figure}[H]
     \centering
@@ -513,7 +512,7 @@ a navrhne nám import aktuálních dat, které zpřístupní plnění a umožní
 \end{figure}
 
 Data můžeme importovat kliknutím na Ano tím se zobrazí dialogové okno pro výběr dat k importu (viz Obrázek \ref{fig:import_current}). Pro import je potřeba mít připravený excelový soubor, 
-který obsahuje list s názvem \textbf{Zdroj}. Tento list musí obsahovat sloupce: \textbf{Datum, Doklad, Zdroj, Firma, Text, MD, D, částka, Cin, číslo, Co, Kdo, Středisko}.
+který obsahuje list s názvem \textbf{Zdroj}. Tento list musí obsahovat sloupce: Datum, Doklad, Zdroj, Firma, Text, MD, D, Částka, Cin, Číslo, Co, Kdo, Středisko.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{import_current.png}
@@ -559,7 +558,7 @@ ale uživatel může tuto hierarchii měnit podle svých potřeb (viz sekce Pres
     \caption{Tab Analýza}
     \label{fig:analysis_tab}
 \end{figure}
-Na obrázku \ref{fig:analysis_tab} vidíme 2 hlavní sloupce - \textbf{řádek} a \textbf{Celkem}, kde řádek zobrazuje naši nastavenou hierarchii a celkem zobrazuje součet všech transakcí odpovídající danému řádku. 
+Na obrázku \ref{fig:analysis_tab} vidíme 2 hlavní sloupce - \textbf{Řádek} a \textbf{Celkem}, kde řádek zobrazuje naši nastavenou hierarchii a celkem zobrazuje součet všech transakcí odpovídající danému řádku. 
 Hierarchii můžeme rozbalovat a sbalovat kliknutím na ikony + a - vlevo od řádku (viz Obrázek \ref{fig:analysis_expand}). Můžeme tak docílit detailního pohledu na naše transakce.
 \begin{figure}[H]
     \centering
@@ -572,7 +571,7 @@ Presety nám umožňují rychle měnit hierarchii zobrazenou v záložce \textbf
 předdefinovanými presety nebo zvolit vlastní preset kliknutím na \textbf{Vlastní}.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{presets_menu.png}
+    \includegraphics[width=0.5\textwidth]{presets_menu.png}
     \caption{Nabídka presetů}
     \label{fig:presets_menu}
 \end{figure}
@@ -670,7 +669,7 @@ chybí pouze položka \textbf{Datum}, aplikace s transakcí pracuje, ale nezahrn
 
 Při bližším pohledu si můžeme všimnout jednotlivých sloupců: \textbf{Datum}, \textbf{Doklad}, \textbf{Firma}, \textbf{Text}, \textbf{Co}, \textbf{Částka}.
 Zobrazujeme pouze tyto sloupce z důvodu přehlednosti, ale aplikace interně uchovává všechny informace transakcí. Pokud chceme zobrazit více informací o dané transakci, 
-můžeme na ni kliknout a poté kliknout na tlačítko \textbf{Upravit}, tím se nám zobrazí okno s kompletními informacemi o dané transakci (viz Obrázek \ref{fig:edit_transaction_window}).Tohle tlačítko slouží i 
+můžeme na ni kliknout a poté kliknout na tlačítko \textbf{Upravit}, tím se nám zobrazí okno s kompletními informacemi o dané transakci (viz Obrázek \ref{fig:edit_transaction_window}). Tohle tlačítko slouží i 
 pro editaci transakce (viz sekce Editace transakcí).
 \subsubsection{Filtrování transakcí}
 Aplikace umožňuje filtrovat transakce (viz Obrázek \ref{fig:filters}) podle částky (\textbf{částka >=} a \textbf{částka <=}), podle data (\textbf{Datum od} a \textbf{Datum do}) a podle kategorie (\textbf{Co} lze vybrat z rolldown menu

@@ -456,10 +456,6 @@ INPUT .\kidiplom.lof
 INPUT .\kidiplom.lof
 INPUT kidiplom.lof
 OUTPUT kidiplom.lof
-INPUT .\kidiplom.lol
-INPUT .\kidiplom.lol
-INPUT kidiplom.lol
-OUTPUT kidiplom.lol
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonam.tfm
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\tex\latex\iwona\ts1iwonal.fd
 INPUT C:\Users\vacla\AppData\Local\Programs\MiKTeX\tex\latex\iwona\ts1iwonal.fd

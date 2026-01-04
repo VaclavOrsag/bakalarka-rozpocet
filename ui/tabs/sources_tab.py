@@ -224,6 +224,8 @@ class SourcesTab:
             
             # Detekce neúplných dat
             is_incomplete = (
+                not item[1] or               # Chybí datum
+                str(item[1]).strip() == "" or  # Datum je prázdné
                 not item[11] or               # Chybí "Co"
                 str(item[11]).strip() == "" or  # "Co" je prázdné
                 item[8] == 0                  # Částka je nula

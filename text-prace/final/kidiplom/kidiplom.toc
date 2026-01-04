@@ -44,11 +44,11 @@
 \contentsline {subsubsection}{\numberline {6.7.4}Mazání transakcí}{41}{subsubsection.6.7.4}%
 \contentsline {subsection}{\numberline {6.8}Export dat}{42}{subsection.6.8}%
 \contentsline {subsubsection}{\numberline {6.8.1}Export rozpočtu}{42}{subsubsection.6.8.1}%
-\contentsline {section}{Z\'av\v er}{44}{section*.50}%
+\contentsline {section}{Z\'av\v er}{44}{section*.49}%
 \babel@toc {czech}{}\relax 
 \babel@toc {czech}{}\relax 
-\contentsline {section}{Conclusions}{45}{section*.52}%
+\contentsline {section}{Conclusions}{45}{section*.51}%
 \babel@toc {english}{}\relax 
 \babel@toc {czech}{}\relax 
 \contentsline {section}{\numberline {A}Obsah elektronických dat}{46}{appendix.A}%
-\contentsline {section}{Literatura}{47}{section*.54}%
+\contentsline {section}{Literatura}{47}{section*.53}%
